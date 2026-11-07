@@ -1,0 +1,39 @@
+:name: Launchpad Pro MK3 — interactive
+:description: Runs a firmware ELF with the M0 model's front-panel socket on TCP 3456; start renode with -P 1234 for the monitor port.
+# usage: renode --disable-gui -P 1234 -e '$elf=@/path/fw.elf; include @run.resc'
+#        then: python3 ../m0/panel_bridge.py and open http://localhost:8765
+
+$elf?=@../corefw/target/thumbv7em-none-eabihf/release/core
+# instructions per virtual second, in millions (216 = 216 MHz at 1 IPC).
+# Boot runs at $bootmips (boot only busy-waits on timeouts); the M0 model raises it to $runmips
+# once its button stream is up.
+$bootmips?=50
+$runmips?=216
+
+include @STM32_TimerLP.cs
+include @STM32DMA_LP.cs
+include @LPPM0.cs
+include @LPPOTGFS.cs
+include @LPPDIN.cs
+include @LPPSpiFlash.cs
+using sysbus
+mach create "lppmk3"
+machine LoadPlatformDescription @lppmk3.repl
+
+sysbus LoadELF $elf
+cpu PerformanceInMips $bootmips
+cpu VectorTableOffset 0x08010000
+cpu SP `sysbus ReadDoubleWord 0x08010000`
+cpu PC `sysbus ReadDoubleWord 0x08010004`
+
+m0 StreamUpMips $runmips
+m0 StartPanel 3456
+usbOtgFs StartBridge 3457
+din StartBridge 3458
+$flash?=$ORIGIN/flash.bin
+spi1.spiFlash UseFile $flash
+
+logLevel 3
+logLevel 2 uart5
+logLevel 1 usbOtgFs
+start

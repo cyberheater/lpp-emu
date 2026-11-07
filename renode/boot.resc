@@ -1,0 +1,30 @@
+:name: Launchpad Pro MK3 — boot test
+:description: Loads a firmware ELF at 0x08010000 and starts it as the Novation bootloader would.
+# usage: renode --console --disable-gui -e "$elf=@/path/to/fw.elf; $seconds=\"2\"; include @boot.resc"
+
+$elf?=@../corefw/target/thumbv7em-none-eabihf/release/core
+$seconds?="2"
+
+include @STM32_TimerLP.cs
+include @STM32DMA_LP.cs
+using sysbus
+mach create "lppmk3"
+machine LoadPlatformDescription @lppmk3.repl
+
+sysbus LoadELF $elf
+# Bootloader hands over with VTOR pointing at the app vector table.
+cpu VectorTableOffset 0x08010000
+cpu SP `sysbus ReadDoubleWord 0x08010000`
+cpu PC `sysbus ReadDoubleWord 0x08010004`
+
+logLevel 2
+logLevel 1 sysbus
+sysbus LogAllPeripheralsAccess false
+showAnalyzer uart5 Antmicro.Renode.Analyzers.LoggingUartAnalyzer
+
+emulation RunFor $seconds
+echo "=== stopped after virtual seconds:"
+echo $seconds
+cpu PC
+sysbus FindSymbolAt `cpu PC`
+quit

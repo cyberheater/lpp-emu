@@ -1,0 +1,58 @@
+decoded 458752 bytes, version 000999, crc OK
+=== seqtest.py
+sequencer opened: True  track-1 button colour (252, 32, 32)
+step 1 lit with track-2 view? (212, 104, 0)  track-2 button (252, 128, 0)
+DIN 1: 95 clocks, note-ons [60, 60, 60, 60], gaps(s) [1.039, 1.038, 1.105], start/stop ['0xfa', '0xfc']
+DIN 2: 95 clocks, note-ons [64, 64, 64, 64], gaps(s) [1.042, 1.082, 1.071], start/stop ['0xfa', '0xfc']
+note-off status bytes seen: 8
+USB packets (non-clock): ['1ffa0000', '1ffc0000']  clock packets 95
+=== bgtest.py
+playing in sequencer, DIN 1 notes: [60, 60, 60]
+in note mode, Sequencer button: (0, 192, 0)
+in note mode, DIN 1 notes kept coming: [60, 60, 60, 60]
+in note mode, pad sent USB notes: ['1990337f', '19903300']
+back in sequencer, playhead at step(s): [10]  Play LED: (16, 96, 16)
+after stop, DIN 1 notes: [60]  (stop sent)
+=== exttest.py
+Play LED while following external clock (cyan expected): (16, 96, 96)
+DIN 1 note-ons: [60, 60, 60, 60] (expect 4 x 60)
+clock passed through: DIN 1 96 DIN 2 96 (expect 96 each)  start/stop on DIN 1: ['0xfa', '0xfc']
+clock echoed to USB: 0 (expect 0)
+Play LED after clock stopped (back to internal, grey): (16, 16, 16)
+=== dinintest.py
+Play LED while following external clock (cyan expected): (16, 96, 96)
+DIN 1 note-ons: [60, 60, 60, 60] (expect 4 x 60)
+clock passed through: DIN 1 96 DIN 2 96 (expect 96 each)  start/stop on DIN 1: ['0xfa', '0xfc']
+clock sent to USB (expect 0): 0 (expect 0)
+Play LED after clock stopped (back to internal, grey): (16, 16, 16)
+=== veltest.py
+velocity bar while step 1 held (top..bottom): [(8, 8, 8), (8, 8, 8), (252, 32, 32)] ...
+gate bar after setting 2/8: [(252, 252, 252), (252, 252, 252), (16, 16, 16)] ...
+step LEDs 1/5/9: (156, 20, 20) (212, 24, 24) (24, 24, 24) (dimmer, full, unlit)
+events (pulse, kind, note, vel): [(1, 'on', 60, 64), (2, 'off', 60, 0), (25, 'on', 60, 100), (27, 'off', 60, 0)]
+note at pulse 1: velocity 64, gate 1 pulses
+note at pulse 25: velocity 100, gate 2 pulses
+=== swingtest.py
+transpose +2: notes [62, 62] (expect 62, 62)  pad LED (252, 224, 0)
+swing 50 %: note-on pulses [1, 7] (second at 7 = straight)
+swing 75 %: note-on pulses [1, 9] (second later, ~9-10)  bar LED pad 26: (16, 8, 0) -> (252, 160, 0)
+probability 50 % on 8 steps x 4 loops: 15 of 32 played (expect roughly 16)
+probability bar (top..bottom): [(8, 8, 8), (8, 8, 8), (8, 8, 8), (8, 8, 8), (0, 224, 252), (0, 224, 252), (0, 224, 252), (0, 224, 252)]
+=== flashtest.py program
+Projects LED on entry: (252, 128, 0) (green = saved / matches flash, amber = unsaved, off = no flash)
+Projects LED after edits: (252, 128, 0)
+Projects LED right after save: (252, 252, 252)
+Projects LED after save: (0, 192, 0)
+slot row while Projects held: [(252, 252, 252), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)]
+=== flashtest.py verify (after restart)
+Projects LED on entry: (0, 192, 0) (green = saved / matches flash, amber = unsaved, off = no flash)
+step 1/5 LEDs (track colour = loaded): (212, 24, 24) (212, 24, 24)  step 2: (8, 8, 8)
+DIN 1 note-ons after reload: [62, 62, 62, 62]
+=== pattest.py program
+pattern lights (A..D): {'A': (252, 32, 32), 'B': (108, 12, 12), 'C': (28, 4, 4), 'D': (4, 4, 4)}
+32 steps, DIN 1 notes: [60, 64] (expect 60, 64)
+Projects LED after save: (0, 192, 0)
+=== pattest.py verify (after restart)
+Projects LED on entry: (0, 192, 0) (green = loaded)
+pattern lights (A..D): {'A': (252, 32, 32), 'B': (108, 12, 12), 'C': (28, 4, 4), 'D': (4, 4, 4)}
+32 steps, DIN 1 notes: [60, 64] (expect 60, 64)

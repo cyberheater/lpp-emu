@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Launchpad Pro MK3 Emulator</title>
+<style>
+  :root {
+    --chassis: #111214;
+    --chassis-edge: #1b1c1f;
+    --btn: #2a2b2e;
+    --btn-top: #333438;
+    --pad-off: #232427;
+    --label: #e8e8e8;
+    --sub: #9a9a9a;
+    --gap: 1.1%;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #050506; color: var(--label);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+  body { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px; }
+  .device {
+    width: min(92vmin, 900px); aspect-ratio: 1 / 1; background: var(--chassis);
+    border-radius: 2.2%; padding: 3.2%;
+    box-shadow: inset 0 0 0 2px var(--chassis-edge), 0 20px 60px rgba(0,0,0,.6);
+    display: grid;
+    grid-template-columns: 1fr repeat(8, 1fr) 1fr;
+    grid-template-rows: 0.95fr repeat(8, 1fr) 0.42fr 0.72fr;
+    gap: var(--gap);
+    user-select: none; -webkit-user-select: none;
+  }
+  .ctl {
+    position: relative; border-radius: 6%; cursor: pointer; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center; line-height: 1.15;
+    background: linear-gradient(180deg, var(--btn-top), var(--btn));
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,.45), 0 1px 0 rgba(255,255,255,.04);
+    font-size: clamp(6px, 1.25vmin, 12px); color: var(--label);
+    transition: background .04s, box-shadow .04s, transform .04s;
+  }
+  .ctl .main { font-weight: 500; }
+  .ctl .sub { font-size: .78em; color: var(--sub); margin-top: .35em; }
+  .ctl .glyph { font-size: 1.9em; }
+  .ctl.down { transform: translateY(1px) scale(.97); }
+  .ctl.lit { color: #fff; }
+  .ctl.lit .sub { color: rgba(255,255,255,.75); }
+
+  .pad { border-radius: 7%; background: var(--pad-off);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.03), inset 0 -3px 6px rgba(0,0,0,.35); }
+  .pad.lit { box-shadow: 0 0 14px -2px var(--glow), inset 0 0 18px rgba(255,255,255,.18); }
+  /* centre diamond: inner corners of the four middle pads are cut */
+  .pad.c44 { clip-path: polygon(0 0, 100% 0, 100% 78%, 78% 100%, 0 100%); }
+  .pad.c45 { clip-path: polygon(0 0, 100% 0, 100% 100%, 22% 100%, 0 78%); }
+  .pad.c54 { clip-path: polygon(0 0, 78% 0, 100% 22%, 100% 100%, 0 100%); }
+  .pad.c55 { clip-path: polygon(22% 0, 100% 0, 100% 100%, 0 100%, 0 22%); }
+
+  .small { transform: scale(.72); }
+  .track { border-radius: 10%; }
+  .track .bar { width: 46%; height: 9%; min-height: 2px; border-radius: 2px; background: #cfcfcf; opacity: .55; }
+  .track.lit .bar { opacity: 1; background: var(--glow); box-shadow: 0 0 8px var(--glow); }
+  .right .main { font-size: 1.7em; font-weight: 300; }
+  .logo { background: #f2f2f2; border-radius: 6%; cursor: default; }
+  .logo .mark { width: 46%; aspect-ratio: 1; background: #111; border-radius: 10%; transform: rotate(45deg); }
+  .logo.lit { background: var(--led); }
+  .setup { align-self: end; height: 74%; transform: scale(.78); }
+  .rec .glyph { color: #ff4d4d; }
+  .rec .sub { color: #ff6b6b; }
+
+  .status { margin-top: 12px; font-size: 12px; color: #8a8a8a; display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+  .status b { color: #cfcfcf; font-weight: 500; }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #a33; margin-right: 6px; vertical-align: 1px; }
+  .dot.on { background: #3c3; }
+  .hint { font-size: 11px; color: #6a6a6a; margin-top: 4px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="device" id="device"></div>
+<div class="status">
+  <span><span class="dot" id="linkdot"></span><b id="linktxt">Renode: waiting</b></span>
+  <span>frames <b id="frames">0</b></span>
+  <span>LED commits <b id="commits">0</b></span>
+  <span>pings <b id="pings">0</b></span>
+  <span>ROM probes <b id="rom">0</b></span>
+</div>
+<div class="hint">Click = hard press · Option-click = soft press · Shift-click = latch (click again to release)</div>
+<script>
+// Programmer-mode (XY) numbering used by CoreFW: grid 11..88, top row 90..98, left col 80..10,
+// right col 89..19, track-select bars 101..108, bottom row 1..8, Setup 0.
+const TOP = ['Shift','◀','▶','Session','Note','Chord','Custom','Sequencer',['Projects','Save']];
+const LEFT = { 80:['▲',''], 70:['▼',''], 60:['Clear',''], 50:['Duplicate','Double'], 40:['Quantise','Record Quantise'],
+               30:['Fixed Length',''], 20:['▷',''], 10:['○','Capture MIDI'] };
+const RIGHT = { 89:'Patterns', 79:'Steps', 69:'Pattern Settings', 59:'Velocity', 49:'Probability',
+                39:'Mutation', 29:'Micro-Step', 19:'Print to Clip' };
+const BOTTOM = [['Record Arm','Undo'],['Mute','Redo'],['Solo','Click'],['Volume','•'],['Pan','••'],
+                ['Sends','Tap'],['Device','Tempo'],['Stop Clip','Swing']];
+
+const dev = document.getElementById('device');
+const els = {};
+function place(el, col, row) { el.style.gridColumn = col; el.style.gridRow = row; dev.appendChild(el); }
+function ctl(id, cls, html) {
+  const el = document.createElement('div');
+  el.className = 'ctl ' + cls; el.dataset.id = id; el.innerHTML = html || '';
+  els[id] = el; return el;
+}
+const lbl = (m, s, glyph) => `<span class="${glyph ? 'glyph' : 'main'}">${m}</span>` + (s ? `<span class="sub">${s}</span>` : '');
+const isGlyph = s => /^[▲▼◀▶▷○•]+$/.test(s);
+
+// top row
+TOP.forEach((t, i) => {
+  const [m, s] = Array.isArray(t) ? t : [t, ''];
+  const el = ctl(90 + i, i === 0 ? 'small' : '', lbl(m, s, isGlyph(m)));
+  place(el, i + 1, 1);
+});
+const logo = document.createElement('div');
+logo.className = 'ctl logo'; logo.innerHTML = '<div class="mark"></div>'; els[99] = logo;
+place(logo, 10, 1);
+
+// grid + side columns (row 8 at top)
+for (let y = 8; y >= 1; y--) {
+  const r = 10 - y;
+  const [lm, ls] = LEFT[y * 10];
+  place(ctl(y * 10, y === 1 ? 'rec' : '', lbl(lm, ls, isGlyph(lm))), 1, r);
+  for (let x = 1; x <= 8; x++) {
+    const id = y * 10 + x;
+    place(ctl(id, 'pad c' + id), x + 1, r);
+  }
+  place(ctl(y * 10 + 9, 'right', `<span class="main">&gt;</span><span class="sub">${RIGHT[y * 10 + 9]}</span>`), 10, r);
+}
+// track select bars and bottom row
+for (let x = 1; x <= 8; x++) {
+  place(ctl(100 + x, 'track', '<div class="bar"></div>'), x + 1, 10);
+  const [m, s] = BOTTOM[x - 1];
+  place(ctl(x, '', lbl(m, s, false)), x + 1, 11);
+}
+const setup = ctl(0, 'setup small', lbl('Setup', ''));
+setup.style.gridRow = '10 / span 2'; setup.style.gridColumn = 1; dev.appendChild(setup);
+
+// ---- LEDs ----
+let maxSeen = 0;
+function paint(id, rgb) {
+  const el = els[id]; if (!el) return;
+  const [r, g, b] = rgb; maxSeen = Math.max(maxSeen, r, g, b);
+  const k = maxSeen <= 127 ? 2 : 1;                 // firmware may send 7-bit colour
+  const c = [r, g, b].map(v => Math.min(255, Math.round(v * k)));
+  const on = c[0] + c[1] + c[2] > 6;
+  const css = `rgb(${c.join(',')})`;
+  el.classList.toggle('lit', on);
+  el.style.setProperty('--glow', css);
+  el.style.setProperty('--led', css);
+  if (el.classList.contains('pad')) el.style.background = on ? css : '';
+  else if (el.classList.contains('logo')) el.style.background = on ? css : '';
+  else if (!el.classList.contains('track')) {
+    el.style.background = on ? `linear-gradient(180deg, ${css}, color-mix(in srgb, ${css} 70%, #000))` : '';
+    el.style.color = on && (c[0] * .3 + c[1] * .59 + c[2] * .11) > 170 ? '#111' : '';
+  }
+}
+
+// ---- input ----
+const latched = new Set();
+function send(id, down, pressure) {
+  fetch('/press', { method: 'POST', body: JSON.stringify({ id, down, pressure }) }).catch(() => {});
+}
+dev.addEventListener('pointerdown', e => {
+  const el = e.target.closest('.ctl'); if (!el || el.classList.contains('logo')) return;
+  const id = +el.dataset.id; e.preventDefault();
+  if (e.shiftKey) {
+    const on = !latched.has(id);
+    on ? latched.add(id) : latched.delete(id);
+    el.classList.toggle('down', on); send(id, on, 0x0B00); return;
+  }
+  el.classList.add('down'); el.setPointerCapture(e.pointerId);
+  send(id, true, e.altKey ? 0x0200 : 0x0B00);
+  const up = () => { el.classList.remove('down'); send(id, false, 0);
+                     el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up); };
+  el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+});
+
+// ---- events from the model ----
+const $ = id => document.getElementById(id);
+function connect() {
+  const es = new EventSource('/events');
+  es.onmessage = ev => {
+    const m = JSON.parse(ev.data);
+    if (m.leds) for (const [id, rgb] of Object.entries(m.leds)) paint(+id, rgb);
+    if ('link' in m) { $('linkdot').classList.toggle('on', m.link); $('linktxt').textContent = m.link ? 'Renode: connected' : 'Renode: waiting'; }
+    if (m.stats) {
+      $('frames').textContent = m.stats.frames; $('commits').textContent = m.stats.led_commits;
+      $('pings').textContent = m.stats.pings; $('rom').textContent = m.stats.rom;
+      if (m.stats.frames) { $('linkdot').classList.add('on'); $('linktxt').textContent = 'Renode: connected'; }
+    }
+  };
+  es.onerror = () => { es.close(); setTimeout(connect, 1000); };
+}
+connect();
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+# CoreFW is its own git repository (anthonyhfm/launchpad-core-firmware; our work is on branch lppmk3-sequencer)
+/corefw/
+# Renode download (installed at ~/Applications/Renode.app)
+/tools/
+# Build products
+/app/build/
+/app/.build/
+.swiftpm/
+__pycache__/
+# Emulator run output and state
+*.log
+renode/flash.bin
+renode/_*
+renode/boot1.txt
+renode/stock1.txt
+.DS_Store

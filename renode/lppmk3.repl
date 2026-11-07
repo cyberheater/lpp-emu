@@ -1,0 +1,100 @@
+// Launchpad Pro MK3 platform (STM32F745VE) — extends Renode's STM32F746 model.
+// App image lives at 0x08010000 (Novation bootloader occupies 0x08000000-0x0800FFFF).
+using "/Users/johnsaunders/Documents/SWMac/lpp-emu/renode/stm32f745_base.repl"
+
+// F745VE: 512 KB flash, 320 KB SRAM (DTCM+SRAM1+SRAM2 contiguous from 0x20000000)
+flash:
+    size: 0x80000
+
+sram:
+    size: 0x50000
+
+// 216 MHz Cortex-M7 at ~1 instruction/cycle (Renode's F746 default of 462 assumes peak dual-issue).
+// Fewer instructions per virtual ms means busy-polling loops cost less host time.
+cpu:
+    PerformanceInMips: 216
+
+// Real clock tree (CoreFW mod.rs): HSE 24 MHz -> SYSCLK 216 MHz, APB1 /4 = 54 MHz, APB2 /2 = 108 MHz.
+// Timer kernels run at 2x their APB clock. Renode's default of 10 MHz made firmware time run 10.8x slow.
+timer2:
+    frequency: 108000000
+timer3:
+    frequency: 108000000
+timer4:
+    frequency: 108000000
+timer5:
+    frequency: 108000000
+timer6:
+    frequency: 108000000
+timer7:
+    frequency: 108000000
+timer12:
+    frequency: 108000000
+timer13:
+    frequency: 108000000
+timer14:
+    frequency: 108000000
+timer1:
+    frequency: 216000000
+timer8:
+    frequency: 216000000
+timer9:
+    frequency: 216000000
+timer10:
+    frequency: 216000000
+timer11:
+    frequency: 216000000
+
+// UART5 = link to the M0 co-processor (pads/LEDs) per CoreFW runtime.rs
+uart5: UART.STM32F7_USART @ sysbus 0x40005000
+    frequency: 54000000
+    IRQ -> nvic@53
+    // UART5_RX is DMA1 stream 0 / channel 4 (CoreFW start_m0_button_dma)
+    ReceiveDmaRequest -> dma1@0
+
+// USB OTG FS device core with a built-in USB host (renode/LPPOTGFS.cs, include it before this file).
+// Enumerates the firmware and bridges USB-MIDI: `usbOtgFs StartBridge <port>`.
+usbOtgFs: USB.LPPOTGFS @ sysbus 0x50000000
+    IRQ -> nvic@67
+
+uart4: UART.STM32F7_USART @ sysbus 0x40004C00
+    frequency: 54000000
+    IRQ -> nvic@52
+
+// UART7/UART8 (APB1). The stock firmware configures UART7 (likely a DIN MIDI port).
+uart7: UART.STM32F7_USART @ sysbus 0x40007800
+    frequency: 54000000
+    IRQ -> nvic@82
+
+uart8: UART.STM32F7_USART @ sysbus 0x40007C00
+    frequency: 54000000
+    IRQ -> nvic@83
+
+// USART kernel clocks: APB2 = 108 MHz (USART1/6), APB1 = 54 MHz (USART2/3). Renode default was 200 MHz.
+usart1:
+    frequency: 108000000
+usart6:
+    frequency: 108000000
+usart2:
+    frequency: 54000000
+usart3:
+    frequency: 54000000
+
+// M0 co-processor model (renode/LPPM0.cs, include it before loading this file). Streams button frames on
+// UART5 in virtual time; front panel via `m0 StartPanel <port>`. Debug registers: frames/pings/commits/overruns.
+m0: UART.LPPM0 @ sysbus 0x5FF00000
+    uart: uart5
+
+// DIN MIDI jacks (renode/LPPDIN.cs, include it before this file): stock drives Out 1 + In on UART4, Out 2 on
+// UART7. `din StartBridge <port>` exposes them on a socket. Debug registers: bytes out, bytes in.
+din: UART.LPPDIN @ sysbus 0x5FF00100
+    out1: uart4
+    out2: uart7
+    input: uart4
+
+// External 16 MB SPI NOR flash (renode/LPPSpiFlash.cs) on SPI1, chip select PA15 (CoreFW ExtFlash pins).
+// `spi1.spiFlash UseFile @path` makes its contents persistent.
+spiFlash: SPI.LPPSpiFlash @ spi1
+
+gpioPortA:
+    15 -> spiFlash@0
