@@ -6,6 +6,7 @@ import UniformTypeIdentifiers
 struct LPPEmuApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var emu = Emulator()
+    @StateObject private var library = FirmwareLibrary()
 
     init() {
         // Command-line helper: LPPEmu --decode in.syx out.bin
@@ -40,6 +41,38 @@ struct LPPEmuApp: App {
                 Button("Open Firmware…") { openFirmware() }
                     .keyboardShortcut("o")
             }
+            CommandMenu("Firmware") {
+                Button("Open Firmware…") { openFirmware() }
+                Button("Firmware Library…") { LibraryWindow.show(library: library, emu: emu) }
+                    .keyboardShortcut("l")
+                Divider()
+                Section("CoreFW build") {
+                    ForEach(Array(library.coreFW.enumerated()), id: \.element.id) { i, e in
+                        Button(e.kind == "ELF" ? "CoreFW — latest ELF build" : "CoreFW — latest .syx") { load(e.url) }
+                            .keyboardShortcut(KeyEquivalent(Character(String(i + 1))))
+                    }
+                    Button("Set CoreFW Folder…") { library.chooseCoreFWFolder() }
+                }
+                if !library.library.isEmpty {
+                    Divider()
+                    Section("Library") {
+                        ForEach(library.library) { e in Button(e.name) { load(e.url) } }
+                    }
+                }
+                if !library.otherRecents.isEmpty {
+                    Divider()
+                    Section("Recent") {
+                        ForEach(library.otherRecents) { e in Button(e.name) { load(e.url) } }
+                        Button("Clear Recent") { library.clearRecents() }
+                    }
+                }
+                Divider()
+                Button("Add Current Firmware to Library") {
+                    if let url = emu.originalFirmwareURL ?? emu.firmwareURL { library.add([url]) }
+                }
+                .disabled(emu.firmwareURL == nil)
+                Button("Show Library Folder in Finder") { NSWorkspace.shared.activateFileViewerSelecting([library.folder]) }
+            }
             CommandMenu("Emulator") {
                 Button("Restart") { emu.restart() }
                     .keyboardShortcut("r")
@@ -64,7 +97,20 @@ struct LPPEmuApp: App {
         panel.message = "Choose an ELF (e.g. CoreFW target/…/release/core), a raw .bin, or a .syx update file."
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
-        if panel.runModal() == .OK, let url = panel.url { emu.load(url) }
+        if panel.runModal() == .OK, let url = panel.url { load(url) }
+    }
+
+    /// Every firmware load goes through here so the Recent list stays current.
+    private func load(_ url: URL) {
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            let alert = NSAlert()
+            alert.messageText = "Firmware not found"
+            alert.informativeText = url.path + "\n\nFor CoreFW builds, run `cargo lppmk3` in the CoreFW folder first."
+            alert.runModal()
+            return
+        }
+        library.noteOpened(url)
+        emu.load(url)
     }
 
     /// Reopen the last firmware, or the CoreFW build next to this checkout if there is one.
@@ -130,5 +176,29 @@ struct StatusBar: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 7)
         .background(Color(white: 0.06))
+    }
+}
+
+/// The Firmware Library window (plain AppKit window hosting the SwiftUI view, reused while open).
+@MainActor
+enum LibraryWindow {
+    private static var window: NSWindow?
+
+    static func show(library: FirmwareLibrary, emu: Emulator) {
+        if let w = window {
+            w.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+            return
+        }
+        let view = FirmwareLibraryView().environmentObject(library).environmentObject(emu)
+        let w = NSWindow(contentViewController: NSHostingController(rootView: view))
+        w.title = "Firmware Library"
+        w.setContentSize(NSSize(width: 900, height: 420))
+        w.isReleasedWhenClosed = false
+        w.setFrameAutosaveName("FirmwareLibrary")
+        w.center()
+        window = w
+        w.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
     }
 }

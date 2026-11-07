@@ -13,6 +13,8 @@ BIN="$(swift build -c release --show-bin-path)/LPPEmu"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources/platform"
 cp "$BIN" "$APP/Contents/MacOS/LPPEmu"
+[[ -f icon/AppIcon.icns && icon/AppIcon.icns -nt icon/make_icon.swift ]] || icon/make_icns.sh
+cp icon/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 for f in lppmk3.repl stm32f745_base.repl STM32_TimerLP.cs STM32DMA_LP.cs LPPM0.cs LPPOTGFS.cs LPPDIN.cs LPPSpiFlash.cs; do
   cp "../renode/$f" "$APP/Contents/Resources/platform/"
 done
@@ -31,6 +33,7 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
   <key>CFBundleDisplayName</key><string>LPP MK3 Emulator</string>
   <key>CFBundleIdentifier</key><string>local.lppemu</string>
   <key>CFBundleExecutable</key><string>LPPEmu</string>
+  <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>0.1</string>
   <key>CFBundleVersion</key><string>1</string>

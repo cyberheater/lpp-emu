@@ -1,17 +1,16 @@
-decoded 458752 bytes, version 000999, crc OK
 === seqtest.py
 sequencer opened: True  track-1 button colour (252, 32, 32)
 step 1 lit with track-2 view? (212, 104, 0)  track-2 button (252, 128, 0)
-DIN 1: 95 clocks, note-ons [60, 60, 60, 60], gaps(s) [1.039, 1.038, 1.105], start/stop ['0xfa', '0xfc']
-DIN 2: 95 clocks, note-ons [64, 64, 64, 64], gaps(s) [1.042, 1.082, 1.071], start/stop ['0xfa', '0xfc']
-note-off status bytes seen: 8
-USB packets (non-clock): ['1ffa0000', '1ffc0000']  clock packets 95
+DIN 1: 100 clocks, note-ons [60, 60, 60, 60, 60], gaps(s) [1.025, 0.991, 0.995, 1.015], start/stop ['0xfa', '0xfc']
+DIN 2: 100 clocks, note-ons [64, 64, 64, 64], gaps(s) [0.999, 0.977, 1.017], start/stop ['0xfa', '0xfc']
+note-off status bytes seen: 9
+USB packets (non-clock): ['1ffa0000', '1ffc0000']  clock packets 100
 === bgtest.py
 playing in sequencer, DIN 1 notes: [60, 60, 60]
 in note mode, Sequencer button: (0, 192, 0)
 in note mode, DIN 1 notes kept coming: [60, 60, 60, 60]
 in note mode, pad sent USB notes: ['1990337f', '19903300']
-back in sequencer, playhead at step(s): [10]  Play LED: (16, 96, 16)
+back in sequencer, playhead at step(s): [11]  Play LED: (16, 96, 16)
 after stop, DIN 1 notes: [60]  (stop sent)
 === exttest.py
 Play LED while following external clock (cyan expected): (16, 96, 96)
@@ -51,7 +50,7 @@ DIN 1 note-ons after reload: [62, 62, 62, 62]
 === pattest.py program
 pattern lights (A..D): {'A': (252, 32, 32), 'B': (108, 12, 12), 'C': (28, 4, 4), 'D': (4, 4, 4)}
 32 steps, DIN 1 notes: [60, 64] (expect 60, 64)
-Projects LED after save: (0, 192, 0)
+Projects LED after save: (252, 252, 252)
 === pattest.py verify (after restart)
 Projects LED on entry: (0, 192, 0) (green = loaded)
 pattern lights (A..D): {'A': (252, 32, 32), 'B': (108, 12, 12), 'C': (28, 4, 4), 'D': (4, 4, 4)}

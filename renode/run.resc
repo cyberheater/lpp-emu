@@ -3,22 +3,22 @@
 # usage: renode --disable-gui -P 1234 -e '$elf=@/path/fw.elf; include @run.resc'
 #        then: python3 ../m0/panel_bridge.py and open http://localhost:8765
 
-$elf?=@../corefw/target/thumbv7em-none-eabihf/release/core
+$elf?=$ORIGIN/../corefw/target/thumbv7em-none-eabihf/release/core
 # instructions per virtual second, in millions (216 = 216 MHz at 1 IPC).
 # Boot runs at $bootmips (boot only busy-waits on timeouts); the M0 model raises it to $runmips
 # once its button stream is up.
 $bootmips?=50
 $runmips?=216
 
-include @STM32_TimerLP.cs
-include @STM32DMA_LP.cs
-include @LPPM0.cs
-include @LPPOTGFS.cs
-include @LPPDIN.cs
-include @LPPSpiFlash.cs
+include $ORIGIN/STM32_TimerLP.cs
+include $ORIGIN/STM32DMA_LP.cs
+include $ORIGIN/LPPM0.cs
+include $ORIGIN/LPPOTGFS.cs
+include $ORIGIN/LPPDIN.cs
+include $ORIGIN/LPPSpiFlash.cs
 using sysbus
 mach create "lppmk3"
-machine LoadPlatformDescription @lppmk3.repl
+machine LoadPlatformDescription $ORIGIN/lppmk3.repl
 
 sysbus LoadELF $elf
 cpu PerformanceInMips $bootmips

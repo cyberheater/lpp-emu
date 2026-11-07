@@ -7,7 +7,7 @@ steps and checks only real hardware can confirm.
 | File | What |
 |---|---|
 | `corefw/build/lppmk3/fw.syx` | CoreFW + sequencer, version 999. Rebuild with `cd corefw && cargo lppmk3`. |
-| `~/Downloads/launchpadpromk3-firmware-440.syx` | Novation stock 4.40, to go back. |
+| Your own copy of Novation's official Launchpad Pro MK3 update (`.syx`) | To go back to stock. Not included in this repository. |
 
 The `.syx` was checked to decode to exactly the image that was tested: only the CRC in the last 4 bytes differs from
 `fw.bin`, which is expected.
@@ -20,12 +20,12 @@ The `.syx` was checked to decode to exactly the image that was tested: only the 
 ## Flash
 1. `python3 -m pip install mido python-rtmidi` (once).
 2. Unplug the Launchpad. Hold **Capture MIDI** and plug USB back in: this is bootloader mode.
-3. `cd ~/Documents/SWMac/lpp-emu/corefw && python3 tools/flash.py build/lppmk3/fw.syx`, and pick the device whose name
+3. `cd corefw && python3 tools/flash.py build/lppmk3/fw.syx`, and pick the device whose name
    contains "Bootloader".
 4. The Launchpad reboots into CoreFW.
 
 ## Go back to stock (recovery)
-Bootloader mode again (step 2), then flash `launchpadpromk3-firmware-440.syx` the same way, or with Novation
+Bootloader mode again (step 2), then flash your Novation update file the same way, or with Novation
 Components' firmware updater.
 
 ## Checks (in order; note anything that differs)

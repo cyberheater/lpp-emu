@@ -1,6 +1,6 @@
 // Launchpad Pro MK3 platform (STM32F745VE) — extends Renode's STM32F746 model.
 // App image lives at 0x08010000 (Novation bootloader occupies 0x08000000-0x0800FFFF).
-using "/Users/johnsaunders/Documents/SWMac/lpp-emu/renode/stm32f745_base.repl"
+using "stm32f745_base.repl"
 
 // F745VE: 512 KB flash, 320 KB SRAM (DTCM+SRAM1+SRAM2 contiguous from 0x20000000)
 flash:

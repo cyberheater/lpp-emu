@@ -1,4 +1,10 @@
+<img src="app/icon/icon.png" width="128" align="right" alt="App icon">
+
 # Launchpad Pro MK3 emulator (Renode)
+
+> **No firmware is included.** Bring your own: build [CoreFW](https://github.com/anthonyhfm/launchpad-core-firmware)
+> (`cargo lppmk3`), or use your own copy of Novation's official Launchpad Pro MK3 update file (`.syx`). Novation
+> firmware must not be committed to this repository.
 
 Goal: test new firmware (CoreFW + 8-track sequencer) before flashing real hardware.
 The stock Novation firmware is used as a calibration check of the hardware model.
@@ -21,6 +27,10 @@ cd app && ./make_app.sh            # -> app/build/LPP MK3 Emulator.app (~180 MB,
 ./make_app.sh --no-renode          # small dev build, uses ~/Applications/Renode.app
 open "build/LPP MK3 Emulator.app"
 ```
+- **Firmware menu**: Open Firmware…, **Firmware Library…** (⌘L: every known firmware with type, version, date;
+  Load / Show in Finder / Copy into Library / Remove; drop files in to add them), the latest **CoreFW build** (⌘1 ELF,
+  ⌘2 .syx; folder found next to the app's checkout or set with Set CoreFW Folder…), library copies and recent files.
+  The library folder is `~/Library/Application Support/LPP MK3 Emulator/Firmware`.
 - File ▸ Open Firmware… (⌘O): CoreFW ELF (`corefw/target/thumbv7em-none-eabihf/release/core`), raw `.bin`
   (loaded at 0x08010000) or a `.syx` update file (decoded in-app; decoder verified byte-identical to Python).
 - Emulator ▸ Restart (⌘R) / Stop (⌘.), CPU rate after boot, Show Renode Log, Show Workspace.
@@ -33,6 +43,8 @@ open "build/LPP MK3 Emulator.app"
 - **DIN MIDI:** CoreMIDI sources `LPP Emu DIN Out 1` / `LPP Emu DIN Out 2` carry what the firmware sends on the two
   DIN outputs; destination `LPP Emu DIN In` feeds the DIN input. Route them to/from your synths in a DAW or with
   Audio MIDI Setup to test per-port routing without hardware.
+- App icon: drawn in code by `app/icon/make_icon.swift` (the sequencer's 8 track colours, white playhead);
+  `make_app.sh` renders all sizes into `AppIcon.icns` via `app/icon/make_icns.sh`.
 - Rebuild the app after changing anything in `renode/` (the platform files are copied into the bundle).
 - The app kills any Renode left over from a force-quit before starting a new one.
 
@@ -40,7 +52,7 @@ open "build/LPP MK3 Emulator.app"
 ```bash
 export PATH="/opt/homebrew/opt/rustup/bin:$HOME/.cargo/bin:$PATH"
 cd corefw && cargo lppmk3 && cd ..
-cd renode && ~/Applications/Renode.app/Contents/MacOS/renode --disable-gui -P 1234 -e 'include @run.resc' &
+~/Applications/Renode.app/Contents/MacOS/renode --disable-gui -P 1234 -e 'include @renode/run.resc' &   # any folder
 cd ../m0 && python3 -I panel_bridge.py
 ```
 Open http://localhost:8765. Click = hard press, Option-click = soft, Shift-click = latch. Hold Setup (Shift-click it) for the CoreFW setup menu.
