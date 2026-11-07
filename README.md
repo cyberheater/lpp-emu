@@ -155,6 +155,11 @@ boots normally with it present.
   ~20 s after boot. All 14 timers use it (`stm32f745_base.repl` is Renode's F746 file with that swap).
 - CPU rate: boots at `$bootmips` (50) because boot only busy-waits on timeouts; the M0 model switches to
   `$runmips` (216 = 216 MHz at 1 instr/cycle) once its button stream is up.
+- Measured 2026-11-07 (8 tracks x 8-note chords playing): at 216 MIPS the emulator manages only ~0.55-0.63x real
+  time (tempo ~75 BPM for 120, occasional 25 ms hiccups); the firmware mostly busy-waits for the M0 reply. 100 MIPS is
+  the lowest rate at which the M0 link (pads, LEDs) still works — at 75 and below the LED/button window is missed —
+  and keeps 1.0x real time (120.0 BPM, beats within ±4 ms). The app defaults to 100 (Emulator ▸ CPU rate, remembered);
+  `RUNMIPS=n ./run_tests.sh` runs the suite at another rate.
 - Caveat: Renode syncs to the host clock cumulatively, so after boot it runs up to ~1.25x fast for
   ~20-30 s to recover the time lost while booting. Wait that long before timing-sensitive tests.
 - Tools: `renode/sample.py N elf` (PC-sampling profiler + real-time ratio), `renode/mon.py` (monitor).

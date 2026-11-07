@@ -24,7 +24,11 @@ final class Emulator: ObservableObject {
     @Published private(set) var firmwareName: String = "No firmware"
     @Published private(set) var framesPerSecond = 0
     @Published private(set) var stats = M0Model.Stats()
-    @Published var runMips = 216
+    /// CPU rate after boot (MIPS). 100 is the lowest at which the M0 link (pads, LEDs) keeps working, and the
+    /// emulator then keeps up with real time; 216 is the real chip but runs at ~0.6x real time. Takes effect on restart.
+    @Published var runMips = UserDefaults.standard.object(forKey: "runMips") as? Int ?? 100 {
+        didSet { UserDefaults.standard.set(runMips, forKey: "runMips") }
+    }
     @Published private(set) var usb = USBMIDIBridge.Status()
 
     private let usbBridge = USBMIDIBridge()

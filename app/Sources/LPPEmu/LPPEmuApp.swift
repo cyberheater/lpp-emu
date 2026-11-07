@@ -103,10 +103,10 @@ struct LPPEmuApp: App {
                 Button("Stop") { emu.stop() }
                     .keyboardShortcut(".")
                 Divider()
-                Picker("CPU rate after boot", selection: $emu.runMips) {
-                    Text("216 MIPS (216 MHz, 1 instr/cycle)").tag(216)
-                    Text("462 MIPS (peak dual-issue)").tag(462)
-                    Text("100 MIPS (pessimistic)").tag(100)
+                Picker("CPU rate after boot (restart to apply)", selection: $emu.runMips) {
+                    Text("100 MIPS (real-time tempo; lowest that works)").tag(100)
+                    Text("150 MIPS").tag(150)
+                    Text("216 MIPS (the real chip; runs ~0.6× real time)").tag(216)
                 }
                 Divider()
                 Button("Show Renode Log") { NSWorkspace.shared.open(emu.logURL) }

@@ -1,6 +1,6 @@
 #!/bin/zsh
 # Regression tests for the CoreFW sequencer in the emulator.
-# usage: ./run_tests.sh [firmware]   firmware = CoreFW ELF (default: corefw release build), .bin, or .syx
+# usage: [RUNMIPS=n] ./run_tests.sh [firmware]   firmware = CoreFW ELF (default: corefw release build), .bin, or .syx
 # Each test boots a fresh emulator with an empty flash; pattest also restarts it to check save/reload.
 cd "${0:A:h}"
 fw=${1:-../corefw/target/thumbv7em-none-eabihf/release/core}
@@ -10,7 +10,9 @@ case "$fw" in
   *.bin) load="sysbus LoadBinary @${fw:A} 0x08010000" ;;
   *)     load="sysbus LoadELF @${fw:A}" ;;
 esac
-sed -e "s|^sysbus LoadELF \$elf|$load|" -e 's|^\$flash?=.*|$flash?=$ORIGIN/_tests_flash.bin|' run.resc > _tests.resc
+# RUNMIPS=n ./run_tests.sh ... runs the firmware at n MIPS after boot (default 216, the real chip's rate)
+sed -e "s|^sysbus LoadELF \$elf|$load|" -e 's|^\$flash?=.*|$flash?=$ORIGIN/_tests_flash.bin|' \
+    -e "s|^\$runmips?=.*|\$runmips?=${RUNMIPS:-216}|" run.resc > _tests.resc
 
 boot() {
   pkill -f "renode --disable-gui -P 1234"; sleep 2
