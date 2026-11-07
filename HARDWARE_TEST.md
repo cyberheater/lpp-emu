@@ -18,14 +18,17 @@ The `.syx` was checked to decode to exactly the image that was tested: only the 
 - The Novation bootloader at 0x08000000 is never written by firmware updates, so you can always get back.
 
 ## Flash
-1. `python3 -m pip install mido python-rtmidi` (once).
-2. Unplug the Launchpad. Hold **Capture MIDI** and plug USB back in: this is bootloader mode.
-3. `cd corefw && python3 tools/flash.py build/lppmk3/fw.syx`, and pick the device whose name
-   contains "Bootloader".
-4. The Launchpad reboots into CoreFW.
+1. Quit the emulator app (it mirrors onto the Launchpad).
+2. Unplug the Launchpad. Hold **Setup** and plug USB back in: this is bootloader mode (on the Pro MK3 it is Setup,
+   not Capture MIDI as in CoreFW's generic readme). The Mac then shows "Launchpad Pro MK3 Bootloader LPProMK3 BL MIDI".
+3. `swift scripts/flash_syx.swift corefw/build/lppmk3/fw.syx` (CoreMIDI, nothing to install; picks the port containing
+   "Bootloader"). Or CoreFW's `python3 corefw/tools/flash.py corefw/build/lppmk3/fw.syx` (needs `mido python-rtmidi`).
+4. The Launchpad reboots into CoreFW: its ports become "Launchpad Pro MK3 PRO MK3 (MIDI)" / "(DAW)".
+
+First flashed onto real hardware 2026-11-07 (14,338 messages, about a minute): boots, sequencer works.
 
 ## Go back to stock (recovery)
-Bootloader mode again (step 2), then flash your Novation update file the same way, or with Novation
+Bootloader mode again (step 2: hold Setup while plugging in), then flash your Novation update file the same way, or with Novation
 Components' firmware updater.
 
 ## Checks (in order; note anything that differs)
