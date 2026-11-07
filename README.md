@@ -48,8 +48,8 @@ open "build/LPP MK3 Emulator.app"
 - **MIDI menu — DIN jacks to real devices:** *DIN Out 1 →*, *DIN Out 2 →* and *DIN In ←* each pick any MIDI device on
   the Mac (USB-MIDI interface, a synth's USB port, the real Launchpad's "LPProMK3 DIN" port…), or None (default).
   With a two-port interface the two outputs stay separate; if both go to one device, clock is sent once. Choices are
-  kept by CoreMIDI ID and name, so devices reconnect when plugged back in. Verified 2026-11-07 (sequencer → a test
-  MIDI device; earlier, sequencer → keyboard through the real Launchpad's jack).
+  kept by CoreMIDI ID and name, so devices reconnect when plugged back in. Verified 2026-11-07: sequencer → PreSonus
+  Studio 24c MIDI Out → keyboard, clean (also a test MIDI device, and the real Launchpad's jack).
   Caveat for the Launchpad's own "LPProMK3 DIN" port: Novation's firmware echoes every pad press (its Programmer-mode
   note, plus aftertouch) out of its DIN jack, which clashes with the emulator's notes; no SysEx turns that off
   (scanned all commands, also DAW mode). Use a separate MIDI interface for clean results.
