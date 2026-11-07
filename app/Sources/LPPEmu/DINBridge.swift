@@ -7,6 +7,8 @@ import Network
 final class DINBridge: @unchecked Sendable {
     struct Status: Equatable { var connected = false; var bytesOut = 0; var bytesIn = 0 }
     var onStatus: ((Status) -> Void)?
+    /// Called on the bridge queue with each output's parsed messages as UMP words (1 = DIN Out 1, 2 = DIN Out 2).
+    var onOutput: ((Int, [UInt32]) -> Void)?
 
     private let queue = DispatchQueue(label: "lppemu.din")
     private var conn: NWConnection?
@@ -124,8 +126,16 @@ final class DINBridge: @unchecked Sendable {
                 if let msg = parsers[n]!.feed(b) { words[n, default: []] += MIDIUMP.words(for: msg) }
             }
         }
-        for (n, w) in words { if let src = outs[n] { MIDIUMP.emit(w, to: src) } }
+        for (n, w) in words {
+            if let src = outs[n] { MIDIUMP.emit(w, to: src) }
+            onOutput?(n, w)
+        }
         onStatus?(status)
+    }
+
+    /// Feeds MIDI bytes into the emulator's DIN In (e.g. from the real Launchpad's MIDI In).
+    func input(_ bytes: [UInt8]) {
+        queue.async { [self] in send(bytes) }
     }
 
     private func send(_ bytes: [UInt8]) {

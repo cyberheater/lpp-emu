@@ -75,6 +75,9 @@ struct LPPEmuApp: App {
             }
             CommandMenu("Hardware") {
                 Toggle("Mirror on Connected Launchpad", isOn: $emu.mirrorHardware)
+                Picker("Route DIN Through Launchpad", selection: $emu.dinRoute) {
+                    ForEach(HardwareMirror.DINRoute.allCases) { Text($0.rawValue).tag($0) }
+                }
                 Text(emu.hardwareStatus.connected ? "Connected: \(emu.hardwareStatus.name)" : "No Launchpad Pro MK3 connected")
             }
             CommandMenu("Emulator") {
@@ -170,7 +173,9 @@ struct StatusBar: View {
             Text(emu.usb.configured ? "USB MIDI: \(emu.usb.ports.count) ports" : (emu.usb.connected ? "USB: enumerating…" : "USB: —"))
                 .help(emu.usb.ports.joined(separator: "\n"))
             if emu.hardwareStatus.connected {
-                Text("Hardware ✓").foregroundStyle(.green).help("Mirroring on \(emu.hardwareStatus.name)")
+                Text(emu.hardwareStatus.dinConnected && emu.dinRoute != .off ? "Hardware ✓ + DIN" : "Hardware ✓")
+                    .foregroundStyle(.green)
+                    .help("Mirroring on \(emu.hardwareStatus.name)" + (emu.dinRoute != .off ? "; DIN routed: \(emu.dinRoute.rawValue)" : ""))
             }
             Text(emu.din.connected ? "DIN ✓" : "DIN —")
                 .help("CoreMIDI: LPP Emu DIN Out 1, DIN Out 2, DIN In")

@@ -11,11 +11,21 @@ final class HardwareMirror: @unchecked Sendable {
     struct Status: Equatable {
         var connected = false
         var name = ""
+        var dinConnected = false
+    }
+
+    /// Which emulated DIN outputs go to the real Launchpad's DIN jacks. Its firmware sends everything on its USB
+    /// "DIN" port to both physical outputs, so routing both merges them (clock is taken from Out 1 only).
+    enum DINRoute: String, CaseIterable, Identifiable {
+        case off = "Off", both = "DIN Out 1 + 2 (merged)", out1 = "DIN Out 1 only", out2 = "DIN Out 2 only"
+        var id: String { rawValue }
     }
 
     /// Called on the mirror queue: (logical index, pressed, 0-127 velocity/pressure).
     var onInput: ((Int, Bool, Int) -> Void)?
     var onStatus: ((Status) -> Void)?
+    /// Called on the mirror queue with MIDI bytes that arrived at the real Launchpad's DIN MIDI In.
+    var onDINInput: (([UInt8]) -> Void)?
 
     private static let header: [UInt8] = [0xF0, 0x00, 0x20, 0x29, 0x02, 0x0E]
     private static let programmerMode: [UInt8] = header + [0x0E, 0x01, 0xF7]
@@ -34,6 +44,11 @@ final class HardwareMirror: @unchecked Sendable {
     private var outPort = MIDIPortRef()
     private var source: MIDIEndpointRef = 0
     private var destination: MIDIEndpointRef = 0
+    private var dinInPort = MIDIPortRef()
+    private var dinSource: MIDIEndpointRef = 0
+    private var dinDestination: MIDIEndpointRef = 0
+    private var dinSysex: [UInt8] = []    // touched only on the CoreMIDI input thread
+    var dinRoute: DINRoute = .both
     private var status = Status()
 
     /// Emulator LED state (logical index -> 7-bit colour) and what the hardware currently shows.
@@ -81,6 +96,14 @@ final class HardwareMirror: @unchecked Sendable {
                 }
             }
         }
+        MIDIInputPortCreateWithProtocol(client, "from Launchpad DIN" as CFString, ._1_0, &dinInPort) { [weak self] list, _ in
+            guard let self else { return }
+            let bytes = MIDIUMP.bytes(from: list, sysex: &self.dinSysex)
+            guard !bytes.isEmpty else { return }
+            self.queue.async {
+                if self.dinRoute != .off { self.onDINInput?(bytes) }
+            }
+        }
         MIDIOutputPortCreate(client, "to Launchpad" as CFString, &outPort)
         queue.async { [self] in rescan() }
     }
@@ -98,6 +121,58 @@ final class HardwareMirror: @unchecked Sendable {
         name.contains("LPProMK3 MIDI") && !name.contains("(Emu)") && !name.contains("LPP Emu")
     }
 
+    /// The real device's "LPProMK3 DIN" port (USB <-> its DIN jacks).
+    private static func isLaunchpadDIN(_ name: String) -> Bool {
+        name.contains("LPProMK3 DIN") && !name.contains("(Emu)") && !name.contains("LPP Emu")
+    }
+
+    private func findDIN() {
+        var src: MIDIEndpointRef = 0, dst: MIDIEndpointRef = 0
+        if source != 0 {
+            for i in 0..<MIDIGetNumberOfSources() where Self.isLaunchpadDIN(Self.name(MIDIGetSource(i))) {
+                src = MIDIGetSource(i)
+            }
+            for i in 0..<MIDIGetNumberOfDestinations() where Self.isLaunchpadDIN(Self.name(MIDIGetDestination(i))) {
+                dst = MIDIGetDestination(i)
+            }
+        }
+        if src != dinSource {
+            if dinSource != 0 { MIDIPortDisconnectSource(dinInPort, dinSource) }
+            if src != 0 { MIDIPortConnectSource(dinInPort, src, nil) }
+            dinSource = src
+        }
+        dinDestination = dst
+        var s = status
+        s.dinConnected = dst != 0
+        setStatus(s)
+    }
+
+    /// Emulator DIN output messages (UMP words) for output 1 or 2.
+    func sendDIN(output: Int, words: [UInt32]) {
+        queue.async { [self] in
+            guard dinDestination != 0 else { return }
+            let wanted: Bool
+            switch dinRoute {
+            case .off: wanted = false
+            case .both: wanted = true
+            case .out1: wanted = output == 1
+            case .out2: wanted = output == 2
+            }
+            guard wanted else { return }
+            // Merged: real-time messages (clock, start, stop) only from Out 1, or the clock would run twice as fast.
+            var out: [UInt32] = []
+            var i = 0
+            while i < words.count {
+                let w = words[i]
+                let n = (w >> 28) == 3 ? 2 : 1
+                let realtime = (w >> 28) == 1 && ((w >> 16) & 0xFF) >= 0xF8
+                if !(dinRoute == .both && output == 2 && realtime) { out += words[i..<min(i + n, words.count)] }
+                i += n
+            }
+            sendWords(out, to: dinDestination)
+        }
+    }
+
     private func rescan() {
         guard enabled else { return }
         var src: MIDIEndpointRef = 0, dst: MIDIEndpointRef = 0, found = ""
@@ -109,17 +184,22 @@ final class HardwareMirror: @unchecked Sendable {
             let e = MIDIGetDestination(i)
             if Self.isLaunchpad(Self.name(e)) { dst = e; break }
         }
-        if src == source && dst == destination { return }
+        if src == source && dst == destination {
+            findDIN()
+            return
+        }
         if source != 0 { MIDIPortDisconnectSource(inPort, source) }
         source = src
         destination = dst
         if src != 0 && dst != 0 {
             MIDIPortConnectSource(inPort, src, nil)
             take(name: found)
+            findDIN()
         } else {
             source = 0
             destination = 0
             held.removeAll()
+            findDIN()
             setStatus(Status())
         }
     }
@@ -140,6 +220,7 @@ final class HardwareMirror: @unchecked Sendable {
         source = 0
         destination = 0
         held.removeAll()
+        findDIN()
         setStatus(Status())
     }
 
@@ -204,18 +285,23 @@ final class HardwareMirror: @unchecked Sendable {
 
     private func send(_ sysex: [UInt8]) {
         guard destination != 0 else { return }
-        let words = MIDIUMP.sysexToUMP(sysex)
+        sendWords(MIDIUMP.sysexToUMP(sysex), to: destination)
+    }
+
+    private func sendWords(_ words: [UInt32], to endpoint: MIDIEndpointRef) {
+        guard !words.isEmpty else { return }
         let size = 1024 + words.count * 12
         let raw = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: 8)
         defer { raw.deallocate() }
         let list = raw.bindMemory(to: MIDIEventList.self, capacity: 1)
         var packet = MIDIEventListInit(list, ._1_0)
         var i = 0
-        while i + 1 < words.count {
-            let pair = [words[i], words[i + 1]]
-            packet = pair.withUnsafeBufferPointer { MIDIEventListAdd(list, size, packet, 0, 2, $0.baseAddress!) }
-            i += 2
+        while i < words.count {
+            let n = (words[i] >> 28) == 3 ? 2 : 1
+            let chunk = Array(words[i..<min(i + n, words.count)])
+            packet = chunk.withUnsafeBufferPointer { MIDIEventListAdd(list, size, packet, 0, chunk.count, $0.baseAddress!) }
+            i += n
         }
-        MIDISendEventList(outPort, destination, list)
+        MIDISendEventList(outPort, endpoint, list)
     }
 }

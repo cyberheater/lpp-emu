@@ -55,6 +55,9 @@ final class Emulator: ObservableObject {
         hardware.onInput = { [weak self] index, down, value in
             Task { @MainActor in self?.hardwarePress(index, down: down, value: value) }
         }
+        hardware.dinRoute = HardwareMirror.DINRoute(rawValue: UserDefaults.standard.string(forKey: "dinRoute") ?? "") ?? .both
+        dinBridge.onOutput = { [weak self] output, words in self?.hardware.sendDIN(output: output, words: words) }
+        hardware.onDINInput = { [weak self] bytes in self?.dinBridge.input(bytes) }
         hardware.onStatus = { [weak self] s in
             Task { @MainActor in self?.hardwareStatus = s }
         }
@@ -91,6 +94,13 @@ final class Emulator: ObservableObject {
 
     let hardware = HardwareMirror()
     @Published private(set) var hardwareStatus = HardwareMirror.Status()
+    /// Emulated DIN outputs routed through the connected Launchpad's real DIN jacks (and its DIN In fed back in).
+    @Published var dinRoute = HardwareMirror.DINRoute(rawValue: UserDefaults.standard.string(forKey: "dinRoute") ?? "") ?? .both {
+        didSet {
+            UserDefaults.standard.set(dinRoute.rawValue, forKey: "dinRoute")
+            hardware.dinRoute = dinRoute
+        }
+    }
     @Published var mirrorHardware = UserDefaults.standard.object(forKey: "mirrorHardware") as? Bool ?? true {
         didSet {
             UserDefaults.standard.set(mirrorHardware, forKey: "mirrorHardware")
