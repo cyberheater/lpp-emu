@@ -174,19 +174,22 @@ background (Sequencer button green in note mode).
 - **Tracks**: 8, each with MIDI channel, output (USB / DIN 1 / DIN 2 / DIN 1+2), mute and transpose (hold a track button).
 - **Patterns**: 8 per track × 32 steps, length per pattern. Hold Patterns (89): tracks × patterns grid; tap to switch
   (queued to the end of the pattern while playing); hold + tap to chain; Duplicate/Clear + tap to copy/clear.
-- **Steps**: note, velocity (right column while holding a step), gate in eighths (bottom row), probability
+- **Steps**: up to 4 notes (a chord: hold a step, tap note pads; the first tap sets the note, later taps add or
+  remove notes), velocity (right column while holding a step), gate in eighths (bottom row), probability
   (Shift + right column). Swing 50-75 % (Shift + step pads), timed to the millisecond.
 - **Live recording**: tap Record (bottom-left) to arm; while playing, notes from the pads or from a keyboard (USB MIDI
-  port / DIN In) land on the nearest step of the selected track with their velocity and held length.
+  port / DIN In) land on the nearest step of the selected track with their velocity and held length; notes played
+  together are recorded as a chord. The app's DIN In defaults to "All MIDI inputs" (notes only, no clock — a keyboard
+  with MIDI Thru would echo the sequencer's clock back); pick a single input to follow an external clock.
 - **Clock**: internal (Shift + Up/Down = tempo) or external MIDI clock from the USB MIDI port or DIN In (auto-follow,
   clock passed on to both DIN outs, Play LED cyan); falls back to internal 500 ms after the last pulse.
-- **Projects**: 8 slots in flash (tap Projects = save, hold = slot row); v2 format at user offset 0x40000, 16 KB per
-  slot, CRC-32, last slot auto-loaded; v1 saves imported.
+- **Projects**: 8 slots in flash (tap Projects = save, hold = slot row); v3 format (4 notes per step) at user offset 0x40000,
+  16 KB per slot, CRC-32, last slot auto-loaded; v2 and v1 saves load too.
 - **Drivers**: `din.rs` — DIN Out 1 = UART4 TX PA0, DIN Out 2 = UART7 TX PE8, DIN In = UART4 RX PC11 (all AF8,
   31250 8N1, interrupt-driven rings, running-status/SysEx parser), copied from stock 4.40's setup.
   `MidiPort::Din2`; `read/write_user_storage` on the external flash (1 MB at 0xF00000).
 - **Tests** (`renode/`): `run_tests.sh [elf|bin|syx]` runs seqtest, bgtest, exttest, dinintest, veltest, swingtest, rectest,
-  flashtest and pattest, each on a fresh boot, with save/restart checks. Output of the last run: `renode/regression.txt`.
+  chordtest, flashtest and pattest, each on a fresh boot, with save/restart checks. Output of the last run: `renode/regression.txt`.
 
 ## Update image format (verified on stock 4.40 and CoreFW)
 SysEx `F0 00 20 29 00 <cmd>`: 71 header, 7C version + nibble size + CRC, 72 data, 73 = block 0 sent last.
