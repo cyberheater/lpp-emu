@@ -2,16 +2,16 @@ decoded 458752 bytes, version 000999, crc OK
 === seqtest.py
 sequencer opened: True  track-1 button colour (252, 32, 32)
 step 1 lit with track-2 view? (212, 104, 0)  track-2 button (252, 128, 0)
-DIN 1: 108 clocks, note-ons [60, 60, 60, 60, 60], gaps(s) [0.902, 0.959, 1.024, 0.891], start/stop ['0xfa', '0xfc']
-DIN 2: 108 clocks, note-ons [64, 64, 64, 64], gaps(s) [0.913, 1.045, 0.914], start/stop ['0xfa', '0xfc']
-note-offs seen (incl. note-on velocity 0): 9
-USB packets (non-clock): ['1ffa0000', '1ffc0000']  clock packets 108
+DIN 1: 110 clocks, note-ons [60, 60, 60, 60, 60], gaps(s) [0.945, 0.898, 0.914, 0.893], start/stop ['0xfa', '0xfc']
+DIN 2: 110 clocks, note-ons [64, 64, 64, 64, 64], gaps(s) [0.927, 0.885, 0.923, 0.899], start/stop ['0xfa', '0xfc']
+note-offs seen (incl. note-on velocity 0): 10
+USB packets (non-clock): ['1ffa0000', '1ffc0000']  clock packets 110
 === bgtest.py
 playing in sequencer, DIN 1 notes: [60, 60, 60]
 in note mode, Sequencer button: (0, 192, 0)
 in note mode, DIN 1 notes kept coming: [60, 60, 60, 60]
 in note mode, pad sent USB notes: ['1990337f', '19903300']
-back in sequencer, playhead at step(s): [12]  Play LED: (16, 96, 16)
+back in sequencer, playhead at step(s): [11]  Play LED: (16, 96, 16)
 after stop, DIN 1 notes: [60]  (stop sent)
 === exttest.py
 Play LED while following external clock (cyan expected): (16, 96, 96)
@@ -29,18 +29,18 @@ Play LED after clock stopped (back to internal, grey): (16, 16, 16)
 velocity bar while step 1 held (top..bottom): [(8, 8, 8), (8, 8, 8), (252, 32, 32)] ...
 gate bar after setting 2/8: [(252, 252, 252), (252, 252, 252), (16, 16, 16)] ...
 step LEDs 1/5/9: (156, 20, 20) (212, 24, 24) (24, 24, 24) (dimmer, full, unlit)
-events (pulse, kind, note, vel): [(1, 'on', 60, 64), (1, 'off', 60, 0), (25, 'on', 60, 100), (28, 'off', 60, 0)]
-note at pulse 1: velocity 64, gate 0 pulses
-note at pulse 25: velocity 100, gate 3 pulses
+events (pulse, kind, note, vel): [(1, 'on', 60, 64), (2, 'off', 60, 0), (25, 'on', 60, 100), (27, 'off', 60, 0)]
+note at pulse 1: velocity 64, gate 1 pulses
+note at pulse 25: velocity 100, gate 2 pulses
 === swingtest.py
 transpose +2: notes [62, 62] (expect 62, 62)  pad LED (252, 224, 0)
 swing 50 %: note-on pulses [1, 7] (second at 7 = straight)
 swing 75 %: note-on pulses [1, 9] (second later, ~9-10)  bar LED pad 26: (16, 8, 0) -> (252, 160, 0)
-probability 50 % on 8 steps x 4 loops: 13 of 32 played (expect roughly 16)
+probability 50 % on 8 steps x 4 loops: 14 of 32 played (expect roughly 16)
 probability bar (top..bottom): [(8, 8, 8), (8, 8, 8), (8, 8, 8), (8, 8, 8), (0, 224, 252), (0, 224, 252), (0, 224, 252), (0, 224, 252)]
 === rectest.py
 Record LED armed (dark red expected): (160, 0, 0)
-pass 1 (recording): DIN 1 note-ons (pulse, note, vel): [(14, 60, 96)] (C4 preview live; E4 not replayed)
+pass 1 (recording): DIN 1 note-ons (pulse, note, vel): [(14, 60, 96), (53, 64, 80)] (C4 preview live; E4 not replayed)
 Record LED disarmed: (32, 0, 0)
 pass 2 (playback): DIN 1 note-ons: [(13, 60, 96), (55, 64, 80)] (expect 60 at ~12, 64 at ~54)
 === chordtest.py
@@ -48,6 +48,10 @@ playback: DIN 1 note-ons (pulse, note, vel): [(13, 60, 112), (13, 62, 112), (13,
 recorded chord at step 3: [60, 62, 64, 65, 67, 69, 71, 72] velocities {112} (expect [60, 62, 64, 65, 67, 69, 71, 72] {112})
 edited chord at step 9: [60, 67] (expect [60, 67])
 chordtest PASS
+=== thrutest.py
+note-on ch 1: DIN 1 [('92', '3c', '64')] ok; echo of it: [] ok; mod wheel + its echo: [('b2', '01', '40')] ok;
+mod wheel moved: [('b2', '01', '41')] ok; note-off: [('92', '3c', '00')] ok; echo of the off: [] ok
+thrutest PASS
 === flashtest.py program
 Projects LED on entry: (252, 128, 0) (green = saved / matches flash, amber = unsaved, off = no flash)
 Projects LED after edits: (252, 128, 0)
