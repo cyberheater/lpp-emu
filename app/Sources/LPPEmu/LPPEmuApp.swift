@@ -73,6 +73,10 @@ struct LPPEmuApp: App {
                 .disabled(emu.firmwareURL == nil)
                 Button("Show Library Folder in Finder") { NSWorkspace.shared.activateFileViewerSelecting([library.folder]) }
             }
+            CommandMenu("Hardware") {
+                Toggle("Mirror on Connected Launchpad", isOn: $emu.mirrorHardware)
+                Text(emu.hardwareStatus.connected ? "Connected: \(emu.hardwareStatus.name)" : "No Launchpad Pro MK3 connected")
+            }
             CommandMenu("Emulator") {
                 Button("Restart") { emu.restart() }
                     .keyboardShortcut("r")
@@ -124,7 +128,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     weak var emulator: Emulator?
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
     func applicationWillTerminate(_ notification: Notification) {
-        MainActor.assumeIsolated { emulator?.shutdown() }
+        MainActor.assumeIsolated {
+            emulator?.hardware.releaseNow()   // give the real Launchpad back its normal mode
+            emulator?.shutdown()
+        }
     }
 }
 
@@ -162,6 +169,9 @@ struct StatusBar: View {
             Spacer()
             Text(emu.usb.configured ? "USB MIDI: \(emu.usb.ports.count) ports" : (emu.usb.connected ? "USB: enumerating…" : "USB: —"))
                 .help(emu.usb.ports.joined(separator: "\n"))
+            if emu.hardwareStatus.connected {
+                Text("Hardware ✓").foregroundStyle(.green).help("Mirroring on \(emu.hardwareStatus.name)")
+            }
             Text(emu.din.connected ? "DIN ✓" : "DIN —")
                 .help("CoreMIDI: LPP Emu DIN Out 1, DIN Out 2, DIN In")
             Text("\(emu.framesPerSecond) frames/s").monospacedDigit()

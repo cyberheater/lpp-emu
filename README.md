@@ -40,6 +40,11 @@ open "build/LPP MK3 Emulator.app"
 - **USB MIDI:** the firmware's USB-MIDI ports appear in CoreMIDI as virtual ports named after its jacks plus
   " (Emu)" — stock 4.40: `LPProMK3 MIDI (Emu)`, `LPProMK3 DIN (Emu)`, `LPProMK3 DAW (Emu)`; CoreFW: `Port 1/2 (Emu)`.
   Use them from Logic/Ableton like the real device. The status bar shows the port count once enumerated.
+- **Real Launchpad (Hardware menu):** when a Launchpad Pro MK3 running Novation's firmware is connected over USB, the
+  app finds its "LPProMK3 MIDI" port, switches it to Programmer mode, mirrors every emulator LED onto it (RGB SysEx,
+  batched every ~8 ms) and feeds its pads and buttons (with velocity and aftertouch pressure) into the emulated
+  Launchpad. Unplugging, quitting or unticking *Mirror on Connected Launchpad* returns it to its normal mode.
+  Verified with a real Pro MK3 (2026-11-07). Setup and Shift may not be reported in Programmer mode (not yet checked).
 - **DIN MIDI:** CoreMIDI sources `LPP Emu DIN Out 1` / `LPP Emu DIN Out 2` carry what the firmware sends on the two
   DIN outputs; destination `LPP Emu DIN In` feeds the DIN input. Route them to/from your synths in a DAW or with
   Audio MIDI Setup to test per-port routing without hardware.

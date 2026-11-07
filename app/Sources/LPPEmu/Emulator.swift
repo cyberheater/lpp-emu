@@ -51,6 +51,13 @@ final class Emulator: ObservableObject {
     }()
 
     init() {
+        hardware.enabled = mirrorHardware
+        hardware.onInput = { [weak self] index, down, value in
+            Task { @MainActor in self?.hardwarePress(index, down: down, value: value) }
+        }
+        hardware.onStatus = { [weak self] s in
+            Task { @MainActor in self?.hardwareStatus = s }
+        }
         usbBridge.onStatus = { [weak self] s in
             Task { @MainActor in self?.usb = s }
         }
@@ -67,9 +74,28 @@ final class Emulator: ObservableObject {
 
     private var maxSeen: UInt8 = 0
     private func applyLEDs(_ changed: [Int: RGB]) {
+        let before = maxSeen
         for (k, v) in changed {
             leds[k] = v
             maxSeen = max(maxSeen, v.r, v.g, v.b)
+        }
+        // Colour depth just switched from 7-bit to 8-bit: resend everything at the new scale.
+        if before <= 127 && maxSeen > 127 {
+            hardware.resetLEDs(leds, sevenBit: false)
+        } else {
+            hardware.setLEDs(changed, sevenBit: maxSeen <= 127)
+        }
+    }
+
+    // MARK: - Real Launchpad (Programmer mode mirror)
+
+    let hardware = HardwareMirror()
+    @Published private(set) var hardwareStatus = HardwareMirror.Status()
+    @Published var mirrorHardware = UserDefaults.standard.object(forKey: "mirrorHardware") as? Bool ?? true {
+        didSet {
+            UserDefaults.standard.set(mirrorHardware, forKey: "mirrorHardware")
+            hardware.enabled = mirrorHardware
+            if mirrorHardware { hardware.resetLEDs(leds, sevenBit: maxSeen <= 127) }
         }
     }
 
@@ -82,7 +108,16 @@ final class Emulator: ObservableObject {
     }
 
     func press(_ id: Int, down: Bool, soft: Bool = false) {
-        let p: UInt16 = soft ? 0x0200 : 0x0B00
+        press(id, down: down, pressure: soft ? 0x0200 : 0x0B00)
+    }
+
+    /// From the real Launchpad: velocity / pressure 1-127 scaled to the M0's pad pressure range.
+    func hardwarePress(_ id: Int, down: Bool, value: Int) {
+        let p = UInt16(max(1, min(value, 127)) * Int(M0Model.maxPressure) / 127)
+        press(id, down: down, pressure: max(p, 0x0100))
+    }
+
+    private func press(_ id: Int, down: Bool, pressure p: UInt16) {
         if let ctrl = M0Model.logicalToControl[id] {
             sendPanel("p \(ctrl) \(down ? Int(p) : 0)\n")
         }
@@ -243,6 +278,7 @@ final class Emulator: ObservableObject {
         status = .starting
         leds = [:]
         maxSeen = 0
+        hardware.resetLEDs([:], sevenBit: true)
         lastFrames = 0
         stats = M0Model.Stats()
         do {
