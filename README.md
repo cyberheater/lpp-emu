@@ -174,7 +174,7 @@ background (Sequencer button green in note mode).
 - **Tracks**: 8, each with MIDI channel, output (USB / DIN 1 / DIN 2 / DIN 1+2), mute and transpose (hold a track button).
 - **Patterns**: 8 per track × 32 steps, length per pattern. Hold Patterns (89): tracks × patterns grid; tap to switch
   (queued to the end of the pattern while playing); hold + tap to chain; Duplicate/Clear + tap to copy/clear.
-- **Steps**: up to 4 notes (a chord: hold a step, tap note pads; the first tap sets the note, later taps add or
+- **Steps**: up to 8 notes (a chord: hold a step, tap note pads; the first tap sets the note, later taps add or
   remove notes), velocity (right column while holding a step), gate in eighths (bottom row), probability
   (Shift + right column). Swing 50-75 % (Shift + step pads), timed to the millisecond.
 - **Live recording**: tap Record (bottom-left) to arm; while playing, notes from the pads or from a keyboard (USB MIDI
@@ -183,10 +183,13 @@ background (Sequencer button green in note mode).
   with MIDI Thru would echo the sequencer's clock back); pick a single input to follow an external clock.
 - **Clock**: internal (Shift + Up/Down = tempo) or external MIDI clock from the USB MIDI port or DIN In (auto-follow,
   clock passed on to both DIN outs, Play LED cyan); falls back to internal 500 ms after the last pulse.
-- **Projects**: 8 slots in flash (tap Projects = save, hold = slot row); v3 format (4 notes per step) at user offset 0x40000,
-  16 KB per slot, CRC-32, last slot auto-loaded; v2 and v1 saves load too.
+- **Projects**: 8 slots in flash (tap Projects = save, hold = slot row); v4 format (8 notes per step) at user offset 0x80000,
+  32 KB per slot, CRC-32, last slot auto-loaded; v3/v2 saves (16 KB slots at 0x40000) and v1 saves load too.
 - **Drivers**: `din.rs` — DIN Out 1 = UART4 TX PA0, DIN Out 2 = UART7 TX PE8, DIN In = UART4 RX PC11 (all AF8,
-  31250 8N1, interrupt-driven rings, running-status/SysEx parser), copied from stock 4.40's setup.
+  31250 8N1, interrupt-driven rings, running-status/SysEx parser), copied from stock 4.40's setup. Outputs send
+  running status (note-off velocity 0 as note-on velocity 0), queue whole messages only (a full 2 KB ring drops a
+  message, never part of one), so 8 tracks x 8-note chords degrade to late notes rather than stuck ones. One DIN out
+  carries ~1500 notes/s with running status: spread busy tracks across DIN 1 and DIN 2.
   `MidiPort::Din2`; `read/write_user_storage` on the external flash (1 MB at 0xF00000).
 - **Tests** (`renode/`): `run_tests.sh [elf|bin|syx]` runs seqtest, bgtest, exttest, dinintest, veltest, swingtest, rectest,
   chordtest, flashtest and pattest, each on a fresh boot, with save/restart checks. Output of the last run: `renode/regression.txt`.

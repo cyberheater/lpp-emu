@@ -4,6 +4,8 @@ Programs track 1 -> DIN 1 (C4 on steps 1/5/9/13), plays, switches to note mode a
 note-mode pads still send USB notes and the Sequencer button is green; then returns and stops."""
 import os, socket, sys, threading, time
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'm0'))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from midistream import expand  # noqa: E402  (DIN outs use running status)
 from panel_bridge import LOGICAL_TO_CONTROL, HW_LED_TO_LOGICAL  # noqa: E402
 
 panel = socket.create_connection(('127.0.0.1', 3456))
@@ -32,7 +34,7 @@ def on_panel(ln):
 def on_din(ln):
     f = ln.split()
     if len(f) == 3 and f[0] == 'o':
-        din_log.append((int(f[1]), int(f[2], 16)))
+        din_log.extend((int(f[1]), v) for v in expand(int(f[1]), int(f[2], 16)))
 
 def on_usb(ln):
     if ln.startswith('m ') and not ln.endswith('f80000'):

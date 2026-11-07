@@ -5,6 +5,8 @@ Step 9: tapped on, then tapped again without editing -> off. Clocked externally:
 Gate is checked by counting clock pulses between each note's on and off on DIN 1."""
 import os, socket, sys, threading, time
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'm0'))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from midistream import expand  # noqa: E402  (DIN outs use running status)
 from panel_bridge import LOGICAL_TO_CONTROL, HW_LED_TO_LOGICAL  # noqa: E402
 
 panel = socket.create_connection(('127.0.0.1', 3456))
@@ -33,7 +35,7 @@ def on_panel(ln):
 def on_din(ln):
     f = ln.split()
     if len(f) == 3 and f[0] == 'o' and f[1] == '1':
-        din_log.append(int(f[2], 16))
+        din_log.extend(expand(1, int(f[2], 16)))
 
 for s, fn in ((panel, on_panel), (din, on_din), (usb, lambda ln: None)):
     threading.Thread(target=reader, args=(s, fn), daemon=True).start()

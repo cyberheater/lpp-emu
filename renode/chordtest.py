@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """Polyphonic steps test (Renode with run.resc, fresh flash). Track 1 (DIN 1), externally clocked.
-1. Record armed: a C-E-G chord arrives on DIN In 1 pulse into step 3 (pulse 13) -> step 3 holds all three.
+1. Record armed: an 8-note chord (C4 D E F G A B C5) arrives on DIN In 1 pulse into step 3 (pulse 13) -> step 3
+   holds all eight.
 2. Step edit: hold step 9, tap note pads C4, E4, G4, then E4 again -> step 9 = C4 + G4.
-Playback pass: C4 E4 G4 at pulse ~12 (velocity 0x70, the loudest of the chord), C4 G4 at pulse ~48."""
+Playback pass: the 8 notes at pulse ~12 (velocity 0x70, the loudest of the chord), C4 G4 at pulse ~48."""
 import os, socket, sys, threading, time
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'm0'))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from midistream import expand  # noqa: E402  (DIN outs use running status)
 from panel_bridge import LOGICAL_TO_CONTROL as L  # noqa: E402
 
 panel = socket.create_connection(('127.0.0.1', 3456))
@@ -28,7 +31,7 @@ def reader(sock, fn):
 def on_din(ln):
     f = ln.split()
     if len(f) == 3 and f[0] == 'o' and f[1] == '1':
-        din_log.append(int(f[2], 16))
+        din_log.extend(expand(1, int(f[2], 16)))
 
 for s, fn in ((din, on_din), (panel, lambda ln: None), (usb, lambda ln: None)):
     threading.Thread(target=reader, args=(s, fn), daemon=True).start()
@@ -67,8 +70,8 @@ time.sleep(1.0)
 press(97); time.sleep(0.5)
 press(10); time.sleep(0.3)
 run(96, {
-    13: lambda: din.sendall(b'i 90 3c 50 90 40 60 90 43 70\n'),
-    19: lambda: din.sendall(b'i 80 3c 00 80 40 00 80 43 00\n'),
+    13: lambda: din.sendall(b'i 90 3c 50 90 3e 54 90 40 58 90 41 5c 90 43 60 90 45 64 90 47 70 90 48 68\n'),
+    19: lambda: din.sendall(b'i 80 3c 00 80 3e 00 80 40 00 80 41 00 80 43 00 80 45 00 80 47 00 80 48 00\n'),
 })
 press(10); time.sleep(0.3)
 
@@ -82,7 +85,7 @@ print('playback: DIN 1 note-ons (pulse, note, vel):', p)
 chord = sorted(nt for (pl, nt, v) in p if 10 <= pl <= 14)
 vels = {v for (pl, nt, v) in p if 10 <= pl <= 14}
 edited = sorted(nt for (pl, nt, v) in p if 46 <= pl <= 50)
-print('recorded chord at step 3:', chord, 'velocities', vels, '(expect [60, 64, 67] {112})')
+print('recorded chord at step 3:', chord, 'velocities', vels, '(expect [60, 62, 64, 65, 67, 69, 71, 72] {112})')
 print('edited chord at step 9:', edited, '(expect [60, 67])')
-ok = chord == [60, 64, 67] and vels == {112} and edited == [60, 67]
+ok = chord == [60, 62, 64, 65, 67, 69, 71, 72] and vels == {112} and edited == [60, 67]
 print('chordtest', 'PASS' if ok else 'FAIL')

@@ -6,6 +6,8 @@ Drives the front panel (3456), listens to USB MIDI (3457) and DIN (3458):
   then Play for ~4 s and check what arrives on each port and how evenly the beats are spaced."""
 import os, socket, sys, threading, time
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'm0'))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from midistream import expand  # noqa: E402  (DIN outs use running status)
 from panel_bridge import LOGICAL_TO_CONTROL, HW_LED_TO_LOGICAL  # noqa: E402
 
 panel = socket.create_connection(('127.0.0.1', 3456))
@@ -37,7 +39,7 @@ def on_panel(ln, t):
 def on_din(ln, t):
     f = ln.split()
     if len(f) == 3 and f[0] == 'o':
-        din_log.append((t, int(f[1]), int(f[2], 16)))
+        din_log.extend((t, int(f[1]), v) for v in expand(int(f[1]), int(f[2], 16)))
 
 def on_usb(ln, t):
     if ln.startswith('m '):
@@ -94,6 +96,7 @@ for port in (1, 2):
     gaps = [round(ons[i + 1][0] - ons[i][0], 3) for i in range(len(ons) - 1)]
     print(f'DIN {port}: {clocks} clocks, note-ons {[n for _, n in ons][:8]}, gaps(s) {gaps[:8]}, start/stop',
           [hex(x[2]) for x in b if x[2] in (0xFA, 0xFC)])
-offs = [x for x in log if 0x80 <= x[2] <= 0x8F]
-print('note-off status bytes seen:', len(offs))
+offs = [x for i, x in enumerate(log[:-2]) if 0x80 <= x[2] <= 0x8F
+        or (0x90 <= x[2] <= 0x9F and log[i + 1][2] < 0x80 and log[i + 2][2] == 0)]
+print('note-offs seen (incl. note-on velocity 0):', len(offs))
 print('USB packets (non-clock):', [p for _, p in ulog if not p.endswith('f80000')][:6], ' clock packets', sum(1 for _, p in ulog if p.endswith('f80000')))
