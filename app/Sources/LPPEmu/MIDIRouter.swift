@@ -1,5 +1,6 @@
 import CoreMIDI
 import Foundation
+import os
 
 /// Connects the emulator's DIN jacks to real MIDI devices on the Mac: DIN Out 1 / DIN Out 2 to any MIDI destination
 /// (a USB-MIDI interface, a synth's USB port, the real Launchpad's "LPProMK3 DIN" port...), DIN In from any source.
@@ -24,7 +25,11 @@ final class MIDIRouter: @unchecked Sendable {
     private var client = MIDIClientRef()
     private var outPort = MIDIPortRef()
     private var inPort = MIDIPortRef()
-    private var connectedSource: MIDIEndpointRef = 0
+    private var connectedSources: Set<MIDIEndpointRef> = []
+
+    /// DIN In choice meaning "every MIDI source on the Mac" (omni across devices). The Launchpad's own ports are
+    /// left out: in Programmer mode its MIDI port carries the pads, which the mirror already handles.
+    static let allInputs = MIDIUniqueID.min
     private var inSysex: [UInt8] = []        // CoreMIDI input thread only
 
     /// Selected unique IDs (0 = none).
@@ -36,7 +41,7 @@ final class MIDIRouter: @unchecked Sendable {
         let d = UserDefaults.standard
         out1 = MIDIUniqueID(d.integer(forKey: "dinOut1Device"))
         out2 = MIDIUniqueID(d.integer(forKey: "dinOut2Device"))
-        input = MIDIUniqueID(d.integer(forKey: "dinInDevice"))
+        input = d.object(forKey: "dinInDevice") == nil ? Self.allInputs : MIDIUniqueID(d.integer(forKey: "dinInDevice"))
         MIDIClientCreateWithBlock("LPP MK3 Emulator router" as CFString, &client) { [weak self] note in
             // Any change (devices added/removed, renamed, new IDs): refresh the lists and reconnect.
             _ = note
@@ -83,7 +88,7 @@ final class MIDIRouter: @unchecked Sendable {
     private func reresolve(_ snap: Snapshot) {
         let d = UserDefaults.standard
         func fix(_ id: inout MIDIUniqueID, key: String, in list: [Endpoint]) {
-            guard id != 0, !list.contains(where: { $0.id == id }),
+            guard id != 0, id != Self.allInputs, !list.contains(where: { $0.id == id }),
                   let name = d.string(forKey: key + "Name"), let e = list.first(where: { $0.name == name }) else { return }
             id = e.id
             d.set(Int(e.id), forKey: key)
@@ -142,11 +147,23 @@ final class MIDIRouter: @unchecked Sendable {
     }
 
     private func connectInput() {
-        let src = endpoint(input)
-        guard src != connectedSource else { return }
-        if connectedSource != 0 { MIDIPortDisconnectSource(inPort, connectedSource) }
-        if src != 0 { MIDIPortConnectSource(inPort, src, nil) }
-        connectedSource = src
+        var want: Set<MIDIEndpointRef> = []
+        if input == Self.allInputs {
+            for e in latest.sources where !e.name.contains("LPProMK3") {
+                let src = endpoint(e.id)
+                if src != 0 { want.insert(src) }
+            }
+        } else {
+            let src = endpoint(input)
+            if src != 0 { want.insert(src) }
+        }
+        for src in connectedSources.subtracting(want) { MIDIPortDisconnectSource(inPort, src) }
+        for src in want.subtracting(connectedSources) { MIDIPortConnectSource(inPort, src, nil) }
+        if want != connectedSources {
+            let names = latest.sources.filter { want.contains(endpoint($0.id)) }.map(\.name)
+            Logger(subsystem: "local.lppemu", category: "router").notice("DIN In: listening to \(names.joined(separator: ", "), privacy: .public)")
+        }
+        connectedSources = want
     }
 
     // MARK: - output

@@ -115,12 +115,14 @@ final class Emulator: ObservableObject {
     @Published var dinOut2Device: MIDIUniqueID = MIDIUniqueID(UserDefaults.standard.integer(forKey: "dinOut2Device")) {
         didSet { router.setOut(2, to: dinOut2Device) }
     }
-    @Published var dinInDevice: MIDIUniqueID = MIDIUniqueID(UserDefaults.standard.integer(forKey: "dinInDevice")) {
+    @Published var dinInDevice: MIDIUniqueID = UserDefaults.standard.object(forKey: "dinInDevice") == nil
+        ? MIDIRouter.allInputs : MIDIUniqueID(UserDefaults.standard.integer(forKey: "dinInDevice")) {
         didSet { router.setInput(dinInDevice) }
     }
 
     func deviceName(_ id: MIDIUniqueID, sources: Bool = false) -> String? {
-        (sources ? midiDevices.sources : midiDevices.destinations).first { $0.id == id }?.name
+        if sources && id == MIDIRouter.allInputs { return "All MIDI inputs" }
+        return (sources ? midiDevices.sources : midiDevices.destinations).first { $0.id == id }?.name
     }
     @Published var mirrorHardware = UserDefaults.standard.object(forKey: "mirrorHardware") as? Bool ?? true {
         didSet {
