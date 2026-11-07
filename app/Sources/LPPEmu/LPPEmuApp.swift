@@ -90,7 +90,7 @@ struct LPPEmuApp: App {
                 }
                 Picker("DIN In ←", selection: $emu.dinInDevice) {
                     Text("None").tag(MIDIUniqueID(0))
-                    Text("All MIDI inputs (omni)").tag(MIDIRouter.allInputs)
+                    Text("All MIDI inputs (omni, notes only — no clock)").tag(MIDIRouter.allInputs)
                     ForEach(emu.midiDevices.sources) { Text($0.name).tag($0.id) }
                 }
                 Divider()

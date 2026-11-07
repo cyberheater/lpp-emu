@@ -50,7 +50,10 @@ final class MIDIRouter: @unchecked Sendable {
         MIDIOutputPortCreate(client, "DIN out" as CFString, &outPort)
         MIDIInputPortCreateWithProtocol(client, "DIN in" as CFString, ._1_0, &inPort) { [weak self] list, _ in
             guard let self else { return }
-            let bytes = MIDIUMP.bytes(from: list, sysex: &self.inSysex)
+            var bytes = MIDIUMP.bytes(from: list, sysex: &self.inSysex)
+            // Omni takes notes from everything, but not clock/start/stop: a keyboard with MIDI Thru echoes the
+            // sequencer's own clock back and it would chase itself. Pick one input to follow an external clock.
+            if self.input == Self.allInputs { bytes.removeAll { $0 >= 0xF8 } }
             guard !bytes.isEmpty else { return }
             self.queue.async { self.onInput?(bytes) }
         }
