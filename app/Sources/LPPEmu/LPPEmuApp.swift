@@ -1,4 +1,5 @@
 import AppKit
+import CoreMIDI
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -75,10 +76,25 @@ struct LPPEmuApp: App {
             }
             CommandMenu("Hardware") {
                 Toggle("Mirror on Connected Launchpad", isOn: $emu.mirrorHardware)
-                Picker("Route DIN Through Launchpad", selection: $emu.dinRoute) {
-                    ForEach(HardwareMirror.DINRoute.allCases) { Text($0.rawValue).tag($0) }
-                }
+
                 Text(emu.hardwareStatus.connected ? "Connected: \(emu.hardwareStatus.name)" : "No Launchpad Pro MK3 connected")
+            }
+            CommandMenu("MIDI") {
+                Picker("DIN Out 1 →", selection: $emu.dinOut1Device) {
+                    Text("None").tag(MIDIUniqueID(0))
+                    ForEach(emu.midiDevices.destinations) { Text($0.name).tag($0.id) }
+                }
+                Picker("DIN Out 2 →", selection: $emu.dinOut2Device) {
+                    Text("None").tag(MIDIUniqueID(0))
+                    ForEach(emu.midiDevices.destinations) { Text($0.name).tag($0.id) }
+                }
+                Picker("DIN In ←", selection: $emu.dinInDevice) {
+                    Text("None").tag(MIDIUniqueID(0))
+                    ForEach(emu.midiDevices.sources) { Text($0.name).tag($0.id) }
+                }
+                Divider()
+                Text("Tip: a Launchpad running Novation firmware echoes its pads out of its own DIN jack,")
+                Text("so a separate MIDI interface gives cleaner results than its \"LPProMK3 DIN\" port.")
             }
             CommandMenu("Emulator") {
                 Button("Restart") { emu.restart() }
@@ -173,12 +189,10 @@ struct StatusBar: View {
             Text(emu.usb.configured ? "USB MIDI: \(emu.usb.ports.count) ports" : (emu.usb.connected ? "USB: enumerating…" : "USB: —"))
                 .help(emu.usb.ports.joined(separator: "\n"))
             if emu.hardwareStatus.connected {
-                Text(emu.hardwareStatus.dinConnected && emu.dinRoute != .off ? "Hardware ✓ + DIN" : "Hardware ✓")
-                    .foregroundStyle(.green)
-                    .help("Mirroring on \(emu.hardwareStatus.name)" + (emu.dinRoute != .off ? "; DIN routed: \(emu.dinRoute.rawValue)" : ""))
+                Text("Hardware ✓").foregroundStyle(.green).help("Mirroring on \(emu.hardwareStatus.name)")
             }
             Text(emu.din.connected ? "DIN ✓" : "DIN —")
-                .help("CoreMIDI: LPP Emu DIN Out 1, DIN Out 2, DIN In")
+                .help("DIN Out 1 → \(emu.deviceName(emu.dinOut1Device) ?? "None")\nDIN Out 2 → \(emu.deviceName(emu.dinOut2Device) ?? "None")\nDIN In ← \(emu.deviceName(emu.dinInDevice, sources: true) ?? "None")\nAlso as CoreMIDI ports: LPP Emu DIN Out 1/2, DIN In")
             Text("\(emu.framesPerSecond) frames/s").monospacedDigit()
             Text("LED commits \(emu.stats.ledCommits)").monospacedDigit()
             if emu.stats.overruns > 0 {

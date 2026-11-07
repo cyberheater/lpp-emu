@@ -1,3 +1,4 @@
+import CoreMIDI
 import Foundation
 import Network
 import SwiftUI
@@ -55,9 +56,19 @@ final class Emulator: ObservableObject {
         hardware.onInput = { [weak self] index, down, value in
             Task { @MainActor in self?.hardwarePress(index, down: down, value: value) }
         }
-        hardware.dinRoute = HardwareMirror.DINRoute(rawValue: UserDefaults.standard.string(forKey: "dinRoute") ?? "") ?? .both
-        dinBridge.onOutput = { [weak self] output, words in self?.hardware.sendDIN(output: output, words: words) }
-        hardware.onDINInput = { [weak self] bytes in self?.dinBridge.input(bytes) }
+        dinBridge.onOutput = { [weak self] output, words in self?.router.send(output: output, words: words) }
+        router.onInput = { [weak self] bytes in self?.dinBridge.input(bytes) }
+        router.onDevices = { [weak self] snap in
+            guard let self else { return }
+            let sel = (self.router.out1, self.router.out2, self.router.input)
+            Task { @MainActor in
+                self.midiDevices = snap
+                // keep the menu ticks in step with re-resolved devices (without re-triggering didSet)
+                if self.dinOut1Device != sel.0 { self.dinOut1Device = sel.0 }
+                if self.dinOut2Device != sel.1 { self.dinOut2Device = sel.1 }
+                if self.dinInDevice != sel.2 { self.dinInDevice = sel.2 }
+            }
+        }
         hardware.onStatus = { [weak self] s in
             Task { @MainActor in self?.hardwareStatus = s }
         }
@@ -94,12 +105,22 @@ final class Emulator: ObservableObject {
 
     let hardware = HardwareMirror()
     @Published private(set) var hardwareStatus = HardwareMirror.Status()
-    /// Emulated DIN outputs routed through the connected Launchpad's real DIN jacks (and its DIN In fed back in).
-    @Published var dinRoute = HardwareMirror.DINRoute(rawValue: UserDefaults.standard.string(forKey: "dinRoute") ?? "") ?? .both {
-        didSet {
-            UserDefaults.standard.set(dinRoute.rawValue, forKey: "dinRoute")
-            hardware.dinRoute = dinRoute
-        }
+    // MARK: - DIN jacks <-> real MIDI devices on the Mac
+
+    let router = MIDIRouter()
+    @Published private(set) var midiDevices = MIDIRouter.Snapshot()
+    @Published var dinOut1Device: MIDIUniqueID = MIDIUniqueID(UserDefaults.standard.integer(forKey: "dinOut1Device")) {
+        didSet { router.setOut(1, to: dinOut1Device) }
+    }
+    @Published var dinOut2Device: MIDIUniqueID = MIDIUniqueID(UserDefaults.standard.integer(forKey: "dinOut2Device")) {
+        didSet { router.setOut(2, to: dinOut2Device) }
+    }
+    @Published var dinInDevice: MIDIUniqueID = MIDIUniqueID(UserDefaults.standard.integer(forKey: "dinInDevice")) {
+        didSet { router.setInput(dinInDevice) }
+    }
+
+    func deviceName(_ id: MIDIUniqueID, sources: Bool = false) -> String? {
+        (sources ? midiDevices.sources : midiDevices.destinations).first { $0.id == id }?.name
     }
     @Published var mirrorHardware = UserDefaults.standard.object(forKey: "mirrorHardware") as? Bool ?? true {
         didSet {

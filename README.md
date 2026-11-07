@@ -45,13 +45,14 @@ open "build/LPP MK3 Emulator.app"
   batched every ~8 ms) and feeds its pads and buttons (with velocity and aftertouch pressure) into the emulated
   Launchpad. Unplugging, quitting or unticking *Mirror on Connected Launchpad* returns it to its normal mode.
   Verified with a real Pro MK3 (2026-11-07). Setup and Shift may not be reported in Programmer mode (not yet checked).
-- **DIN through the real Launchpad (Hardware ▸ Route DIN Through Launchpad):** the emulator's DIN outputs go to the
-  real device's "LPProMK3 DIN" port, i.e. out of its physical MIDI Out; its MIDI In is fed into the emulator's DIN In.
-  Its firmware sends that port to both physical outs, so Out 1 + 2 are merged (clock taken from Out 1 only) or one is
-  chosen. Verified 2026-11-07: sequencer track on DIN 1 played a keyboard through the real jack.
-  Notes: new sequencer tracks default to USB output (hold the track button, tap bottom-row pad 2 for DIN 1); the real
-  Launchpad also sends its own pad data, including aftertouch pressure, out of its MIDI jack, which a synth may hear
-  as modulation; turn aftertouch off in the Launchpad's own settings if that is unwanted.
+- **MIDI menu — DIN jacks to real devices:** *DIN Out 1 →*, *DIN Out 2 →* and *DIN In ←* each pick any MIDI device on
+  the Mac (USB-MIDI interface, a synth's USB port, the real Launchpad's "LPProMK3 DIN" port…), or None (default).
+  With a two-port interface the two outputs stay separate; if both go to one device, clock is sent once. Choices are
+  kept by CoreMIDI ID and name, so devices reconnect when plugged back in. Verified 2026-11-07 (sequencer → a test
+  MIDI device; earlier, sequencer → keyboard through the real Launchpad's jack).
+  Caveat for the Launchpad's own "LPProMK3 DIN" port: Novation's firmware echoes every pad press (its Programmer-mode
+  note, plus aftertouch) out of its DIN jack, which clashes with the emulator's notes; no SysEx turns that off
+  (scanned all commands, also DAW mode). Use a separate MIDI interface for clean results.
 - **DIN MIDI:** CoreMIDI sources `LPP Emu DIN Out 1` / `LPP Emu DIN Out 2` carry what the firmware sends on the two
   DIN outputs; destination `LPP Emu DIN In` feeds the DIN input. Route them to/from your synths in a DAW or with
   Audio MIDI Setup to test per-port routing without hardware.
