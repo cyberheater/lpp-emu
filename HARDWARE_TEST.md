@@ -29,6 +29,9 @@ First flashed onto real hardware 2026-11-07 (14,338 messages, about a minute): b
 DIN out was garbage on the first flash: the MIDI out stage inverts, and stock sets CR2.TXINV on UART4 and UART7. The
 emulator's UART model treats TXINV as an unstored "tagged" bit, so it could not catch this; Renode does log the write
 (`uart4: Unhandled write to offset 0x4 ... Tags: TXINV`). Fixed the same day; DIN Out 1 verified clean (notes + clock).
+DIN Out 2 then carried only what arrived at MIDI In: the second jack is "Out 2 / Thru", selected by PA7 (stock drives
+it low = Out 2; floating = Thru). Found by diffing every GPIO's mode under stock vs CoreFW in the emulator. With PA7
+driven low, DIN Out 2 verified on hardware (notes + clock); jack order confirmed: UART4 = MIDI Out, UART7 = Out 2.
 
 ## Go back to stock (recovery)
 Bootloader mode again (step 2: hold Setup while plugging in), then flash your Novation update file the same way, or with Novation
@@ -53,5 +56,5 @@ Components' firmware updater.
 
 ## Known gaps
 - The stock flash layout is unknown (see "Before flashing").
-- The DIN jack order is inferred (check 3). DIN Out 1 (UART4) is confirmed working on hardware; Out 2 not yet.
+- DIN Out 1 (UART4) and Out 2 (UART7, PA7 low) both confirmed working on hardware.
 - MIDI clock output runs whenever the sequencer plays. There's no setting to turn it off yet.
