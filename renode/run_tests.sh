@@ -37,6 +37,7 @@ run chordtest.py
 run thrutest.py
 run echotest.py
 run tempotest.py
+run clocktogtest.py
 run flashtest.py program; boot; echo "=== flashtest.py verify (after restart)"; python3 -I flashtest.py verify
 run pattest.py program;   boot; echo "=== pattest.py verify (after restart)";   python3 -I pattest.py verify
 pkill -f "renode --disable-gui -P 1234"
