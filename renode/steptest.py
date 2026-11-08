@@ -91,6 +91,8 @@ def lit(c): return c is not None and sum(c) > 150   # unlit steps are at most (2
 time.sleep(1.0)
 press(97); time.sleep(0.5)
 if sys.argv[1] == 'program':
+    from seqhelp import follow_external; follow_external(press)   # follow the external clock this test sends
+if sys.argv[1] == 'program':
     press(step_xy(1))                                   # step 1 = C4 (note pad 12 = 60, the default)
     press(92); time.sleep(0.3)                          # right arrow: page 2 (steps 33-64)
     arrows = (leds.get(91), leds.get(92))
@@ -107,4 +109,17 @@ check('note-on pulses over 64 steps (step 1, step 33, step 1 again)', r.get(1), 
 if sys.argv[1] == 'program':
     press(98); time.sleep(2.0)                          # save (version 5, 64 steps)
     print('Projects LED after save:', leds.get(98))
+    # Clearing keeps the length: Clear + track button, then Clear + the pattern's pad in the pattern map (Patterns held).
+    # The right arrow stays grey (pattern reaches page 2) instead of dim (16 steps).
+    down(60); press(101); up(60); time.sleep(0.3)
+    check('after Clear + track: step 1 lit, right arrow', (lit(leds.get(step_xy(1))), leds.get(92)), (False, (48, 48, 48)))
+    press(step_xy(1)); time.sleep(0.2)
+    down(89); down(60); press(81); up(60); up(89); time.sleep(0.3)
+    check('after Clear in pattern map: step 1 lit, right arrow', (lit(leds.get(step_xy(1))), leds.get(92)), (False, (48, 48, 48)))
+    r = play(6 * 64 + 6, spacing=0.02)
+    check('cleared 64-step pattern plays nothing', r.get(1), None)
+    # A new (empty) pattern takes the current pattern's length: Patterns held, tap pattern B of track 1 (row 7).
+    down(89); press(71); up(89); time.sleep(0.3)
+    check('switched to empty pattern B: right arrow (reaches page 2 = 64 steps)', leds.get(92), (48, 48, 48))
+    down(89); press(81); up(89); time.sleep(0.3)        # back to pattern A
 print('steptest', sys.argv[1], 'PASS' if ok else 'FAIL')

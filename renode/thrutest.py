@@ -71,5 +71,8 @@ results = [
     step('mod wheel moved', 'b0 01 41', [('b2', '01', '41')]),
     step('note-off', '80 3c 00', [('92', '3c', '00')]),
     step('echo of the off', '92 3c 00', []),
+    # a preset change on the keyboard (bank select MSB / LSB + program change, as a Korg minilogue sends) is not passed on
+    step('bank select + program change', 'b0 00 00 b0 20 01 c0 63', []),
+    step('pitch bend still passes', 'e0 00 50', [('e2', '00', '50')]),
 ]
 print('thrutest', 'PASS' if all(results) else 'FAIL')

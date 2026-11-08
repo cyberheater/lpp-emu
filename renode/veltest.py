@@ -48,6 +48,7 @@ def note_xy(pad): return (1 + pad // 8) * 10 + pad % 8 + 1
 
 time.sleep(1.0)
 press(97); time.sleep(0.5)
+from seqhelp import follow_external; follow_external(press)   # follow the external clock this test sends
 down(101); press(note_xy(1)); up(101)
 press(note_xy(12))
 down(step_xy(1)); time.sleep(0.3)

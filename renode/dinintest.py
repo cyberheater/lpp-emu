@@ -51,6 +51,7 @@ def note_xy(pad): return (1 + pad // 8) * 10 + pad % 8 + 1
 
 time.sleep(1.0)
 press(97); time.sleep(0.5)
+from seqhelp import follow_external; follow_external(press)   # follow the external clock this test sends
 down(101); press(note_xy(1)); up(101)
 press(note_xy(12))
 for s in (1, 5, 9, 13):
@@ -73,7 +74,7 @@ with lock:
     d2 = [v for p, v in din_log if p == 2]
     ulog = list(usb_log)
 notes = [d1[i + 1] for i in range(len(d1) - 2) if 0x90 <= d1[i] <= 0x9F and d1[i + 2] > 0]
-print('Play LED while following external clock (cyan expected):', play_led)
+print('Play LED while following external clock (orange expected):', play_led)
 print('DIN 1 note-ons:', notes, '(expect 4 x 60)')
 print('clock passed through: DIN 1', d1.count(0xF8), 'DIN 2', d2.count(0xF8), '(expect 96 each)',
       ' start/stop on DIN 1:', [hex(v) for v in d1 if v in (0xFA, 0xFC)])

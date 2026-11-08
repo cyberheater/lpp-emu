@@ -224,19 +224,20 @@ background (Sequencer button green in note mode).
   together are recorded as a chord. The app's DIN In defaults to "All MIDI inputs" (notes only, no clock — a keyboard
   with MIDI Thru would echo the sequencer's clock back); pick a single input to follow an external clock.
 - **MIDI thru**: a keyboard on the USB MIDI port / DIN In plays the selected track (notes, aftertouch, controllers,
-  program change, pitch bend re-sent on that track's output and channel); echoes from a keyboard with MIDI Thru are
+  pitch bend re-sent on that track's output and channel; program change and bank select are dropped); echoes from a keyboard with MIDI Thru are
   recognised and dropped.
 - **Tempo**: hold Shift to see the BPM on the note area (orange hundreds bar, white tens and units); Shift + Sends
   (printed "Tap") is tap tempo.
-- **Clock**: internal (Shift + Up/Down = tempo) or external MIDI clock from the USB MIDI port or DIN In (auto-follow,
-  clock passed on to both DIN outs, Play LED cyan); falls back to internal 500 ms after the last pulse.
+- **Clock**: internal by default (Shift + Up/Down = tempo, Play green; incoming clock / start / stop ignored).
+  Shift + Play switches to following an external MIDI clock from the USB MIDI port or DIN In (clock passed on to
+  both DIN outs, Play orange); falls back to internal 500 ms after the last pulse.
   Clock bytes arriving within 6 ms of the sequencer sending the same byte are its own echo (a synth with MIDI Thru
   on DIN In) and are ignored, so the clock cannot chase itself.
-  Shift + Play turns following an external clock on / off (while Shift is held, Play is cyan = follow, orange =
-  ignore). Ignoring drops incoming clock / start / stop entirely: the sequencer runs and sends only its own clock.
-  Saved with the project (header byte 8, bit 0; older projects follow).
-- **Projects**: 8 slots in flash (tap Projects = save, hold = slot row); v4 format (8 notes per step) at user offset 0x80000,
-  32 KB per slot, CRC-32, last slot auto-loaded; v3/v2 saves (16 KB slots at 0x40000) and v1 saves load too.
+  While Shift is held, Play shows the setting (green = internal, orange = external). Saved with the project
+  (header byte 8, bit 1 = follow; older projects load on the internal clock).
+- **Projects**: 8 slots in flash (tap Projects = save, hold = slot row); v5 format (64 steps, 8 notes per step), 48 KB
+  slots at user offsets 0x10000 (slots 1-4) and 0xC0000 (slots 5-8), CRC-32, last slot auto-loaded; v4 saves (32 KB
+  slots at 0x80000), v3/v2 saves (16 KB slots at 0x40000) and v1 saves load too.
 - **Drivers**: `din.rs` — DIN Out 1 = UART4 TX PA0, DIN Out 2 = UART7 TX PE8, DIN In = UART4 RX PC11 (all AF8,
   31250 8N1, interrupt-driven rings, running-status/SysEx parser), copied from stock 4.40's setup. Outputs send
   running status (note-off velocity 0 as note-on velocity 0), queue whole messages only (a full 2 KB ring drops a
@@ -244,7 +245,7 @@ background (Sequencer button green in note mode).
   carries ~1500 notes/s with running status: spread busy tracks across DIN 1 and DIN 2.
   `MidiPort::Din2`; `read/write_user_storage` on the external flash (1 MB at 0xF00000).
 - **Tests** (`renode/`): `run_tests.sh [elf|bin|syx]` runs seqtest, bgtest, exttest, dinintest, veltest, swingtest, rectest,
-  chordtest, thrutest, echotest, tempotest, clocktogtest, ratetest, flashtest and pattest, each on a fresh boot, with save/restart checks. Output of the last run: `renode/regression.txt`.
+  chordtest, thrutest, echotest, tempotest, clocktogtest, ratetest, flashtest, pattest and steptest, each on a fresh boot, with save/restart checks. Output of the last run: `renode/regression.txt`.
 
 ## Update image format (verified on stock 4.40 and CoreFW)
 SysEx `F0 00 20 29 00 <cmd>`: 71 header, 7C version + nibble size + CRC, 72 data, 73 = block 0 sent last.

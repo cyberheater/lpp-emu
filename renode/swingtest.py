@@ -80,6 +80,7 @@ def play(pulses, spacing=0.03):
 
 time.sleep(1.0)
 press(97); time.sleep(0.5)
+from seqhelp import follow_external; follow_external(press)   # follow the external clock this test sends
 down(101); press(note_xy(1)); press(note_xy(22)); time.sleep(0.2)
 tp_led = leds.get(note_xy(22)); up(101)                 # DIN 1, transpose +2
 press(note_xy(12)); press(step_xy(1)); press(step_xy(2))

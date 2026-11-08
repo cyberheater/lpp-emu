@@ -87,6 +87,7 @@ def check(label, got, want):
 
 time.sleep(1.0)
 press(97); time.sleep(0.5)
+from seqhelp import follow_external; follow_external(press)   # follow the external clock this test sends
 for s in range(1, 5):                                   # track 1: steps 1-4, note 60
     press(step_xy(s))
 press(102); press(note_xy(16))                          # track 2: steps 1-4, note 64

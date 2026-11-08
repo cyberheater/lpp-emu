@@ -67,6 +67,8 @@ def pattern_view():
 time.sleep(1.0)
 press(97); time.sleep(0.5)
 if sys.argv[1] == 'program':
+    from seqhelp import follow_external; follow_external(press)   # follow the external clock this test sends
+if sys.argv[1] == 'program':
     down(101); press(note_xy(1)); up(101)          # track 1 -> DIN 1
     press(note_xy(12)); press(step_xy(1))           # A: C4 on step 1
     down(89); press(pat_xy(0, 1)); up(89)           # switch to B (stopped -> immediate)

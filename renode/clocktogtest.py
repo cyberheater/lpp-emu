@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Ignore-external-clock test (Renode with run.resc, fresh flash). Shift + Play toggles following an external clock.
-1. Shift held: Play is cyan (follows). Shift + Play: orange (ignores); the Projects LED turns amber (unsaved setting).
-2. Ignoring: FA + 96 x F8 into DIN In must not start the sequencer: no notes, nothing passed on to the DIN outs.
-3. Play: the internal clock runs; external F8 pulses arriving meanwhile must not change its rate or turn Play cyan.
-4. Shift + Play again: follows again (cyan), and an external FA + F8 run plays 4 notes as in dinintest."""
+"""Clock-source test (Renode with run.resc, fresh flash). The internal clock is the default; Shift + Play toggles
+following an external clock.
+1. Shift held: Play is green (internal). Shift + Play: orange (follow external); the Projects LED turns amber.
+2. Following: an external FA + 96 x F8 run into DIN In plays 4 notes and the clock is passed on to both DIN outs.
+3. Shift + Play again: green; the same external run must not start the sequencer: no notes, nothing passed on.
+4. Play: the internal clock runs; external F8 pulses arriving meanwhile must not change its rate or turn Play orange."""
 import os, re, socket, sys, threading, time
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'm0'))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -72,7 +73,7 @@ def led(i):
     with lock:
         return leds.get(i)
 
-cyan = lambda c: c is not None and c[1] > 2 * c[0] and c[2] > 2 * c[0]
+green = lambda c: c is not None and c[1] > 2 * c[0] and c[1] > 2 * c[2]
 orange = lambda c: c is not None and c[0] > 150 and c[1] < c[0] and c[2] < 40
 amber = lambda c: c is not None and c[0] > 150 and c[1] > 60 and c[2] < 40
 
@@ -100,21 +101,33 @@ press(98); time.sleep(1.5)                     # save, so the Projects LED is gr
 proj_before = led(98)
 
 shift(True)
+internal_led = led(20)
+press(20)                                      # Shift + Play: follow an external clock
 follow_led = led(20)
-press(20)                                      # Shift + Play: ignore external clock
-ignore_led = led(20)
 shift(False)
 proj_after = led(98)
-ok1 = cyan(follow_led) and orange(ignore_led) and amber(proj_after)
-print(f'Shift held: Play {follow_led} (cyan = follow); after Shift + Play: {ignore_led} (orange = ignore); '
-      f'Projects LED {proj_before} -> {proj_after} (amber = unsaved)', 'ok' if ok1 else 'FAIL')
+ok1 = green(internal_led) and orange(follow_led) and amber(proj_after)
+print(f'Shift held: Play {internal_led} (green = internal clock, the default); after Shift + Play: {follow_led} '
+      f'(orange = follow external); Projects LED {proj_before} -> {proj_after} (amber = unsaved)', 'ok' if ok1 else 'FAIL')
 
 take()
 ext_run()
 notes, c1, c2 = take()
-ok2 = notes == [] and c1 == 0 and c2 == 0
-print(f'ignoring, external FA + 96 F8: notes {notes} (expect []), clock out DIN 1 {c1} DIN 2 {c2} (expect 0)',
-      'ok' if ok2 else 'FAIL')
+# 95 is accepted: when the emulator catches up after host lag, two of our pulses can land within the 6 ms clock-echo
+# window and the second is dropped (seen in about one run in two here; dinintest checks the exact count).
+ok2 = notes == [60] * 4 and c1 >= 95 and c2 >= 95
+print(f'following: notes {notes} (expect 4 x 60), clock passed DIN 1 {c1} DIN 2 {c2} (expect 96)', 'ok' if ok2 else 'FAIL')
+
+shift(True)
+press(20)                                      # back to the internal clock
+back_led = led(20)
+shift(False)
+take()
+ext_run()
+notes, c1, c2 = take()
+ok3 = green(back_led) and notes == [] and c1 == 0 and c2 == 0
+print(f'internal again: Play {back_led} (green); external FA + 96 F8: notes {notes} (expect []), clock out DIN 1 {c1} '
+      f'DIN 2 {c2} (expect 0)', 'ok' if ok3 else 'FAIL')
 
 press(20); time.sleep(1.0)                     # Play on the internal clock
 take(); time.sleep(3.0); _, plain, _ = take()
@@ -127,20 +140,7 @@ time.sleep(0.5); take(); time.sleep(3.0); _, fed, _ = take()
 samples = [led(20) for _ in range(5)]
 stop.set(); time.sleep(0.2)
 press(20); time.sleep(0.5)
-ok3 = plain > 0 and abs(fed - plain) <= max(3, plain // 10) and not any(cyan(c) for c in samples)
+ok4 = plain > 0 and abs(fed - plain) <= max(3, plain // 10) and not any(orange(c) for c in samples)
 print(f'internal clock in 3 s: {plain}; with external F8 arriving: {fed} (should match); Play LEDs {set(samples)}',
-      'ok' if ok3 else 'FAIL')
-
-shift(True)
-press(20)                                      # follow again
-back_led = led(20)
-shift(False)
-take()
-ext_run()
-notes, c1, c2 = take()
-# 95 is accepted: when the emulator catches up after host lag, two of our pulses can land within the 6 ms clock-echo
-# window and the second is dropped (seen in about one run in two here; dinintest checks the exact count).
-ok4 = cyan(back_led) and notes == [60] * 4 and c1 >= 95 and c2 >= 95
-print(f'following again: Play {back_led} (cyan); notes {notes} (expect 4 x 60), clock passed DIN 1 {c1} '
-      f'DIN 2 {c2} (expect 96)', 'ok' if ok4 else 'FAIL')
+      'ok' if ok4 else 'FAIL')
 print('clocktogtest', 'PASS' if ok1 and ok2 and ok3 and ok4 else 'FAIL')

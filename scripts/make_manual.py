@@ -204,7 +204,7 @@ def fig_tempo():
     lit = bpm_lit(120)
     lit[90] = WHITE
     lit[6] = '#603000'
-    lit[20] = '#00c0c0'
+    lit[20] = '#00c000'
     for s in range(1, 33):
         lit[step_idx(s)] = '#ffa000' if s <= 4 else '#100800'
     return device(lit, [(90, 1), (21, 2), (6, 3), (step_idx(4), 4), (20, 5), (80, 6)])
@@ -285,7 +285,7 @@ outputs (or to a computer over USB) and program up to eight parts at once.</p>
 <li>Tempo 30–300 BPM with <b>tap tempo</b> and an on-grid <b>BPM readout</b>; <b>swing</b> from 50 % to 75 %</li>
 <li><b>Live recording</b> from the pads or an external keyboard, quantised to the nearest step</li>
 <li><b>MIDI thru</b>: a keyboard plays whichever track is selected</li>
-<li>Sends <b>MIDI clock</b>, or follows an external clock from USB or DIN In</li>
+<li>Sends <b>MIDI clock</b>, or can follow an external clock from USB or DIN In</li>
 <li><b>8 project slots</b> saved in the Launchpad’s memory</li>
 <li>Playback continues while you use the Launchpad’s Note mode</li>
 </ul>
@@ -308,7 +308,7 @@ that mutes them.</p>
  ('Note area.', '32 chromatic notes, lowest at the bottom left. Tap a note to hear it and to choose the note new steps get.'),
  ('Track buttons.', 'Tap to select a track, hold for its settings. Each track has its own colour.'),
  ('Mute buttons.', 'Record Arm … Stop Clip mute tracks 1–8. While a step is held they set its gate length.'),
- ('Play.', 'Start / stop. Green = internal clock, cyan = following an external clock.'),
+ ('Play.', 'Start / stop. Green = internal clock, orange = following an external clock.'),
  ('Record.', 'Arm live recording.'),
  ('Patterns.', 'Hold to show the pattern map for all eight tracks.'),
  ('Projects.', 'Tap to save, hold to load. Green = saved, amber = unsaved changes.'),
@@ -369,7 +369,7 @@ to page 2, hold {k('Fixed Length')} and tap the last step. Projects saved before
 {table(['Action', 'Result'], [
  [f'Hold {k("Fixed Length")} + tap a step', 'The pattern ends at that step (1–32, or 33–64 on page 2)'],
  [f'Hold {k("Clear")} + tap a step', 'Clear that step'],
- [f'Hold {k("Clear")} + tap a track button', 'Clear that track’s current pattern'],
+ [f'Hold {k("Clear")} + tap a track button', 'Clear that track’s current pattern (its length stays)'],
 ], 'compact')}
 ''')
 
@@ -413,13 +413,13 @@ section('Patterns and Chains', f'''
  ['Tap a pattern', 'Switch the track to it – at the end of the playing pattern, or at once when stopped'],
  ['Hold a pattern + tap another in the same column', '<b>Chain</b> the range: A–D plays A, B, C, D, A, …'],
  [f'Hold {k("Duplicate")} + tap a pattern', 'Copy the track’s current pattern there'],
- [f'Hold {k("Clear")} + tap a pattern', 'Clear that pattern'],
+ [f'Hold {k("Clear")} + tap a pattern', 'Clear that pattern (its length stays)'],
 ], 'compact')}
 {note("Each track switches and chains on its own, and patterns can have different lengths – use this for polyrhythms.")}
 ''')
 
 section('Tempo, Swing and Playback', f'''
-{figure(fig_tempo(), 'Shift held: 120 BPM on the note area, swing 53 %, Play cyan (follow external clock)')}
+{figure(fig_tempo(), 'Shift held: 120 BPM on the note area, swing 53 %, Play green (internal clock)')}
 {legend([
  ('Shift.', 'Hold to see tempo, swing and the clock setting.'),
  ('BPM readout.', 'An orange bar for the hundreds (1–3 pads), then the tens and units in white.'),
@@ -453,8 +453,10 @@ notes, keeping the loudest velocity.</p>
 
 section('MIDI Thru', f'''
 <p>A keyboard connected to <b>MIDI In</b> or to the Launchpad’s USB MIDI port plays the <b>selected track</b>.
-Notes, aftertouch, controllers, program changes and pitch bend are re-sent on that track’s output and MIDI channel,
-whatever channel the keyboard sends on. Select another track and the keyboard plays that track’s instrument.</p>
+Notes, aftertouch, controllers and pitch bend are re-sent on that track’s output and MIDI channel, whatever channel
+the keyboard sends on. Select another track and the keyboard plays that track’s instrument.</p>
+<p><b>Program changes and bank select are not passed on</b>, so changing presets on the keyboard never changes the
+sound of the synth the selected track plays.</p>
 <p>A note-off always goes to wherever its note-on went, so changing track while holding keys never leaves notes stuck.</p>
 {note("If your keyboard has its own sounds, turn its <b>Local</b> setting off so you only hear the selected track’s instrument.")}
 <p>If the keyboard has MIDI Thru switched on, the sequencer’s own notes and controllers come back to it. These echoes
@@ -465,22 +467,23 @@ section('MIDI Clock', f'''
 <h3>Sending clock</h3>
 <p>When the sequencer runs on its own tempo, it sends MIDI clock, start and stop to USB, MIDI Out and MIDI Out 2, so
 drum machines and arpeggiators can follow it.</p>
+<h3>Internal or external clock</h3>
+<p>By default the sequencer runs on its own clock and ignores any clock, start or stop arriving on <b>MIDI In</b> or
+the USB MIDI port; {k('▷')} is <b>green</b>. Press {k('Shift')} + {k('▷')} to switch to following an external clock
+and back. While {k('Shift')} is held, {k('▷')} shows the setting:</p>
+{table(['▷ with Shift held', 'Setting'], [
+ ['<span class="swatch" style="background:#00c000"></span> Green', 'Internal clock (default): ignore incoming clock, start and stop; run on and send the sequencer’s own clock'],
+ ['<span class="swatch" style="background:#ff6000"></span> Orange', 'Follow an external clock'],
+], 'compact')}
 <h3>Following an external clock</h3>
-<p>Clock, start, continue and stop arriving on <b>MIDI In</b> or the USB MIDI port are followed automatically:</p>
 <ul>
-<li>{k('▷')} turns <b>cyan</b>.</li>
+<li>{k('▷')} flashes <b>orange</b>.</li>
 <li>The clock is passed on to both DIN outputs.</li>
 <li>Tempo controls and tap tempo have no effect.</li>
 <li>Half a second after the last clock pulse, the sequencer carries on with its own clock.</li>
 </ul>
-<h3>Ignoring an external clock</h3>
-<p>Press {k('Shift')} + {k('▷')} to choose whether external clock is followed. While {k('Shift')} is held, {k('▷')}
-shows the setting:</p>
-{table(['▷ with Shift held', 'Setting'], [
- ['<span class="swatch" style="background:#00c0c0"></span> Cyan', 'Follow an external clock (default)'],
- ['<span class="swatch" style="background:#ff6000"></span> Orange', 'Ignore incoming clock, start and stop; always run on and send the sequencer’s own clock'],
-], 'compact')}
-<p>The setting is saved with the project.</p>
+<p>The setting is saved with the project; projects saved before it existed load on the internal clock.</p>
+{note("Some synths (a Korg minilogue, for example) send a clock that stutters while they load presets. Only follow an external clock when you need to.")}
 {note("A synth with MIDI Thru switched on sends the sequencer’s clock straight back. The sequencer recognises its own clock and ignores it, so the tempo cannot run away.", "Note")}
 ''')
 
@@ -504,7 +507,7 @@ section('Quick Reference', table(['Control', 'Tap', 'With Shift', 'Hold + …'],
  ['Track button', 'Select track', '–', 'Steps 1–16 = channel; steps 17–24 = step rate; note row 1 = output; rows 2–4 = transpose; ▲ / ▼ = channel'],
  ['Mute row', 'Mute track 1–8', 'Sends = tap tempo', '–'],
  ['▲ / ▼', 'Octave', 'Tempo ±1 (±10 with Fixed Length)', '–'],
- ['▷ Play', 'Start / stop', 'Follow / ignore external clock', '–'],
+ ['▷ Play', 'Start / stop', 'Internal (green) / external clock (orange)', '–'],
  ['○ Record', 'Arm / disarm recording', '–', '–'],
  ['Fixed Length', '–', '–', '+ step = pattern length'],
  ['◀ / ▶', 'Steps 1–32 / 33–64', '–', '–'],

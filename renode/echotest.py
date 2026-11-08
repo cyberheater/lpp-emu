@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Clock echo test (Renode with run.resc, fresh flash). Models a synth with MIDI Thru on DIN In: every real-time byte
 (clock, start, stop) the sequencer sends on DIN Out 1 is sent straight back into DIN In. The sequencer must ignore its
-own echo: the clock rate must stay the same as without the echo, and the Play LED must not turn cyan (= following an
+own echo: the clock rate must stay the same as without the echo, and the Play LED must not turn orange (= following an
 external clock)."""
 import os, socket, sys, threading, time
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'm0'))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from panel_bridge import LOGICAL_TO_CONTROL as L, HW_LED_TO_LOGICAL as H  # noqa: E402
 
 panel = socket.create_connection(('127.0.0.1', 3456))
@@ -53,11 +54,12 @@ def clocks_over(seconds):
     with lock:
         return state['clocks'] - c0
 
-def cyan(c):
-    return c is not None and c[2] > 2 * c[0] and c[1] > 2 * c[0]
+def cyan(c):   # following an external clock: Play is orange
+    return c is not None and c[0] > 2 * c[2] and c[1] > 2 * c[2] and c[0] > c[1]
 
 time.sleep(1.0)
 press(97); time.sleep(0.5)
+from seqhelp import follow_external; follow_external(press)   # follow the external clock this test sends
 press(81); time.sleep(0.2)        # a step on track 1 (output DIN 1)
 press(20); time.sleep(1.0)        # Play
 plain = clocks_over(5)
@@ -72,6 +74,6 @@ for _ in range(10):
     samples.append(leds.get(20))
 press(20)
 print(f'clocks in 5 s: without echo {plain}, with echo {echoed} (should be about the same)')
-print('Play LED while echoed:', set(samples), '(cyan = following its own echo: wrong)')
+print('Play LED while echoed:', set(samples), '(orange = following its own echo: wrong)')
 ok = plain > 0 and abs(echoed - plain) <= max(3, plain // 10) and not any(cyan(c) for c in samples)
 print('echotest', 'PASS' if ok else 'FAIL')

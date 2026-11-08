@@ -96,7 +96,7 @@ does not, and **green while the playhead is on that page**. To make a pattern lo
 |---|---|
 | Hold **Fixed Length** + tap a step | The pattern ends at that step (1–32, or 33–64 on page 2) |
 | Hold **Clear** + tap a step | Clear that step |
-| Hold **Clear** + tap a track button | Clear that track's current pattern |
+| Hold **Clear** + tap a track button | Clear that track's current pattern (its length stays) |
 
 ---
 
@@ -152,7 +152,7 @@ one **column per track** (track 1 left) and one **row per pattern** (A at the to
 | Tap a pattern | Switch the track to it — at the end of the playing pattern, or at once when stopped |
 | Hold one pattern + tap another in the same column | **Chain** the range (e.g. A–D plays A, B, C, D, A, …) |
 | Hold **Duplicate** + tap a pattern | Copy the track's current pattern there |
-| Hold **Clear** + tap a pattern | Clear that pattern |
+| Hold **Clear** + tap a pattern | Clear that pattern (its length stays) |
 
 Tracks can switch and chain independently, and patterns can have different lengths for polymeter.
 
@@ -171,7 +171,7 @@ Tracks can switch and chain independently, and patterns can have different lengt
 **Tempo readout**: while Shift is held, the note area shows the BPM — an orange bar on the left for the hundreds
 (1–3 pads), then the tens and units digits in white. The Sends/Tap button flashes white on each tap.
 
-**Play button colours**: green = playing on the internal clock, cyan = following an external clock.
+**Play button colours**: green = playing on the internal clock (the default), orange = following an external clock.
 
 ---
 
@@ -191,9 +191,12 @@ Tap Record again to disarm.
 
 ## 7. MIDI thru (playing from a keyboard)
 
-A keyboard on the **USB MIDI port** or **DIN In** plays the **selected track**: notes, aftertouch, controllers,
-program change and pitch bend are re-sent on that track's output and MIDI channel, whatever channel the keyboard
-sends on. Select another track and the keyboard plays that one instead.
+A keyboard on the **USB MIDI port** or **DIN In** plays the **selected track**: notes, aftertouch, controllers and
+pitch bend are re-sent on that track's output and MIDI channel, whatever channel the keyboard sends on. Select
+another track and the keyboard plays that one instead.
+
+**Program changes and bank select are not passed on**, so changing presets on the keyboard never changes the sound
+of the synth the selected track plays.
 
 If your keyboard has its own sound, turn its **Local** setting off so you only hear the sound of the selected
 track. Echoes from a keyboard with MIDI Thru switched on are recognised and dropped, so they do not loop or
@@ -205,18 +208,24 @@ double-record.
 
 **Sending**: when playing on its own clock, the sequencer sends MIDI clock, start and stop to USB and both DIN outs.
 
-**Following an external clock**: clock, start, continue and stop arriving on the USB MIDI port or DIN In are
-followed automatically. Play turns cyan, the external clock is passed on to both DIN outs, and tempo and tap tempo
-have no effect. 500 ms after the last clock pulse the sequencer carries on with its own clock.
+**Internal clock (default)**: the sequencer runs on its own tempo and ignores any clock, start or stop arriving on
+the USB MIDI port or DIN In. Play is **green**.
 
-**Shift + Play** turns following an external clock on or off. While Shift is held, Play shows the setting:
+**Shift + Play** switches between the internal clock and following an external clock. While Shift is held, Play
+shows the setting:
 
 | Play (Shift held) | Setting |
 |---|---|
-| Cyan | Follow an external clock (default) |
-| Orange | Ignore incoming clock, start and stop; always run and send the sequencer's own clock |
+| Green | Internal clock (default): ignore incoming clock, start and stop; run on and send the sequencer's own clock |
+| Orange | Follow an external clock |
 
-The setting is saved with the project. Use *ignore* when a device on DIN In sends a clock you do not want to follow.
+**Following an external clock**: clock, start, continue and stop arriving on the USB MIDI port or DIN In drive the
+sequencer. Play flashes **orange**, the external clock is passed on to both DIN outs, and tempo and tap tempo have no
+effect. 500 ms after the last clock pulse the sequencer carries on with its own clock.
+
+The setting is saved with the project; projects saved before this setting existed load on the internal clock.
+Some synths (a Korg minilogue, for example) send a clock that stutters while they load presets, so only follow an
+external clock when you need to.
 
 The sequencer also ignores its own clock coming back (a synth with MIDI Thru on DIN In), so the clock cannot run
 away.
@@ -247,7 +256,7 @@ external-clock setting. The last used slot loads automatically at power-up.
 | Track button | select track | — | steps 1–16 = channel, steps 17–24 = step rate, note row 1 = output, rows 2–4 = transpose |
 | Bottom row | mute track 1–8 | Sends = tap tempo | — |
 | ▲ / ▼ | octave | tempo ±1 (±10 with Fixed Length) | (track held) channel ±1 |
-| Play | start / stop | follow / ignore external clock | — |
+| Play | start / stop | internal clock (green) / follow external (orange) | — |
 | Record | arm recording | — | — |
 | Fixed Length | — | — | + step = pattern length |
 | ◀ / ▶ | steps 1–32 / 33–64 | — | — |

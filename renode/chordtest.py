@@ -68,6 +68,7 @@ def run(pulses, events):
 
 time.sleep(1.0)
 press(97); time.sleep(0.5)
+from seqhelp import follow_external; follow_external(press)   # follow the external clock this test sends
 press(10); time.sleep(0.3)
 run(96, {
     13: lambda: din.sendall(b'i 90 3c 50 90 3e 54 90 40 58 90 41 5c 90 43 60 90 45 64 90 47 70 90 48 68\n'),
