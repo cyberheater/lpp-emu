@@ -214,7 +214,7 @@ Chrome) and a plain-text version, [`SEQUENCER_MANUAL.md`](SEQUENCER_MANUAL.md). 
 `HARDWARE_TEST.md`. Opened with the **Sequencer** button from note mode; **Note** returns; playback continues in the
 background (Sequencer button green in note mode).
 - **Tracks**: 8, each with MIDI channel, output (USB / DIN 1 / DIN 2 / DIN 1+2), mute, transpose and step rate (slowest left: 1/1 ... 1/32 incl. triplets; hold a track button).
-- **Patterns**: 8 per track × 32 steps, length per pattern. Hold Patterns (89): tracks × patterns grid; tap to switch
+- **Patterns**: 8 per track × up to 64 steps (◀ / ▶ page between steps 1–32 and 33–64), length per pattern. Hold Patterns (89): tracks × patterns grid; tap to switch
   (queued to the end of the pattern while playing); hold + tap to chain; Duplicate/Clear + tap to copy/clear.
 - **Steps**: up to 8 notes (a chord: hold a step, tap note pads; the first tap sets the note, later taps add or
   remove notes), velocity (right column while holding a step), gate in eighths (bottom row), probability

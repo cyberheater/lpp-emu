@@ -279,7 +279,7 @@ outputs (or to a computer over USB) and program up to eight parts at once.</p>
 <h3>Key features</h3>
 <ul class="features">
 <li><b>8 tracks</b>, each with its own MIDI channel, output (USB, DIN 1, DIN 2 or both DIN outs), note range, transpose and step rate (1/32 to a whole bar, including triplets)</li>
-<li><b>8 patterns per track</b> (A–H) of up to <b>32 steps</b>, switched and chained independently per track</li>
+<li><b>8 patterns per track</b> (A–H) of up to <b>64 steps</b>, switched and chained independently per track</li>
 <li><b>Chords</b> – up to 8 notes on every step</li>
 <li>Per-step <b>velocity</b>, <b>gate length</b> and <b>probability</b></li>
 <li>Tempo 30–300 BPM with <b>tap tempo</b> and an on-grid <b>BPM readout</b>; <b>swing</b> from 50 % to 75 %</li>
@@ -304,7 +304,7 @@ track; the bottom half is a keyboard of 32 notes. The coloured row under the gri
 that mutes them.</p>
 {figure(fig_overview(), 'The sequencer with track 1 selected and playing')}
 {legend([
- ('Step area.', 'The 32 steps of the selected track’s current pattern (top row = steps 1–8). Lit steps play; brighter = louder. The white pad is the playhead.'),
+ ('Step area.', '32 steps of the selected track’s current pattern: steps 1–32, or 33–64 after ▶ (top row = steps 1–8 or 33–40). Lit steps play; brighter = louder. The white pad is the playhead.'),
  ('Note area.', '32 chromatic notes, lowest at the bottom left. Tap a note to hear it and to choose the note new steps get.'),
  ('Track buttons.', 'Tap to select a track, hold for its settings. Each track has its own colour.'),
  ('Mute buttons.', 'Record Arm … Stop Clip mute tracks 1–8. While a step is held they set its gate length.'),
@@ -360,9 +360,14 @@ velocity and the mute row shows its gate length.</p>
 <p><b>Probability</b>: hold the step and {k('Shift')} – the right-hand column then sets how often the step plays:
 top = always (100 %), then 87, 75, 62, 50, 37, 25, bottom = 12 %.</p>
 {note("A step you have edited while holding it never turns off when you let go.")}
+<div class="keep"><h3>Pages: steps 33–64</h3>
+<p>A pattern can have up to 64 steps; the step area shows 32 at a time. {k('◀')} shows steps 1–32, {k('▶')} shows
+steps 33–64. The arrow of the page you are on is white; the other arrow is grey when the pattern reaches that page,
+dim when it does not, and <b>green while the playhead is on that page</b>. To make a pattern longer than 32 steps, go
+to page 2, hold {k('Fixed Length')} and tap the last step. Projects saved before 64 steps load unchanged.</p></div>
 <h3>Pattern length and clearing</h3>
 {table(['Action', 'Result'], [
- [f'Hold {k("Fixed Length")} + tap a step', 'The pattern ends at that step (1–32)'],
+ [f'Hold {k("Fixed Length")} + tap a step', 'The pattern ends at that step (1–32, or 33–64 on page 2)'],
  [f'Hold {k("Clear")} + tap a step', 'Clear that step'],
  [f'Hold {k("Clear")} + tap a track button', 'Clear that track’s current pattern'],
 ], 'compact')}
@@ -502,6 +507,7 @@ section('Quick Reference', table(['Control', 'Tap', 'With Shift', 'Hold + …'],
  ['▷ Play', 'Start / stop', 'Follow / ignore external clock', '–'],
  ['○ Record', 'Arm / disarm recording', '–', '–'],
  ['Fixed Length', '–', '–', '+ step = pattern length'],
+ ['◀ / ▶', 'Steps 1–32 / 33–64', '–', '–'],
  ['Clear', '–', '–', '+ step = clear step; + track = clear pattern'],
  ['Duplicate', '–', '–', 'With Patterns: copy pattern'],
  ['Patterns', '–', '–', 'Pattern map: switch, chain, copy, clear'],

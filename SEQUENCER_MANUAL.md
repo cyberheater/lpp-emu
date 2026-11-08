@@ -7,7 +7,7 @@ part on its own MIDI channel, sent to USB, DIN Out 1, DIN Out 2 or both DIN outs
 |---|---|
 | Tracks | 8, each with its own MIDI channel, output, octave range, transpose and step rate |
 | Patterns | 8 per track (A–H), can be chained |
-| Steps | up to 32 per pattern (16th notes) |
+| Steps | up to 64 per pattern, shown 32 at a time |
 | Notes per step | up to 8 (chords) |
 | Per step | velocity, gate length, probability |
 | Global | tempo 30–300 BPM, swing 50–75 %, external MIDI clock sync |
@@ -40,7 +40,8 @@ Button names below are the ones printed on the Launchpad.
                Pan, Sends, Device, Stop Clip
 ```
 
-- **Step area** (top four rows): the 32 steps of the selected track's current pattern. Lit = the step plays,
+- **Step area** (top four rows): 32 steps of the selected track's current pattern, steps 1–32 or 33–64 (see
+  *Pages*). Lit = the step plays,
   brighter = louder. The playhead is shown as it moves.
 - **Note area** (bottom four rows): 32 chromatic notes, lowest bottom-left. Tap one to hear it and to choose the
   note that new steps get.
@@ -76,11 +77,24 @@ While you hold a step pad:
 
 Editing a step while holding it never turns it off on release.
 
+### Pages: steps 33–64
+
+A pattern can have up to 64 steps; the step area shows 32 at a time.
+
+| Button | Shows |
+|---|---|
+| **◀** | Page 1: steps 1–32 |
+| **▶** | Page 2: steps 33–64 |
+
+The arrow of the page you are on is white. The other arrow is grey when the pattern reaches that page, dim when it
+does not, and **green while the playhead is on that page**. To make a pattern longer than 32 steps, go to page 2, hold
+**Fixed Length** and tap the last step. Projects saved before 64 steps load unchanged.
+
 ### Pattern length and clearing
 
 | Action | Result |
 |---|---|
-| Hold **Fixed Length** + tap a step | The pattern ends at that step (1–32) |
+| Hold **Fixed Length** + tap a step | The pattern ends at that step (1–32, or 33–64 on page 2) |
 | Hold **Clear** + tap a step | Clear that step |
 | Hold **Clear** + tap a track button | Clear that track's current pattern |
 
@@ -236,6 +250,7 @@ external-clock setting. The last used slot loads automatically at power-up.
 | Play | start / stop | follow / ignore external clock | — |
 | Record | arm recording | — | — |
 | Fixed Length | — | — | + step = pattern length |
+| ◀ / ▶ | steps 1–32 / 33–64 | — | — |
 | Clear | — | — | + step = clear step; + track = clear pattern |
 | Patterns | — | — | pattern map: switch, chain, + Duplicate copy, + Clear clear |
 | Projects | save | — | track row = load slot |
