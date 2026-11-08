@@ -173,7 +173,8 @@ boots normally with it present.
 - **CRC unit** @0x40023000 (stock uses hardware CRC), DMA FIFO/error-flag bits, RCC 0x90.
 
 ## 8-track sequencer (CoreFW, `corefw/src/app/sequencer/`) — Pro MK3 only
-User manual: [`SEQUENCER_MANUAL.md`](SEQUENCER_MANUAL.md). Developer reference: the comment at the top of
+User guide: [`SEQUENCER_MANUAL.pdf`](SEQUENCER_MANUAL.pdf) (built by `python3 scripts/make_manual.py`, needs Google
+Chrome) and a plain-text version, [`SEQUENCER_MANUAL.md`](SEQUENCER_MANUAL.md). Developer reference: the comment at the top of
 `corefw/src/app/sequencer/mod.rs`. Hardware test sheet:
 `HARDWARE_TEST.md`. Opened with the **Sequencer** button from note mode; **Note** returns; playback continues in the
 background (Sequencer button green in note mode).

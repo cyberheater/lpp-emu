@@ -3,6 +3,7 @@
 # Renode download (installed at ~/Applications/Renode.app)
 /tools/
 # Build products
+/build/
 /app/build/
 /app/.build/
 .swiftpm/
