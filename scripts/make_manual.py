@@ -250,7 +250,8 @@ def legend(items):
 
 
 def note(text, kind='Tip'):
-    return f'<div class="note"><span>{kind}</span>{text}</div>'
+    cls = 'note warn' if kind == 'Warning' else 'note'
+    return f'<div class="{cls}"><span>{kind}</span>{text}</div>'
 
 
 def figure(svg, caption):
@@ -497,13 +498,19 @@ section('Quick Reference', table(['Control', 'Tap', 'With Shift', 'Hold + …'],
 section('Installing the Firmware', f'''
 <p>The sequencer is part of a custom build of the open-source CoreFW firmware
 (github.com/anthonyhfm/launchpad-core-firmware, GPL-3.0). No Novation firmware is supplied with it.</p>
+{note("This firmware is an early beta, tested on very few devices. Flashing your own Launchpad is at your own risk: the firmware may misbehave or lose your projects and settings, and an interrupted or failed update can leave the Launchpad needing recovery from the bootloader. The authors accept no responsibility for damage to your device or data. It is not Novation software and Novation does not support it.", "Warning")}
 <h3>Installing</h3>
 <ol class="steps">
-<li>Build the firmware: <code>cd corefw &amp;&amp; cargo lppmk3</code> (makes <code>corefw/build/lppmk3/fw.syx</code>).</li>
-<li>Hold <b>Setup</b> while plugging in the USB cable. The Launchpad starts in bootloader mode.</li>
-<li>Send the firmware: <code>swift scripts/flash_syx.swift corefw/build/lppmk3/fw.syx</code>, or send the
-<code>.syx</code> file with any SysEx tool.</li>
-<li>The Launchpad restarts with the sequencer firmware.</li>
+<li>Download the latest <code>.syx</code> file from github.com/cyberheater/launchpad-core-firmware/releases, or build it
+yourself: <code>cargo lppmk3</code> in that repository (branch <code>lppmk3-sequencer</code>) makes
+<code>build/lppmk3/fw.syx</code>.</li>
+<li>Unplug the Launchpad. Hold <b>Setup</b> while plugging the USB cable back in. The Launchpad starts in bootloader
+mode and a MIDI port with "Bootloader" in its name appears.</li>
+<li>Send the <code>.syx</code> file to that port. Use CoreFW's <code>python3 tools/flash.py &lt;file&gt;.syx</code>
+(needs <code>pip install mido python-rtmidi</code>), the Mac-only <code>swift scripts/flash_syx.swift &lt;file&gt;.syx</code>
+from github.com/cyberheater/lpp-emu, or any SysEx tool (SysEx Librarian, MIDI-OX). Do not unplug the Launchpad while
+it is sending.</li>
+<li>The Launchpad restarts with the sequencer firmware. Press <b>Sequencer</b> to open it.</li>
 </ol>
 <h3>Returning to the original firmware</h3>
 <p>Enter bootloader mode the same way and update the Launchpad with Novation Components.</p>
@@ -558,6 +565,8 @@ table.ref td:first-child { font-weight: 600; white-space: nowrap; }
 th .key { color: #111; }
 .note { border-left: 3px solid #ff8000; background: #fff6ec; padding: 2.6mm 4mm; margin: 3mm 0 4mm; font-size: 9.2pt; page-break-inside: avoid; }
 .note span { display: block; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; font-size: 7.5pt; color: #c05800; margin-bottom: .6mm; }
+.note.warn { border-left-color: #d01818; background: #fdeeee; }
+.note.warn span { color: #b01010; }
 .swatch { display: inline-block; width: 3.4mm; height: 3.4mm; border-radius: .8mm; vertical-align: -.5mm; margin-right: 1mm; }
 code { font-family: Menlo, monospace; font-size: 8.3pt; background: #f1f1f1; padding: 0 1mm; border-radius: 1mm; }
 '''
@@ -571,7 +580,7 @@ def build():
 <h2>Standalone firmware for Launchpad Pro MK3</h2>
 <div class="stripe">{stripe}</div>
 <div class="art">{fig_cover()}</div>
-<div class="foot">Community firmware based on CoreFW (GPL-3.0). Not made, endorsed or supported by Novation or Focusrite.
+<div class="foot"><b style="color:#ff8a3d">Early beta – flash at your own risk.</b> Community firmware based on CoreFW (GPL-3.0). Not made, endorsed or supported by Novation or Focusrite.
 Launchpad and Launchpad Pro are trademarks of Focusrite Audio Engineering Ltd, used here only to identify the hardware.</div>
 </div>'''
     toc = '<div class="toc"><h1>Contents</h1><ol>' + ''.join(f'<li>{t}</li>' for t, _ in SECTIONS) + '</ol></div>'

@@ -1,6 +1,40 @@
 <img src="app/icon/icon.png" width="128" align="right" alt="App icon">
 
-# Launchpad Pro MK3 emulator (Renode)
+# Launchpad Pro MK3 emulator (Renode) and 8-track sequencer
+
+> [!WARNING]
+> **Early beta.** The 8-track sequencer firmware is at a very early stage and has been tested on very few devices.
+> Flashing custom firmware onto your own Launchpad is entirely at your own risk: it may misbehave or lose your
+> projects and settings, and an interrupted or failed update can leave the Launchpad needing recovery from the
+> bootloader. The authors accept no responsibility for damage to your device or data. This is a community project,
+> not made, endorsed or supported by Novation or Focusrite.
+
+## Flashing the sequencer firmware (Launchpad Pro MK3 only)
+
+The sequencer lives in a fork of [CoreFW](https://github.com/anthonyhfm/launchpad-core-firmware):
+[cyberheater/launchpad-core-firmware](https://github.com/cyberheater/launchpad-core-firmware), branch
+`lppmk3-sequencer`. User guide: [SEQUENCER_MANUAL.pdf](SEQUENCER_MANUAL.pdf).
+
+1. **Get the firmware.** Download the latest `.syx` from the
+   [releases page](https://github.com/cyberheater/launchpad-core-firmware/releases), or build it yourself:
+   ```bash
+   git clone -b lppmk3-sequencer https://github.com/cyberheater/launchpad-core-firmware corefw
+   cd corefw && cargo lppmk3        # makes build/lppmk3/fw.syx
+   ```
+2. **Enter bootloader mode.** Unplug the Launchpad, hold **Setup**, and plug the USB cable back in while holding it.
+   A MIDI port with "Bootloader" in its name appears.
+3. **Send the `.syx` file** to that port with any one of:
+   - CoreFW's flasher (any OS): `python3 tools/flash.py <file>.syx` (needs `pip install mido python-rtmidi`)
+   - this repository's Mac flasher: `swift scripts/flash_syx.swift <file>.syx`
+   - any SysEx tool, e.g. SysEx Librarian (macOS) or MIDI-OX (Windows)
+
+   Do not unplug the Launchpad while it is sending.
+4. The Launchpad restarts with the new firmware. Press **Sequencer** to open the sequencer.
+
+**Going back to the original firmware:** enter bootloader mode the same way and update the Launchpad with Novation
+Components.
+
+---
 
 > **No firmware is included.** Bring your own: build [CoreFW](https://github.com/anthonyhfm/launchpad-core-firmware)
 > (`cargo lppmk3`), or use your own copy of Novation's official Launchpad Pro MK3 update file (`.syx`). Novation
@@ -11,8 +45,9 @@ The stock Novation firmware is used as a calibration check of the hardware model
 
 ## Layout
 - This folder is a git repository; `corefw/` is excluded because it is its own clone (sequencer work on its
-  branch `lppmk3-sequencer`). Clone it with `git clone https://github.com/anthonyhfm/launchpad-core-firmware corefw`.
-- `corefw/` — clone of https://github.com/anthonyhfm/launchpad-core-firmware (branch `code`)
+  branch `lppmk3-sequencer`). Clone it with
+  `git clone -b lppmk3-sequencer https://github.com/cyberheater/launchpad-core-firmware corefw`.
+- `corefw/` — fork of https://github.com/anthonyhfm/launchpad-core-firmware with the sequencer
 - `renode/lppmk3.repl` — platform: Renode STM32F746 model, resized to the F745VE
   (512 KB flash, 320 KB RAM), plus UART4/UART5
 - `renode/boot.resc` — loads an ELF, sets VTOR/SP/PC from 0x08010000 like the bootloader,
@@ -215,3 +250,9 @@ background (Sequencer button green in note mode).
 SysEx `F0 00 20 29 00 <cmd>`: 71 header, 7C version + nibble size + CRC, 72 data, 73 = block 0 sent last.
 Block = 37 septets → big-endian 259-bit int >> 3 → 32 bytes. Header CRC = CRC-32/MPEG-2 of the full
 0x70000 image. Image trailer (last 8 bytes) = 4-byte version + LE CRC-32/MPEG-2 of image[:-8].
+
+## Licence
+
+GPL-3.0 (see [LICENSE](LICENSE)), matching CoreFW. `renode/STM32_TimerLP.cs` and `renode/STM32DMA_LP.cs`
+are patched copies of Renode peripherals and keep their original MIT licence and Antmicro copyright notices. No Novation firmware is included or
+distributed.

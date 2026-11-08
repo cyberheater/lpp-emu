@@ -230,12 +230,27 @@ external-clock setting. The last used slot loads automatically at power-up.
 
 ## Installing
 
-No Novation firmware is included in this project. Build CoreFW with the sequencer (`cd corefw && cargo lppmk3`, which makes
-`corefw/build/lppmk3/fw.syx`), then:
+> [!WARNING]
+> **Early beta.** This firmware has been tested on very few devices. Flashing your own Launchpad is at your own
+> risk: the firmware may misbehave or lose your projects and settings, and an interrupted or failed update can leave
+> the Launchpad needing recovery from the bootloader. The authors accept no responsibility for damage to your device
+> or data. It is not Novation software and Novation does not support it.
 
-1. Hold **Setup** while plugging in the USB cable: the Launchpad starts in bootloader mode.
-2. Run `swift scripts/flash_syx.swift corefw/build/lppmk3/fw.syx` (or send the `.syx` with any SysEx tool).
-3. The Launchpad restarts with the new firmware.
+No Novation firmware is included in this project.
+
+1. Get the firmware: download the latest `.syx` from the
+   [releases page](https://github.com/cyberheater/launchpad-core-firmware/releases), or build it yourself with
+   `cargo lppmk3` in [cyberheater/launchpad-core-firmware](https://github.com/cyberheater/launchpad-core-firmware)
+   (branch `lppmk3-sequencer`), which makes `build/lppmk3/fw.syx`.
+2. Unplug the Launchpad. Hold **Setup** while plugging the USB cable back in: the Launchpad starts in bootloader
+   mode and a MIDI port with "Bootloader" in its name appears.
+3. Send the `.syx` to that port, using any one of:
+   - CoreFW's `python3 tools/flash.py <file>.syx` (needs `pip install mido python-rtmidi`),
+   - on a Mac, `swift scripts/flash_syx.swift <file>.syx` from this repository,
+   - any SysEx tool (SysEx Librarian on macOS, MIDI-OX on Windows).
+
+   Do not unplug the Launchpad while it is sending.
+4. The Launchpad restarts with the new firmware. Press **Sequencer** to open it.
 
 **Going back to the stock firmware**: enter bootloader mode the same way and update it with Novation Components.
 
