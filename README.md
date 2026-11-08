@@ -12,13 +12,13 @@
 ## Flashing the sequencer firmware (Launchpad Pro MK3 only)
 
 The sequencer lives in a fork of [CoreFW](https://github.com/anthonyhfm/launchpad-core-firmware):
-[cyberheater/launchpad-core-firmware](https://github.com/cyberheater/launchpad-core-firmware), branch
+[cyberheater/Launchpad-Pro-MK3-Custom-firmware](https://github.com/cyberheater/Launchpad-Pro-MK3-Custom-firmware), branch
 `lppmk3-sequencer`. User guide: [SEQUENCER_MANUAL.pdf](SEQUENCER_MANUAL.pdf).
 
 1. **Get the firmware.** Download the latest `.syx` from the
-   [releases page](https://github.com/cyberheater/launchpad-core-firmware/releases), or build it yourself:
+   [releases page](https://github.com/cyberheater/Launchpad-Pro-MK3-Custom-firmware/releases), or build it yourself:
    ```bash
-   git clone -b lppmk3-sequencer https://github.com/cyberheater/launchpad-core-firmware corefw
+   git clone -b lppmk3-sequencer https://github.com/cyberheater/Launchpad-Pro-MK3-Custom-firmware corefw
    cd corefw && cargo lppmk3        # makes build/lppmk3/fw.syx
    ```
 2. **Enter bootloader mode.** Unplug the Launchpad, hold **Setup**, and plug the USB cable back in while holding it.
@@ -46,7 +46,7 @@ The stock Novation firmware is used as a calibration check of the hardware model
 ## Layout
 - This folder is a git repository; `corefw/` is excluded because it is its own clone (sequencer work on its
   branch `lppmk3-sequencer`). Clone it with
-  `git clone -b lppmk3-sequencer https://github.com/cyberheater/launchpad-core-firmware corefw`.
+  `git clone -b lppmk3-sequencer https://github.com/cyberheater/Launchpad-Pro-MK3-Custom-firmware corefw`.
 - `corefw/` — fork of https://github.com/anthonyhfm/launchpad-core-firmware with the sequencer
 - `renode/lppmk3.repl` — platform: Renode STM32F746 model, resized to the F745VE
   (512 KB flash, 320 KB RAM), plus UART4/UART5

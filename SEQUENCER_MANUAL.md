@@ -239,8 +239,8 @@ external-clock setting. The last used slot loads automatically at power-up.
 No Novation firmware is included in this project.
 
 1. Get the firmware: download the latest `.syx` from the
-   [releases page](https://github.com/cyberheater/launchpad-core-firmware/releases), or build it yourself with
-   `cargo lppmk3` in [cyberheater/launchpad-core-firmware](https://github.com/cyberheater/launchpad-core-firmware)
+   [releases page](https://github.com/cyberheater/Launchpad-Pro-MK3-Custom-firmware/releases), or build it yourself with
+   `cargo lppmk3` in [cyberheater/Launchpad-Pro-MK3-Custom-firmware](https://github.com/cyberheater/Launchpad-Pro-MK3-Custom-firmware)
    (branch `lppmk3-sequencer`), which makes `build/lppmk3/fw.syx`.
 2. Unplug the Launchpad. Hold **Setup** while plugging the USB cable back in: the Launchpad starts in bootloader
    mode and a MIDI port with "Bootloader" in its name appears.

@@ -501,7 +501,7 @@ section('Installing the Firmware', f'''
 {note("This firmware is an early beta, tested on very few devices. Flashing your own Launchpad is at your own risk: the firmware may misbehave or lose your projects and settings, and an interrupted or failed update can leave the Launchpad needing recovery from the bootloader. The authors accept no responsibility for damage to your device or data. It is not Novation software and Novation does not support it.", "Warning")}
 <h3>Installing</h3>
 <ol class="steps">
-<li>Download the latest <code>.syx</code> file from github.com/cyberheater/launchpad-core-firmware/releases, or build it
+<li>Download the latest <code>.syx</code> file from github.com/cyberheater/Launchpad-Pro-MK3-Custom-firmware/releases, or build it
 yourself: <code>cargo lppmk3</code> in that repository (branch <code>lppmk3-sequencer</code>) makes
 <code>build/lppmk3/fw.syx</code>.</li>
 <li>Unplug the Launchpad. Hold <b>Setup</b> while plugging the USB cable back in. The Launchpad starts in bootloader
