@@ -168,9 +168,9 @@ def fig_track_hold():
     lit = {}
     for s in range(1, 17):
         lit[step_idx(s)] = WHITE if s == 3 else '#303050'
-    for r in range(8):                       # step rate: straight green, triplets purple; 1/8 chosen
-        col = '#a040ff' if r in (1, 3, 5) else '#20ff40'
-        lit[step_idx(17 + r)] = col if r == 4 else shade(col, 0.45 if r == 2 else 0.2)
+    for r in range(8):                       # step rate, slowest left: straight green, triplets purple; 1/8 chosen
+        col = '#a040ff' if r in (2, 4, 6) else '#20ff40'
+        lit[step_idx(17 + r)] = col if r == 3 else shade(col, 0.45 if r == 5 else 0.2)
     outs = ['#ffffff', '#00ff60', '#00a0ff', '#00ffff']
     for p in range(4):
         lit[note_idx(p)] = outs[p] if p == 2 else shade(outs[p], 0.35)
@@ -178,7 +178,7 @@ def fig_track_hold():
         lit[note_idx(p)] = '#ffe000' if p == 22 else ('#806000' if p == 20 else '#302800')
     for t in range(8):
         lit[101 + t] = TRACK[t] if t == 2 else shade(TRACK[t], 0.35)
-    return device(lit, [(103, 1), (step_idx(3), 2), (note_idx(2), 3), (note_idx(20), 4), (step_idx(21), 5)])
+    return device(lit, [(103, 1), (step_idx(3), 2), (note_idx(2), 3), (note_idx(20), 4), (step_idx(20), 5)])
 
 
 def fig_patterns():
@@ -278,7 +278,7 @@ Launchpad itself – no computer is needed once it is installed. Connect synths 
 outputs (or to a computer over USB) and program up to eight parts at once.</p>
 <h3>Key features</h3>
 <ul class="features">
-<li><b>8 tracks</b>, each with its own MIDI channel, output (USB, DIN 1, DIN 2 or both DIN outs), note range, transpose and step rate (1/32 to 1/2, including triplets)</li>
+<li><b>8 tracks</b>, each with its own MIDI channel, output (USB, DIN 1, DIN 2 or both DIN outs), note range, transpose and step rate (1/32 to a whole bar, including triplets)</li>
 <li><b>8 patterns per track</b> (A–H) of up to <b>32 steps</b>, switched and chained independently per track</li>
 <li><b>Chords</b> – up to 8 notes on every step</li>
 <li>Per-step <b>velocity</b>, <b>gate length</b> and <b>probability</b></li>
@@ -377,15 +377,15 @@ section('Tracks', f'''
  ('MIDI channel.', 'Steps 1–16 (the top two rows) choose channel 1–16; the current channel is white. ▲ / ▼ also step the channel up and down.'),
  ('Output.', 'Bottom row of the note area, pads 1–4: USB (white), MIDI Out (green), MIDI Out 2 (blue), both DIN outs (cyan).'),
  ('Transpose.', 'Note rows 2–4: −12 … +11 semitones. The dim pad (row 3, pad 5) is 0.'),
- ('Step rate.', 'Steps 17–24 (the third row): how fast the track moves through its steps. Straight rates are green, triplets purple; the chosen rate is bright.'),
+ ('Step rate.', 'Steps 17–24 (the third row): how fast the track moves through its steps, slowest on the left. Straight rates are green, triplets purple; the chosen rate is bright.'),
 ])}
 <p>New tracks send on <b>MIDI Out</b> with MIDI channel = track number (track 3 = channel 3).</p>
 <div class="keep"><h3>Step rate</h3>
 <p>Each track can step at its own speed against the shared tempo, for example a bass line at half speed under a
-16th-note hi-hat. Hold the track button and tap a pad in the third row:</p>
+16th-note hi-hat. Hold the track button and tap a pad in the third row; the slowest rate is on the left:</p>
 {table(['Pad', '17', '18', '19', '20', '21', '22', '23', '24'], [
- ['One step =', '1/32', '1/16 triplet', '1/16 (default)', '1/8 triplet', '1/8', '1/4 triplet', '1/4', '1/2'],
- ['Speed', '2×', '1.5×', '1×', '¾×', '½×', '⅜×', '¼×', '⅛×'],
+ ['One step =', '1 bar (1/1)', '1/4', '1/4 triplet', '1/8', '1/8 triplet', '1/16 (default)', '1/16 triplet', '1/32'],
+ ['Speed', '1/16×', '¼×', '⅜×', '½×', '¾×', '1×', '1.5×', '2×'],
 ], 'compact')}
 <p>All tracks start together when you press Play, so tracks at different rates stay in line. Swing only affects
 tracks at 1/16; other rates play straight. Gate lengths scale with the step, and live recording uses the selected
@@ -440,7 +440,7 @@ section('Live Recording', f'''
  ('Notes.', 'Play the note pads, or a keyboard on MIDI In or USB.'),
 ])}
 <p>Recorded notes land on the <b>nearest step</b> of the selected track’s current pattern, with their velocity and
-their held length as the gate (up to one step). Notes played together are recorded as a <b>chord</b> of up to 8
+their held length as the gate: a note held over several steps plays for as long as you held it. Notes played together are recorded as a <b>chord</b> of up to 8
 notes, keeping the loudest velocity.</p>
 <p>A note played just ahead of a step is not replayed on that pass – you have already heard it.</p>
 <p>Tap {k('○')} again to stop recording.</p>

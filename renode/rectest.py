@@ -45,8 +45,11 @@ def up(lg): panel.sendall(f'p {L[lg]} 0\n'.encode()); time.sleep(0.1)
 def press(lg): down(lg); up(lg)
 def note_xy(pad): return (1 + pad // 8) * 10 + pad % 8 + 1
 
+offs = []   # (pulse, note) note-offs seen by the last run()
+
 def run(pulses, events):
     """events: {pulse: callable}. Returns [(pulse, note, velocity)] note-ons seen on DIN 1."""
+    offs.clear()
     with lock:
         din_log.clear()
     usb.sendall(b'm 1ffa0000\n'); time.sleep(0.04)
@@ -64,6 +67,11 @@ def run(pulses, events):
         elif 0x90 <= b[i] <= 0x9F and i + 2 < len(b):
             if b[i + 2] > 0:
                 out.append((n, b[i + 1], b[i + 2]))
+            else:
+                offs.append((n, b[i + 1]))
+            i += 3
+        elif 0x80 <= b[i] <= 0x8F and i + 2 < len(b):
+            offs.append((n, b[i + 1]))
             i += 3
         else:
             i += 1
@@ -85,3 +93,17 @@ press(10); time.sleep(0.3)
 print('Record LED disarmed:', leds.get(10))
 p2 = run(96, {})
 print('pass 2 (playback): DIN 1 note-ons:', p2, '(expect 60 at ~12, 64 at ~54)')
+
+# A keyboard note held for 4 steps (24 pulses) is recorded with that length, not cut to one step.
+press(10); time.sleep(0.3)
+run(96, {
+    28: lambda: din.sendall(b'i 90 43 50\n'),
+    52: lambda: din.sendall(b'i 80 43 00\n'),
+})
+press(10); time.sleep(0.3)
+p3 = run(96, {})
+on = [n for n, note, _ in p3 if note == 0x43]
+off = [n for n, note in offs if note == 0x43 and on and n > on[0]]
+held = off[0] - on[0] if on and off else None
+print('held note (G4, 24 pulses = 4 steps): on at', on, 'off at', off[:1], '-> length', held, 'pulses (expect ~24, not 6)')
+print('rectest long note', 'PASS' if held is not None and 21 <= held <= 26 else 'FAIL')

@@ -100,11 +100,11 @@ check('both at 1/16: track 2 pulses', r.get(2), [1, 7, 13, 19])
 
 press(98); time.sleep(1.5)                              # save: Projects green
 projects_before = leds.get(98)
-down(101); press(step_xy(21)); time.sleep(0.3)          # track 1 -> 1/8
+down(101); press(step_xy(20)); time.sleep(0.3)          # track 1 -> 1/8
 rate_leds = [leds.get(step_xy(17 + k)) for k in range(8)]
 up(101); time.sleep(0.3)
-print('rate pads 17-24 with track 1 held (1/8 chosen):', rate_leds)
-ok &= rate_leds[4] == max(rate_leds, key=lambda c: sum(c or (0, 0, 0))) and rate_leds[1][2] > rate_leds[1][1]
+print('rate pads 17-24 (slowest left) with track 1 held, 1/8 chosen:', rate_leds)
+ok &= rate_leds[3] == max(rate_leds, key=lambda c: sum(c or (0, 0, 0))) and rate_leds[2][2] > rate_leds[2][1]   # 1/8 bright, 1/4T purple
 projects_after = leds.get(98)
 print('Projects LED after save', projects_before, '-> after rate change', projects_after, '(green -> amber: the rate is saved with the project)')
 ok &= projects_before[1] > projects_before[0] and projects_after[0] > projects_after[1]
@@ -112,13 +112,19 @@ r = play(48)
 check('track 1 at 1/8: pulses', r.get(1), [1, 13, 25, 37])
 check('track 2 still 1/16: pulses', r.get(2), [1, 7, 13, 19])
 
-down(101); press(step_xy(18)); up(101)                  # track 1 -> 1/16 triplet
-down(102); press(step_xy(23)); up(102)                  # track 2 -> 1/4
+down(101); press(step_xy(23)); up(101)                  # track 1 -> 1/16 triplet
+down(102); press(step_xy(18)); up(102)                  # track 2 -> 1/4
 r = play(100)
 check('track 1 at 1/16T: pulses', r.get(1)[:5], [1, 5, 9, 13, 65])   # 4 notes in 16 steps x 4 pulses
 check('track 2 at 1/4: pulses', r.get(2)[:4], [1, 25, 49, 73])
 
-down(101); press(step_xy(19)); up(101)                  # track 1 back to 1/16
+down(101); press(step_xy(24)); up(101)                  # track 1 -> 1/32 (3 pulses per step)
+down(102); press(step_xy(17)); up(102)                  # track 2 -> 1/1 (whole note)
+r = play(200)
+check('track 1 at 1/32: pulses', r.get(1)[:4], [1, 4, 7, 10])
+check('track 2 at 1/1: pulses', r.get(2)[:2], [1, 97])
+
+down(101); press(step_xy(22)); up(101)                  # track 1 back to 1/16
 r = play(24)
 check('track 1 back at 1/16: pulses', r.get(1), [1, 7, 13, 19])
 print('ratetest', 'PASS' if ok else 'FAIL')

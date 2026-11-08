@@ -106,12 +106,13 @@ New tracks start on **DIN 1**, with MIDI channel = track number (track 3 = chann
 ### Step rate
 
 Each track can step at its own speed against the shared tempo (e.g. a bass line at half speed under 16th hi-hats).
-Hold the track button and tap a pad in the third row of steps (straight rates green, triplets purple, chosen = bright):
+Hold the track button and tap a pad in the third row of steps, slowest on the left (straight rates green, triplets
+purple, chosen = bright):
 
 | Pad | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 |
 |---|---|---|---|---|---|---|---|---|
-| One step = | 1/32 | 1/16 triplet | **1/16 (default)** | 1/8 triplet | 1/8 | 1/4 triplet | 1/4 | 1/2 |
-| Speed | 2× | 1.5× | 1× | ¾× | ½× | ⅜× | ¼× | ⅛× |
+| One step = | 1 bar (1/1) | 1/4 | 1/4 triplet | 1/8 | 1/8 triplet | **1/16 (default)** | 1/16 triplet | 1/32 |
+| Speed | 1/16× | ¼× | ⅜× | ½× | ¾× | 1× | 1.5× | 2× |
 
 All tracks start together on Play, so they stay in line. Swing only affects tracks at 1/16; other rates play
 straight. Gate lengths scale with the step; live recording uses the selected track's rate. Saved with the project.
@@ -167,7 +168,7 @@ Tracks can switch and chain independently, and patterns can have different lengt
 3. Play notes on the note pads, or on a keyboard connected to the USB MIDI port or DIN In.
 
 Notes land on the **nearest step** of the selected track's current pattern, with their velocity and their held
-length as the gate (up to one step). Notes played together are recorded as a **chord** (up to 8; the loudest
+length as the gate: a note held over several steps plays for as long as you held it. Notes played together are recorded as a **chord** (up to 8; the loudest
 velocity is kept). A note you play just ahead of a step is not replayed on that pass — you already heard it.
 
 Tap Record again to disarm.
