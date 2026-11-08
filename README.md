@@ -189,8 +189,12 @@ background (Sequencer button green in note mode).
 - **MIDI thru**: a keyboard on the USB MIDI port / DIN In plays the selected track (notes, aftertouch, controllers,
   program change, pitch bend re-sent on that track's output and channel); echoes from a keyboard with MIDI Thru are
   recognised and dropped.
+- **Tempo**: hold Shift to see the BPM on the note area (orange hundreds bar, white tens and units); Shift + Sends
+  (printed "Tap") is tap tempo.
 - **Clock**: internal (Shift + Up/Down = tempo) or external MIDI clock from the USB MIDI port or DIN In (auto-follow,
   clock passed on to both DIN outs, Play LED cyan); falls back to internal 500 ms after the last pulse.
+  Clock bytes arriving within 6 ms of the sequencer sending the same byte are its own echo (a synth with MIDI Thru
+  on DIN In) and are ignored, so the clock cannot chase itself.
 - **Projects**: 8 slots in flash (tap Projects = save, hold = slot row); v4 format (8 notes per step) at user offset 0x80000,
   32 KB per slot, CRC-32, last slot auto-loaded; v3/v2 saves (16 KB slots at 0x40000) and v1 saves load too.
 - **Drivers**: `din.rs` — DIN Out 1 = UART4 TX PA0, DIN Out 2 = UART7 TX PE8, DIN In = UART4 RX PC11 (all AF8,
@@ -200,7 +204,7 @@ background (Sequencer button green in note mode).
   carries ~1500 notes/s with running status: spread busy tracks across DIN 1 and DIN 2.
   `MidiPort::Din2`; `read/write_user_storage` on the external flash (1 MB at 0xF00000).
 - **Tests** (`renode/`): `run_tests.sh [elf|bin|syx]` runs seqtest, bgtest, exttest, dinintest, veltest, swingtest, rectest,
-  chordtest, thrutest, flashtest and pattest, each on a fresh boot, with save/restart checks. Output of the last run: `renode/regression.txt`.
+  chordtest, thrutest, echotest, tempotest, flashtest and pattest, each on a fresh boot, with save/restart checks. Output of the last run: `renode/regression.txt`.
 
 ## Update image format (verified on stock 4.40 and CoreFW)
 SysEx `F0 00 20 29 00 <cmd>`: 71 header, 7C version + nibble size + CRC, 72 data, 73 = block 0 sent last.
