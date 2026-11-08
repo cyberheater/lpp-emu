@@ -172,8 +172,9 @@ boots normally with it present.
 - ~~DIN MIDI~~ — done (`renode/LPPDIN.cs`, UART4 Out 1 + In, UART7 Out 2). CoreFW has no MK3 DIN driver yet.
 - **CRC unit** @0x40023000 (stock uses hardware CRC), DMA FIFO/error-flag bits, RCC 0x90.
 
-## 8-track sequencer (CoreFW, `corefw/src/app/sequencer/`) — Pro MK3 only, uncommitted
-Full control reference: the comment at the top of `corefw/src/app/sequencer/mod.rs`. Hardware test sheet:
+## 8-track sequencer (CoreFW, `corefw/src/app/sequencer/`) — Pro MK3 only
+User manual: [`SEQUENCER_MANUAL.md`](SEQUENCER_MANUAL.md). Developer reference: the comment at the top of
+`corefw/src/app/sequencer/mod.rs`. Hardware test sheet:
 `HARDWARE_TEST.md`. Opened with the **Sequencer** button from note mode; **Note** returns; playback continues in the
 background (Sequencer button green in note mode).
 - **Tracks**: 8, each with MIDI channel, output (USB / DIN 1 / DIN 2 / DIN 1+2), mute and transpose (hold a track button).
