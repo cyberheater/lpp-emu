@@ -5,7 +5,7 @@ part on its own MIDI channel, sent to USB, DIN Out 1, DIN Out 2 or both DIN outs
 
 | | |
 |---|---|
-| Tracks | 8, each with its own MIDI channel, output, octave range and transpose |
+| Tracks | 8, each with its own MIDI channel, output, octave range, transpose and step rate |
 | Patterns | 8 per track (A–H), can be chained |
 | Steps | up to 32 per pattern (16th notes) |
 | Notes per step | up to 8 (chords) |
@@ -99,8 +99,22 @@ Hold a **track button** to change its settings:
 | ▲ / ▼ | MIDI channel +1 / −1 |
 | Note area, bottom row, pads 1–4 | **Output**: 1 USB (white), 2 DIN 1 (green), 3 DIN 2 (blue), 4 DIN 1 + 2 (cyan) |
 | Note area, rows 2–4 | **Transpose** −12 … +11 semitones; the dim pad (row 3, pad 5) is 0 |
+| Steps 17–24 (third row) | **Step rate** (below) |
 
 New tracks start on **DIN 1**, with MIDI channel = track number (track 3 = channel 3).
+
+### Step rate
+
+Each track can step at its own speed against the shared tempo (e.g. a bass line at half speed under 16th hi-hats).
+Hold the track button and tap a pad in the third row of steps (straight rates green, triplets purple, chosen = bright):
+
+| Pad | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 |
+|---|---|---|---|---|---|---|---|---|
+| One step = | 1/32 | 1/16 triplet | **1/16 (default)** | 1/8 triplet | 1/8 | 1/4 triplet | 1/4 | 1/2 |
+| Speed | 2× | 1.5× | 1× | ¾× | ½× | ⅜× | ¼× | ⅛× |
+
+All tracks start together on Play, so they stay in line. Swing only affects tracks at 1/16; other rates play
+straight. Gate lengths scale with the step; live recording uses the selected track's rate. Saved with the project.
 
 **Mute**: tap a button in the bottom row (Record Arm = track 1 … Stop Clip = track 8).
 
@@ -204,7 +218,7 @@ away.
 
 The **Projects** button is **green** when everything is saved and **amber** when there are unsaved changes.
 
-A project holds everything: all tracks, patterns, chains, channels, outputs, transpose, tempo, swing and the
+A project holds everything: all tracks, patterns, chains, channels, outputs, transpose, step rates, tempo, swing and the
 external-clock setting. The last used slot loads automatically at power-up.
 
 ---
@@ -215,7 +229,7 @@ external-clock setting. The last used slot loads automatically at power-up.
 |---|---|---|---|
 | Step pad | toggle step | set swing | note pads = notes/chord, right column = velocity (+Shift = probability), bottom row = gate |
 | Note pad | choose / preview note | — | — |
-| Track button | select track | — | steps 1–16 = channel, note row 1 = output, rows 2–4 = transpose |
+| Track button | select track | — | steps 1–16 = channel, steps 17–24 = step rate, note row 1 = output, rows 2–4 = transpose |
 | Bottom row | mute track 1–8 | Sends = tap tempo | — |
 | ▲ / ▼ | octave | tempo ±1 (±10 with Fixed Length) | (track held) channel ±1 |
 | Play | start / stop | follow / ignore external clock | — |

@@ -168,6 +168,9 @@ def fig_track_hold():
     lit = {}
     for s in range(1, 17):
         lit[step_idx(s)] = WHITE if s == 3 else '#303050'
+    for r in range(8):                       # step rate: straight green, triplets purple; 1/8 chosen
+        col = '#a040ff' if r in (1, 3, 5) else '#20ff40'
+        lit[step_idx(17 + r)] = col if r == 4 else shade(col, 0.45 if r == 2 else 0.2)
     outs = ['#ffffff', '#00ff60', '#00a0ff', '#00ffff']
     for p in range(4):
         lit[note_idx(p)] = outs[p] if p == 2 else shade(outs[p], 0.35)
@@ -175,7 +178,7 @@ def fig_track_hold():
         lit[note_idx(p)] = '#ffe000' if p == 22 else ('#806000' if p == 20 else '#302800')
     for t in range(8):
         lit[101 + t] = TRACK[t] if t == 2 else shade(TRACK[t], 0.35)
-    return device(lit, [(103, 1), (step_idx(3), 2), (note_idx(2), 3), (note_idx(20), 4)])
+    return device(lit, [(103, 1), (step_idx(3), 2), (note_idx(2), 3), (note_idx(20), 4), (step_idx(21), 5)])
 
 
 def fig_patterns():
@@ -275,7 +278,7 @@ Launchpad itself – no computer is needed once it is installed. Connect synths 
 outputs (or to a computer over USB) and program up to eight parts at once.</p>
 <h3>Key features</h3>
 <ul class="features">
-<li><b>8 tracks</b>, each with its own MIDI channel, output (USB, DIN 1, DIN 2 or both DIN outs), note range and transpose</li>
+<li><b>8 tracks</b>, each with its own MIDI channel, output (USB, DIN 1, DIN 2 or both DIN outs), note range, transpose and step rate (1/32 to 1/2, including triplets)</li>
 <li><b>8 patterns per track</b> (A–H) of up to <b>32 steps</b>, switched and chained independently per track</li>
 <li><b>Chords</b> – up to 8 notes on every step</li>
 <li>Per-step <b>velocity</b>, <b>gate length</b> and <b>probability</b></li>
@@ -368,14 +371,25 @@ top = always (100 %), then 87, 75, 62, 50, 37, 25, bottom = 12 %.</p>
 section('Tracks', f'''
 <p>Tap a track button to select it. The step and note areas then show that track, and an external keyboard plays it
 (see <i>MIDI Thru</i>). Hold a track button to change the track’s settings.</p>
-{figure(fig_track_hold(), 'Track 3 held: MIDI channel 3, output MIDI Out 2, transposed +2')}
+{figure(fig_track_hold(), 'Track 3 held: MIDI channel 3, output MIDI Out 2, transposed +2, step rate 1/8')}
 {legend([
  ('Track button (held).', 'Settings are shown for as long as you hold it.'),
  ('MIDI channel.', 'Steps 1–16 (the top two rows) choose channel 1–16; the current channel is white. ▲ / ▼ also step the channel up and down.'),
  ('Output.', 'Bottom row of the note area, pads 1–4: USB (white), MIDI Out (green), MIDI Out 2 (blue), both DIN outs (cyan).'),
  ('Transpose.', 'Note rows 2–4: −12 … +11 semitones. The dim pad (row 3, pad 5) is 0.'),
+ ('Step rate.', 'Steps 17–24 (the third row): how fast the track moves through its steps. Straight rates are green, triplets purple; the chosen rate is bright.'),
 ])}
 <p>New tracks send on <b>MIDI Out</b> with MIDI channel = track number (track 3 = channel 3).</p>
+<div class="keep"><h3>Step rate</h3>
+<p>Each track can step at its own speed against the shared tempo, for example a bass line at half speed under a
+16th-note hi-hat. Hold the track button and tap a pad in the third row:</p>
+{table(['Pad', '17', '18', '19', '20', '21', '22', '23', '24'], [
+ ['One step =', '1/32', '1/16 triplet', '1/16 (default)', '1/8 triplet', '1/8', '1/4 triplet', '1/4', '1/2'],
+ ['Speed', '2×', '1.5×', '1×', '¾×', '½×', '⅜×', '¼×', '⅛×'],
+], 'compact')}
+<p>All tracks start together when you press Play, so tracks at different rates stay in line. Swing only affects
+tracks at 1/16; other rates play straight. Gate lengths scale with the step, and live recording uses the selected
+track’s rate. The rate is saved with the project.</p></div>
 <h3>Muting</h3>
 <p>Tap a button in the bottom row to mute or unmute a track: {k('Record Arm')} = track 1 … {k('Stop Clip')} = track 8.</p>
 ''')
@@ -475,14 +489,14 @@ section('Projects', f'''
 ])}
 <p>The {k('Projects')} button is <b>green</b> when everything is saved and <b>amber</b> when there are unsaved
 changes.</p>
-<p>A project stores all tracks, patterns and chains, channels, outputs, transpose, tempo, swing and the external
+<p>A project stores all tracks, patterns and chains, channels, outputs, transpose, step rates, tempo, swing and the external
 clock setting. The last used slot is loaded automatically after power-up.</p>
 ''')
 
 section('Quick Reference', table(['Control', 'Tap', 'With Shift', 'Hold + …'], [
  ['Step pad', 'Toggle step', 'Set swing (steps 1–26)', 'Note pads = notes / chord; right column = velocity (+ Shift = probability); mute row = gate'],
  ['Note pad', 'Choose and hear note', '–', '–'],
- ['Track button', 'Select track', '–', 'Steps 1–16 = channel; note row 1 = output; rows 2–4 = transpose; ▲ / ▼ = channel'],
+ ['Track button', 'Select track', '–', 'Steps 1–16 = channel; steps 17–24 = step rate; note row 1 = output; rows 2–4 = transpose; ▲ / ▼ = channel'],
  ['Mute row', 'Mute track 1–8', 'Sends = tap tempo', '–'],
  ['▲ / ▼', 'Octave', 'Tempo ±1 (±10 with Fixed Length)', '–'],
  ['▷ Play', 'Start / stop', 'Follow / ignore external clock', '–'],
@@ -565,6 +579,7 @@ table.ref td:first-child { font-weight: 600; white-space: nowrap; }
 th .key { color: #111; }
 .note { border-left: 3px solid #ff8000; background: #fff6ec; padding: 2.6mm 4mm; margin: 3mm 0 4mm; font-size: 9.2pt; page-break-inside: avoid; }
 .note span { display: block; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; font-size: 7.5pt; color: #c05800; margin-bottom: .6mm; }
+.keep { break-inside: avoid; page-break-inside: avoid; }
 .note.warn { border-left-color: #d01818; background: #fdeeee; }
 .note.warn span { color: #b01010; }
 .swatch { display: inline-block; width: 3.4mm; height: 3.4mm; border-radius: .8mm; vertical-align: -.5mm; margin-right: 1mm; }
