@@ -36,7 +36,7 @@ Button names below are the ones printed on the Launchpad.
   ○ Record    │ notes 1 – 8    (lowest)            │
               └────────────────────────────────────┘
                [1] [2] [3] [4] [5] [6] [7] [8]        track select (coloured)
-               Record Arm, Mute, Solo, Volume,        mutes 1 – 8
+               Record Arm, Mute, Solo, Volume,        Mute / Solo modes
                Pan, Sends, Device, Stop Clip
 ```
 
@@ -46,7 +46,8 @@ Button names below are the ones printed on the Launchpad.
 - **Note area** (bottom four rows): 32 chromatic notes, lowest bottom-left. Tap one to hear it and to choose the
   note that new steps get.
 - **Track select row**: the coloured buttons directly under the grid. Tap to select a track; hold for its settings.
-- **Mute row**: the bottom row of buttons (Record Arm … Stop Clip) mutes tracks 1–8.
+- **Bottom row**: **Mute** and **Solo** arm a mode in which the track buttons mute or solo tracks (see
+  *Mute and Solo*). While a step is held, the whole row sets its gate length.
 
 ### Opening and leaving the sequencer
 
@@ -131,7 +132,24 @@ purple, chosen = bright):
 All tracks start together on Play, so they stay in line. Swing only affects tracks at 1/16; other rates play
 straight. Gate lengths scale with the step; live recording uses the selected track's rate. Saved with the project.
 
-**Mute**: tap a button in the bottom row (Record Arm = track 1 … Stop Clip = track 8).
+### Mute and Solo
+
+**Mute** and **Solo** in the bottom row arm a mode for the track buttons. The armed button flashes; press it again to
+disarm.
+
+| Press | Then tap a track button to |
+|---|---|
+| **Mute** (flashes red) | Mute or unmute it at once |
+| **Solo** (flashes blue) | Solo or unsolo it at once |
+| **Shift + Mute** (flashes red and white) | Mute or unmute it when its pattern next starts from step 1 |
+| **Shift + Solo** (flashes blue and white) | Solo or unsolo it when its pattern next starts from step 1 |
+
+While Mute is armed, the track buttons show unmuted tracks in their colour and muted ones dark red; while Solo is
+armed, soloed tracks in their colour and the others dark. A queued change flashes the track button white until it
+happens; tap the track again to cancel it. When stopped, a queued change happens at once.
+
+When any track is soloed, only soloed tracks play; a muted track stays silent even if soloed. Outside Mute and Solo
+mode, tracks silenced by mute or solo show darker. Mutes and solos are saved with the project.
 
 ---
 
@@ -254,7 +272,8 @@ external-clock setting. The last used slot loads automatically at power-up.
 | Step pad | toggle step | set swing | note pads = notes/chord, right column = velocity (+Shift = probability), bottom row = gate |
 | Note pad | choose / preview note | — | — |
 | Track button | select track | — | steps 1–16 = channel, steps 17–24 = step rate, note row 1 = output, rows 2–4 = transpose |
-| Bottom row | mute track 1–8 | Sends = tap tempo | — |
+| Mute / Solo | arm: track buttons mute / solo at once | arm: changes wait for the pattern start | — |
+| Sends | — | tap tempo | — |
 | ▲ / ▼ | octave | tempo ±1 (±10 with Fixed Length) | (track held) channel ±1 |
 | Play | start / stop | internal clock (green) / follow external (orange) | — |
 | Record | arm recording | — | — |

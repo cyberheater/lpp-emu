@@ -144,7 +144,9 @@ def fig_overview():
     lit[20] = '#40ff40'
     lit[97] = WHITE
     lit[98] = '#00c000'
-    return device(lit, [(84, 1), (34, 2), (101, 3), (1, 4), (20, 5), (10, 6), (89, 7), (98, 8), (90, 9), (80, 10)])
+    lit[2] = '#300000'
+    lit[3] = '#000830'
+    return device(lit, [(84, 1), (34, 2), (101, 3), (2, 4), (20, 5), (10, 6), (89, 7), (98, 8), (90, 9), (80, 10)])
 
 
 def fig_step_hold():
@@ -301,13 +303,13 @@ outputs (or to a computer over USB) and program up to eight parts at once.</p>
 section('Overview', f'''
 <p>The sequencer uses the whole surface of the Launchpad. The top half of the grid shows the steps of the selected
 track; the bottom half is a keyboard of 32 notes. The coloured row under the grid selects tracks and the row beneath
-that mutes them.</p>
+that holds Mute and Solo.</p>
 {figure(fig_overview(), 'The sequencer with track 1 selected and playing')}
 {legend([
  ('Step area.', '32 steps of the selected track’s current pattern: steps 1–32, or 33–64 after ▶ (top row = steps 1–8 or 33–40). Lit steps play; brighter = louder. The white pad is the playhead.'),
  ('Note area.', '32 chromatic notes, lowest at the bottom left. Tap a note to hear it and to choose the note new steps get.'),
  ('Track buttons.', 'Tap to select a track, hold for its settings. Each track has its own colour.'),
- ('Mute buttons.', 'Record Arm … Stop Clip mute tracks 1–8. While a step is held they set its gate length.'),
+ ('Mute and Solo.', 'Arm a mode in which the track buttons mute or solo tracks (see <i>Mute and Solo</i>). While a step is held, this whole row sets its gate length.'),
  ('Play.', 'Start / stop. Green = internal clock, orange = following an external clock.'),
  ('Record.', 'Arm live recording.'),
  ('Patterns.', 'Hold to show the pattern map for all eight tracks.'),
@@ -395,8 +397,20 @@ section('Tracks', f'''
 <p>All tracks start together when you press Play, so tracks at different rates stay in line. Swing only affects
 tracks at 1/16; other rates play straight. Gate lengths scale with the step, and live recording uses the selected
 track’s rate. The rate is saved with the project.</p></div>
-<h3>Muting</h3>
-<p>Tap a button in the bottom row to mute or unmute a track: {k('Record Arm')} = track 1 … {k('Stop Clip')} = track 8.</p>
+<div class="keep"><h3>Mute and Solo</h3>
+<p>{k('Mute')} and {k('Solo')} in the bottom row arm a mode for the track buttons. The armed button flashes; press it
+again to disarm.</p>
+{table(['Press', 'Then tap a track button to'], [
+ [f'{k("Mute")} (flashes red)', 'Mute or unmute it at once'],
+ [f'{k("Solo")} (flashes blue)', 'Solo or unsolo it at once'],
+ [f'{k("Shift")} + {k("Mute")} (flashes red and white)', 'Mute or unmute it when its pattern next starts from step 1'],
+ [f'{k("Shift")} + {k("Solo")} (flashes blue and white)', 'Solo or unsolo it when its pattern next starts from step 1'],
+], 'compact')}
+<p>While Mute is armed, the track buttons show unmuted tracks in their colour and muted ones dark red; while Solo is
+armed, soloed tracks in their colour and the others dark. A queued change flashes the track button white until it
+happens; tap the track again to cancel it. When stopped, a queued change happens at once.</p>
+<p>When any track is soloed, only soloed tracks play; a muted track stays silent even if soloed. Outside Mute and
+Solo mode, tracks silenced by mute or solo show darker. Mutes and solos are saved with the project.</p></div>
 ''')
 
 section('Patterns and Chains', f'''
@@ -505,7 +519,8 @@ section('Quick Reference', table(['Control', 'Tap', 'With Shift', 'Hold + …'],
  ['Step pad', 'Toggle step', 'Set swing (steps 1–26)', 'Note pads = notes / chord; right column = velocity (+ Shift = probability); mute row = gate'],
  ['Note pad', 'Choose and hear note', '–', '–'],
  ['Track button', 'Select track', '–', 'Steps 1–16 = channel; steps 17–24 = step rate; note row 1 = output; rows 2–4 = transpose; ▲ / ▼ = channel'],
- ['Mute row', 'Mute track 1–8', 'Sends = tap tempo', '–'],
+ ['Mute / Solo', 'Arm: track buttons mute / solo at once', 'Arm: changes wait for the pattern start', '–'],
+ ['Sends', '–', 'Tap tempo', '–'],
  ['▲ / ▼', 'Octave', 'Tempo ±1 (±10 with Fixed Length)', '–'],
  ['▷ Play', 'Start / stop', 'Internal (green) / external clock (orange)', '–'],
  ['○ Record', 'Arm / disarm recording', '–', '–'],
