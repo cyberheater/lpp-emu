@@ -351,13 +351,13 @@ section('Programming Steps', f'''
 </tbody></table>
 <h3>Holding a step</h3>
 <p>Hold a step to edit it. While it is held, the note area shows all its notes, the right-hand column shows its
-velocity and the mute row shows its gate length.</p>
+velocity and the bottom row shows its gate length.</p>
 {figure(fig_step_hold(), 'Step 5 held: a three-note chord, velocity 96, gate 4/8')}
 {legend([
  ('Held step.', 'Shown white while you hold it.'),
  ('Notes.', 'The first note pad you tap sets the step’s note. Tap more pads in the same hold to build a chord of up to 8 notes; tap a lit note again to remove it.'),
  ('Velocity.', 'The right-hand column: top = 127, then 112, 96, 80, 64, 48, 32, bottom = 16.'),
- ('Gate length.', 'The mute row: 1 (Record Arm) = shortest, 8 (Stop Clip) = the whole step.'),
+ ('Gate length.', 'The bottom row: 1 (Record Arm) = shortest, 8 (Stop Clip) = the whole step.'),
 ])}
 <p><b>Probability</b>: hold the step and {k('Shift')} – the right-hand column then sets how often the step plays:
 top = always (100 %), then 87, 75, 62, 50, 37, 25, bottom = 12 %.</p>
@@ -367,6 +367,10 @@ top = always (100 %), then 87, 75, 62, 50, 37, 25, bottom = 12 %.</p>
 steps 33–64. The arrow of the page you are on is white; the other arrow is grey when the pattern reaches that page,
 dim when it does not, and <b>green while the playhead is on that page</b>. To make a pattern longer than 32 steps, go
 to page 2, hold {k('Fixed Length')} and tap the last step. Projects saved before 64 steps load unchanged.</p></div>
+<div class="keep"><h3>Copying a step</h3>
+<p>Hold {k('Duplicate')} and tap a lit step: it lights <b>cyan</b>. Keep holding {k('Duplicate')} and tap every step
+you want a copy on. Each copy gets the same notes (including chords), length, velocity and probability. Press
+{k('▶')} / {k('◀')} while still holding {k('Duplicate')} to paste on the other page.</p></div>
 <h3>Pattern length and clearing</h3>
 {table(['Action', 'Result'], [
  [f'Hold {k("Fixed Length")} + tap a step', 'The pattern ends at that step (1–32, or 33–64 on page 2)'],
@@ -516,7 +520,7 @@ clock setting. The last used slot is loaded automatically after power-up.</p>
 ''')
 
 section('Quick Reference', table(['Control', 'Tap', 'With Shift', 'Hold + …'], [
- ['Step pad', 'Toggle step', 'Set swing (steps 1–26)', 'Note pads = notes / chord; right column = velocity (+ Shift = probability); mute row = gate'],
+ ['Step pad', 'Toggle step', 'Set swing (steps 1–26)', 'Note pads = notes / chord; right column = velocity (+ Shift = probability); bottom row = gate'],
  ['Note pad', 'Choose and hear note', '–', '–'],
  ['Track button', 'Select track', '–', 'Steps 1–16 = channel; steps 17–24 = step rate; note row 1 = output; rows 2–4 = transpose; ▲ / ▼ = channel'],
  ['Mute / Solo', 'Arm: track buttons mute / solo at once', 'Arm: changes wait for the pattern start', '–'],
@@ -527,7 +531,7 @@ section('Quick Reference', table(['Control', 'Tap', 'With Shift', 'Hold + …'],
  ['Fixed Length', '–', '–', '+ step = pattern length'],
  ['◀ / ▶', 'Steps 1–32 / 33–64', '–', '–'],
  ['Clear', '–', '–', '+ step = clear step; + track = clear pattern'],
- ['Duplicate', '–', '–', 'With Patterns: copy pattern'],
+ ['Duplicate', '–', '–', '+ step = copy it, then + steps = paste; with Patterns: copy pattern'],
  ['Patterns', '–', '–', 'Pattern map: switch, chain, copy, clear'],
  ['Projects', 'Save', '–', 'Track row = choose / load slot'],
  ['Note', 'Note mode (playback continues)', '–', '–'],

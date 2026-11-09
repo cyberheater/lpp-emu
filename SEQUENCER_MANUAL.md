@@ -91,6 +91,12 @@ The arrow of the page you are on is white. The other arrow is grey when the patt
 does not, and **green while the playhead is on that page**. To make a pattern longer than 32 steps, go to page 2, hold
 **Fixed Length** and tap the last step. Projects saved before 64 steps load unchanged.
 
+### Copying a step
+
+Hold **Duplicate** and tap a lit step: it lights **cyan**. Keep holding Duplicate and tap every step you want a copy
+on. Each copy gets the same notes (including chords), length, velocity and probability. Press ▶ / ◀ while still
+holding Duplicate to paste on the other page. Let go of Duplicate when you are done.
+
 ### Pattern length and clearing
 
 | Action | Result |
@@ -281,6 +287,7 @@ external-clock setting. The last used slot loads automatically at power-up.
 | ◀ / ▶ | steps 1–32 / 33–64 | — | — |
 | Clear | — | — | + step = clear step; + track = clear pattern |
 | Patterns | — | — | pattern map: switch, chain, + Duplicate copy, + Clear clear |
+| Duplicate | — | — | + step = copy it, then + steps = paste |
 | Projects | save | — | track row = load slot |
 | Note | back to note mode (playback continues) | — | — |
 

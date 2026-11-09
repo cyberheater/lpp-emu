@@ -216,6 +216,7 @@ background (Sequencer button green in note mode).
 - **Tracks**: 8, each with MIDI channel, output (USB / DIN 1 / DIN 2 / DIN 1+2), mute and solo (Mute / Solo arm a mode for the track buttons; with Shift the change waits for the pattern start), transpose and step rate (slowest left: 1/1 ... 1/32 incl. triplets; hold a track button).
 - **Patterns**: 8 per track × up to 64 steps (◀ / ▶ page between steps 1–32 and 33–64), length per pattern. Hold Patterns (89): tracks × patterns grid; tap to switch
   (queued to the end of the pattern while playing); hold + tap to chain; Duplicate/Clear + tap to copy/clear.
+  Steps: hold Duplicate, tap a step to copy (cyan), tap steps to paste (notes, length, velocity, probability).
 - **Steps**: up to 8 notes (a chord: hold a step, tap note pads; the first tap sets the note, later taps add or
   remove notes), velocity (right column while holding a step), gate in eighths (bottom row), probability
   (Shift + right column). Swing 50-75 % (Shift + step pads), timed to the millisecond.
@@ -245,7 +246,7 @@ background (Sequencer button green in note mode).
   carries ~1500 notes/s with running status: spread busy tracks across DIN 1 and DIN 2.
   `MidiPort::Din2`; `read/write_user_storage` on the external flash (1 MB at 0xF00000).
 - **Tests** (`renode/`): `run_tests.sh [elf|bin|syx]` runs seqtest, bgtest, exttest, dinintest, veltest, swingtest, rectest,
-  chordtest, thrutest, echotest, tempotest, clocktogtest, ratetest, mutetest, flashtest, pattest and steptest, each on a fresh boot, with save/restart checks. Output of the last run: `renode/regression.txt`.
+  chordtest, thrutest, echotest, tempotest, clocktogtest, ratetest, mutetest, dupetest, flashtest, pattest and steptest, each on a fresh boot, with save/restart checks. Output of the last run: `renode/regression.txt`.
 
 ## Update image format (verified on stock 4.40 and CoreFW)
 SysEx `F0 00 20 29 00 <cmd>`: 71 header, 7C version + nibble size + CRC, 72 data, 73 = block 0 sent last.

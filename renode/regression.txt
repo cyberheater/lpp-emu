@@ -1,10 +1,10 @@
 === seqtest.py
 sequencer opened: True  track-1 button colour (252, 32, 32)
 step 1 lit with track-2 view? (212, 104, 0)  track-2 button (252, 128, 0)
-DIN 1: 116 clocks, note-ons [60, 60, 60, 60, 60], gaps(s) [0.873, 0.855, 0.869, 0.87], start/stop ['0xfa', '0xfc']
-DIN 2: 116 clocks, note-ons [64, 64, 64, 64, 64], gaps(s) [0.849, 0.853, 0.896, 0.838], start/stop ['0xfa', '0xfc']
-note-offs seen (incl. note-on velocity 0): 10
-USB packets (non-clock): ['1ffa0000', '1ffc0000']  clock packets 116
+DIN 1: 127 clocks, note-ons [60, 60, 60, 60, 60, 60], gaps(s) [0.789, 0.82, 0.789, 0.781, 0.786], start/stop ['0xfa', '0xfc']
+DIN 2: 127 clocks, note-ons [64, 64, 64, 64, 64], gaps(s) [0.815, 0.79, 0.788, 0.787], start/stop ['0xfa', '0xfc']
+note-offs seen (incl. note-on velocity 0): 11
+USB packets (non-clock): ['1ffa0000', '1ffc0000']  clock packets 127
 === bgtest.py
 playing in sequencer, DIN 1 notes: [60, 60, 60, 60]
 in note mode, Sequencer button: (0, 192, 0)
@@ -21,7 +21,7 @@ Play LED after clock stopped (back to internal, grey): (16, 16, 16)
 === dinintest.py
 Play LED while following external clock (orange expected): (96, 32, 0)
 DIN 1 note-ons: [60, 60, 60, 60] (expect 4 x 60)
-clock passed through: DIN 1 95 DIN 2 95 (expect 96 each)  start/stop on DIN 1: ['0xfa', '0xfc']
+clock passed through: DIN 1 96 DIN 2 96 (expect 96 each)  start/stop on DIN 1: ['0xfa', '0xfc']
 clock sent to USB (expect 0): 0 (expect 0)
 Play LED after clock stopped (back to internal, grey): (16, 16, 16)
 === veltest.py
@@ -35,14 +35,14 @@ note at pulse 25: velocity 100, gate 3 pulses
 transpose +2: notes [62, 62] (expect 62, 62)  pad LED (252, 224, 0)
 swing 50 %: note-on pulses [1, 7] (second at 7 = straight)
 swing 75 %: note-on pulses [1, 9] (second later, ~9-10)  bar LED pad 26: (16, 8, 0) -> (252, 160, 0)
-probability 50 % on 8 steps x 4 loops: 12 of 32 played (expect roughly 16)
+probability 50 % on 8 steps x 4 loops: 11 of 32 played (expect roughly 16)
 probability bar (top..bottom): [(8, 8, 8), (8, 8, 8), (8, 8, 8), (8, 8, 8), (0, 224, 252), (0, 224, 252), (0, 224, 252), (0, 224, 252)]
 === rectest.py
 Record LED armed (dark red expected): (160, 0, 0)
-pass 1 (recording): DIN 1 note-ons (pulse, note, vel): [(14, 60, 96), (53, 64, 80)] (C4 preview live; E4 not replayed)
+pass 1 (recording): DIN 1 note-ons (pulse, note, vel): [(13, 60, 96), (53, 64, 80)] (C4 preview live; E4 not replayed)
 Record LED disarmed: (32, 0, 0)
 pass 2 (playback): DIN 1 note-ons: [(13, 60, 96), (55, 64, 80)] (expect 60 at ~12, 64 at ~54)
-held note (G4, 24 pulses = 4 steps): on at [25] off at [48] -> length 23 pulses (expect ~24 ± 4, not 6)
+held note (G4, 24 pulses = 4 steps): on at [31] off at [55] -> length 24 pulses (expect ~24 ± 4, not 6)
 rectest long note PASS
 === chordtest.py
 playback: DIN 1 note-ons (pulse, note, vel): [(13, 60, 112), (13, 62, 112), (13, 64, 112), (13, 65, 112), (13, 67, 112), (13, 69, 112), (13, 71, 112), (13, 72, 112), (49, 60, 100), (49, 67, 100)]
@@ -60,18 +60,18 @@ bank select + program change: DIN 1 [] (expect []) ok
 pitch bend still passes: DIN 1 [('e2', '00', '50')] (expect [('e2', '00', '50')]) ok
 thrutest PASS
 === echotest.py
-clocks in 5 s: without echo 146, with echo 150 (should be about the same)
+clocks in 5 s: without echo 151, with echo 148 (should be about the same)
 Play LED while echoed: {(16, 96, 16), (64, 252, 64)} (orange = following its own echo: wrong)
 echotest PASS
 === tempotest.py
 readout on Shift: 120 (expect 120); after Shift + Up x2: 122 (expect 122)
-tap 5 x 0.4 s at 0.60x real time: readout 244 (expect ~249); Tap LED while Shift held (252, 252, 252)
+tap 5 x 0.4 s at 0.63x real time: readout 222 (expect ~238); Tap LED while Shift held (252, 252, 252)
 tempotest PASS
 === clocktogtest.py
 Shift held: Play (0, 192, 0) (green = internal clock, the default); after Shift + Play: (252, 96, 0) (orange = follow external); Projects LED (0, 192, 0) -> (252, 128, 0) (amber = unsaved) ok
 following: notes [60, 60, 60, 60] (expect 4 x 60), clock passed DIN 1 96 DIN 2 96 (expect 96) ok
 internal again: Play (0, 192, 0) (green); external FA + 96 F8: notes [] (expect []), clock out DIN 1 0 DIN 2 0 (expect 0) ok
-internal clock in 3 s: 83; with external F8 arriving: 82 (should match); Play LEDs {(16, 96, 16), (64, 252, 64)} ok
+internal clock in 3 s: 90; with external F8 arriving: 91 (should match); Play LEDs {(16, 96, 16)} ok
 clocktogtest PASS
 === ratetest.py
 both at 1/16: track 1 pulses: [1, 7, 13, 19] (expect [1, 7, 13, 19]) ok
@@ -95,6 +95,12 @@ Mute button in queued mode (red / white): {(252, 252, 252), (252, 0, 0)}
 queued mute of track 1 at pulse 30: channel 1 (plays out the loop): [1, 25, 49, 73] (expect [1, 25, 49, 73]) ok
 channel 2 unaffected: [1, 25, 49, 73, 97, 121, 145, 169] (expect [1, 25, 49, 73, 97, 121, 145, 169]) ok
 mutetest PASS
+=== dupetest.py
+copied step while Duplicate held: (0, 252, 252) (cyan)
+steps that play (pulse -> step): [1, 5, 9, 33, 65] (expect [1, 5, 9, 33, 65]) ok
+step 5 / 9 / 33 notes and velocity = step 1: [[(60, 80), (64, 80)], [(60, 80), (64, 80)], [(60, 80), (64, 80)]] (expect [[(60, 80), (64, 80)], [(60, 80), (64, 80)], [(60, 80), (64, 80)]]) ok
+C4 length in pulses (gate 3/8 of a 6-pulse step = 2.25): {1: [2], 5: [2], 9: [2], 33: [2]}
+dupetest PASS
 === flashtest.py program
 Projects LED on entry: (252, 128, 0) (green = saved / matches flash, amber = unsaved, off = no flash)
 Projects LED after edits: (252, 128, 0)
@@ -111,7 +117,7 @@ pattern lights (A..D): {'A': (252, 32, 32), 'B': (108, 12, 12), 'C': (28, 4, 4),
 Projects LED after save: (252, 252, 252)
 === pattest.py verify (after restart)
 Projects LED on entry: (0, 192, 0) (green = loaded)
-pattern lights (A..D): {'A': (252, 32, 32), 'B': (108, 12, 12), 'C': (28, 4, 4), 'D': (4, 4, 4)}
+pattern lights (A..D): {'A': (108, 12, 12), 'B': (252, 32, 32), 'C': (28, 4, 4), 'D': (4, 4, 4)}
 32 steps, DIN 1 notes: [60, 64] (expect 60, 64)
 === steptest.py program
 arrows on page 2 (left, right): ((48, 48, 48), (252, 252, 252))  step 33 before/after: (0, 0, 0) (212, 24, 24)
