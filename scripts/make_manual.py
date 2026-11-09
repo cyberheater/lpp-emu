@@ -285,7 +285,7 @@ outputs (or to a computer over USB) and program up to eight parts at once.</p>
 <li><b>Chords</b> – up to 8 notes on every step</li>
 <li>Per-step <b>velocity</b>, <b>gate length</b> and <b>probability</b></li>
 <li>Tempo 30–300 BPM with <b>tap tempo</b> and an on-grid <b>BPM readout</b>; <b>swing</b> from 50 % to 75 %</li>
-<li><b>Live recording</b> from the pads or an external keyboard, quantised to the nearest step</li>
+<li><b>Live recording</b> from the pads or an external keyboard, quantised to the nearest step, and <b>step recording</b> one note at a time while stopped</li>
 <li><b>MIDI thru</b>: a keyboard plays whichever track is selected</li>
 <li>Sends <b>MIDI clock</b>, or can follow an external clock from USB or DIN In</li>
 <li><b>8 project slots</b> saved in the Launchpad’s memory</li>
@@ -311,7 +311,7 @@ that holds Mute and Solo.</p>
  ('Track buttons.', 'Tap to select a track, hold for its settings. Each track has its own colour.'),
  ('Mute and Solo.', 'Arm a mode in which the track buttons mute or solo tracks (see <i>Mute and Solo</i>). While a step is held, this whole row sets its gate length.'),
  ('Play.', 'Start / stop. Green = internal clock, orange = following an external clock.'),
- ('Record.', 'Arm live recording.'),
+ ('Record.', 'Arm recording: live while playing, step by step while stopped.'),
  ('Patterns.', 'Hold to show the pattern map for all eight tracks.'),
  ('Projects.', 'Tap to save, hold to load. Green = saved, amber = unsaved changes.'),
  ('Shift.', 'Hold for tempo, swing, tap tempo and the clock setting.'),
@@ -467,6 +467,23 @@ their held length as the gate: a note held over several steps plays for as long 
 notes, keeping the loudest velocity.</p>
 <p>A note played just ahead of a step is not replayed on that pass – you have already heard it.</p>
 <p>Tap {k('○')} again to stop recording.</p>
+<div class="keep">
+<h3>Step recording (while stopped)</h3>
+<p>Arm {k('○')} while the sequencer is <b>stopped</b> to enter notes one step at a time:</p>
+<ol>
+<li>Tap {k('○')} (dark red). A <b>white cursor</b> appears on step 1.</li>
+<li>Play a note on the note pads or a keyboard. It goes on the cursor step, with its velocity, and the cursor moves to
+the next step when you let go.</li>
+<li>Keep playing: each note fills the next step. For a <b>chord</b>, hold the notes together; the cursor moves on once
+you have released them all.</li>
+<li>To leave a <b>rest</b> (or go back and redo a step), tap the step you want next: the cursor jumps there, and the
+steps in between keep whatever they had.</li>
+<li>After the pattern’s <b>last step</b>, Record disarms by itself and the cursor returns to step 1.</li>
+</ol>
+<p>Recorded steps get the default gate (half a step); set it afterwards by holding the step. The cursor follows onto
+page 2 for steps 33–64.</p>
+{note("While Record is armed and the sequencer is stopped, tapping a step only moves the cursor. Disarm Record to switch steps on and off again. Press Play at any time to hear the result; Record stays armed, so it then records live.")}
+</div>
 ''')
 
 section('MIDI Thru', f'''
@@ -527,7 +544,7 @@ section('Quick Reference', table(['Control', 'Tap', 'With Shift', 'Hold + …'],
  ['Sends', '–', 'Tap tempo', '–'],
  ['▲ / ▼', 'Octave', 'Tempo ±1 (±10 with Fixed Length)', '–'],
  ['▷ Play', 'Start / stop', 'Internal (green) / external clock (orange)', '–'],
- ['○ Record', 'Arm / disarm recording', '–', '–'],
+ ['○ Record', 'Arm / disarm recording (stopped = step recording)', '–', '–'],
  ['Fixed Length', '–', '–', '+ step = pattern length'],
  ['◀ / ▶', 'Steps 1–32 / 33–64', '–', '–'],
  ['Clear', '–', '–', '+ step = clear step; + track = clear pattern'],

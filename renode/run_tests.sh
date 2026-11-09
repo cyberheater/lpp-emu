@@ -41,6 +41,7 @@ run clocktogtest.py
 run ratetest.py
 run mutetest.py
 run dupetest.py
+run steprectest.py
 run flashtest.py program; boot; echo "=== flashtest.py verify (after restart)"; python3 -I flashtest.py verify
 run pattest.py program;   boot; echo "=== pattest.py verify (after restart)";   python3 -I pattest.py verify
 run steptest.py program;  boot; echo "=== steptest.py verify (after restart)";  python3 -I steptest.py verify

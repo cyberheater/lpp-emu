@@ -222,7 +222,8 @@ background (Sequencer button green in note mode).
   (Shift + right column). Swing 50-75 % (Shift + step pads), timed to the millisecond.
 - **Live recording**: tap Record (bottom-left) to arm; while playing, notes from the pads or from a keyboard (USB MIDI
   port / DIN In) land on the nearest step of the selected track with their velocity and held length; notes played
-  together are recorded as a chord. The app's DIN In defaults to "All MIDI inputs" (notes only, no clock — a keyboard
+  together are recorded as a chord. Armed while stopped it step-records: each note (or chord) fills the white
+  cursor step and the cursor moves on; tap a step to skip to it; Record disarms after the last step. The app's DIN In defaults to "All MIDI inputs" (notes only, no clock — a keyboard
   with MIDI Thru would echo the sequencer's clock back); pick a single input to follow an external clock.
 - **MIDI thru**: a keyboard on the USB MIDI port / DIN In plays the selected track (notes, aftertouch, controllers,
   pitch bend re-sent on that track's output and channel; program change and bank select are dropped); echoes from a keyboard with MIDI Thru are
@@ -246,7 +247,7 @@ background (Sequencer button green in note mode).
   carries ~1500 notes/s with running status: spread busy tracks across DIN 1 and DIN 2.
   `MidiPort::Din2`; `read/write_user_storage` on the external flash (1 MB at 0xF00000).
 - **Tests** (`renode/`): `run_tests.sh [elf|bin|syx]` runs seqtest, bgtest, exttest, dinintest, veltest, swingtest, rectest,
-  chordtest, thrutest, echotest, tempotest, clocktogtest, ratetest, mutetest, dupetest, flashtest, pattest and steptest, each on a fresh boot, with save/restart checks. Output of the last run: `renode/regression.txt`.
+  chordtest, thrutest, echotest, tempotest, clocktogtest, ratetest, mutetest, dupetest, steprectest, flashtest, pattest and steptest, each on a fresh boot, with save/restart checks. Output of the last run: `renode/regression.txt`.
 
 ## Update image format (verified on stock 4.40 and CoreFW)
 SysEx `F0 00 20 29 00 <cmd>`: 71 header, 7C version + nibble size + CRC, 72 data, 73 = block 0 sent last.

@@ -211,6 +211,24 @@ velocity is kept). A note you play just ahead of a step is not replayed on that 
 
 Tap Record again to disarm.
 
+### Step recording (while stopped)
+
+Arm **Record** while the sequencer is **stopped** to enter notes one step at a time:
+
+1. Tap **Record** (dark red). A **white cursor** appears on step 1.
+2. Play a note on the note pads or a keyboard. It goes on the cursor step, with its velocity, and the cursor moves
+   to the next step when you let go.
+3. Keep playing: each note fills the next step. To record a **chord**, hold the notes together; the cursor moves on
+   once you have released them all.
+4. To leave a **rest** (or go back and redo a step), tap the step you want next: the cursor jumps there, and the
+   steps in between keep whatever they had.
+5. After the pattern's **last step**, Record disarms by itself and the cursor returns to step 1.
+
+Recorded steps get the default gate (half a step); set it afterwards by holding the step. The cursor follows onto
+page 2 for steps 33–64. While Record is armed and stopped, tapping a step only moves the cursor; disarm Record to
+switch steps on and off again. Press **Play** at any time to hear the result (Record stays armed, so playing then
+records live).
+
 ---
 
 ## 7. MIDI thru (playing from a keyboard)
@@ -282,7 +300,7 @@ external-clock setting. The last used slot loads automatically at power-up.
 | Sends | — | tap tempo | — |
 | ▲ / ▼ | octave | tempo ±1 (±10 with Fixed Length) | (track held) channel ±1 |
 | Play | start / stop | internal clock (green) / follow external (orange) | — |
-| Record | arm recording | — | — |
+| Record | arm recording (stopped = step recording) | — | — |
 | Fixed Length | — | — | + step = pattern length |
 | ◀ / ▶ | steps 1–32 / 33–64 | — | — |
 | Clear | — | — | + step = clear step; + track = clear pattern |
