@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Patterns + chaining test (Renode with run.resc).
-  pattest.py program  fresh flash: track 1 -> DIN 1; pattern A step 1 = C4, pattern B step 1 = E4; chain A-B;
-                      copy B to C with Duplicate; play 32 externally clocked steps; save.
+  pattest.py program  fresh flash: track 1 -> DIN 1; pattern 1 step 1 = C4, pattern 2 step 1 = E4; chain 1-2;
+                      copy 1 to 3 with Duplicate; play 32 externally clocked steps; save. Patterns are song-wide and
+                      sit on the top two grid rows while Patterns is held.
   pattest.py verify   after a Renode restart: check pattern lights (A/B chained, C has notes) and replay."""
 import os, socket, sys, threading, time
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'm0'))
@@ -45,7 +46,7 @@ def up(lg): panel.sendall(f'p {LOGICAL_TO_CONTROL[lg]} 0\n'.encode()); time.slee
 def press(lg): down(lg); up(lg)
 def step_xy(n): i = n - 1; return (8 - i // 8) * 10 + i % 8 + 1
 def note_xy(pad): return (1 + pad // 8) * 10 + pad % 8 + 1
-def pat_xy(track, p): return (8 - p) * 10 + track + 1      # p: 0 = A
+def pat_xy(p): return (8 - p // 8) * 10 + p % 8 + 1    # p: 0 = pattern 1 (top-left), 8 = pattern 9
 
 def play_steps(n):
     with lock:
@@ -60,7 +61,7 @@ def play_steps(n):
 
 def pattern_view():
     down(89); time.sleep(0.4)
-    view = {chr(65 + p): leds.get(pat_xy(0, p)) for p in range(4)}
+    view = {chr(65 + p): leds.get(pat_xy(p)) for p in range(4)}
     up(89)
     return view
 
@@ -71,10 +72,10 @@ if sys.argv[1] == 'program':
 if sys.argv[1] == 'program':
     down(101); press(note_xy(1)); up(101)          # track 1 -> DIN 1
     press(note_xy(12)); press(step_xy(1))           # A: C4 on step 1
-    down(89); press(pat_xy(0, 1)); up(89)           # switch to B (stopped -> immediate)
+    down(89); press(pat_xy(1)); up(89)           # switch to B (stopped -> immediate)
     press(note_xy(16)); press(step_xy(1))           # B: E4 on step 1
-    down(89); down(pat_xy(0, 0)); press(pat_xy(0, 1)); up(pat_xy(0, 0)); up(89)   # chain A-B
-    down(89); down(50); press(pat_xy(0, 2)); up(50); up(89)                        # copy current (A) to C
+    down(89); down(pat_xy(0)); press(pat_xy(1)); up(pat_xy(0)); up(89)   # chain A-B
+    down(89); down(50); press(pat_xy(2)); up(50); up(89)                        # copy current (A) to C
     print('pattern lights (A..D):', pattern_view())
     print('32 steps, DIN 1 notes:', play_steps(32), '(expect 60, 64)')
     press(98); time.sleep(0.6)

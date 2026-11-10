@@ -66,7 +66,7 @@ if sys.argv[1] == 'program':
     time.sleep(0.8)
     print('Projects LED after save:', colour(98))
     down(98); time.sleep(0.3)
-    print('slot row while Projects held:', [colour(101 + i) for i in range(8)])
+    print('projects 1-8 (top grid row) while Projects held:', [colour(step_xy(1 + i)) for i in range(8)])
     up(98)
 else:
     print('step 1/5 LEDs (track colour = loaded):', colour(step_xy(1)), colour(step_xy(5)), ' step 2:', colour(step_xy(2)))

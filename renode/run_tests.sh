@@ -44,6 +44,7 @@ run dupetest.py
 run steprectest.py
 run flashtest.py program; boot; echo "=== flashtest.py verify (after restart)"; python3 -I flashtest.py verify
 run pattest.py program;   boot; echo "=== pattest.py verify (after restart)";   python3 -I pattest.py verify
+run projtest.py program; boot; echo "=== projtest.py verify (after restart)"; python3 -I projtest.py verify
 run steptest.py program;  boot; echo "=== steptest.py verify (after restart)";  python3 -I steptest.py verify
 pkill -f "renode --disable-gui -P 1234"
 rm -f _tests.resc _tests.log _tests_flash.bin _tests_fw.bin

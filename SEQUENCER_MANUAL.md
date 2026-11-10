@@ -6,12 +6,12 @@ part on its own MIDI channel, sent to USB, DIN Out 1, DIN Out 2 or both DIN outs
 | | |
 |---|---|
 | Tracks | 8, each with its own MIDI channel, output, octave range, transpose and step rate |
-| Patterns | 8 per track (A–H), can be chained |
+| Patterns | 16 per project, shared by all 8 tracks, can be chained |
 | Steps | up to 64 per pattern, shown 32 at a time |
 | Notes per step | up to 8 (chords) |
 | Per step | velocity, gate length, probability |
 | Global | tempo 30–300 BPM, swing 50–75 %, external MIDI clock sync |
-| Projects | 8 save slots in the Launchpad's flash |
+| Projects | 32 in the Launchpad's flash (only the steps in use are stored) |
 
 The sequencer is part of a custom build of [CoreFW](https://github.com/anthonyhfm/launchpad-core-firmware) (GPL-3.0).
 See *Installing* at the end.
@@ -51,7 +51,7 @@ Button names below are the ones printed on the Launchpad.
 
 ### Opening and leaving the sequencer
 
-- **Sequencer** opens it. The first time after power-up, the last used project is loaded.
+- **Sequencer** opens it. The first time after power-up, the current project is opened.
 - **Note** goes back to the normal note mode. **Playback keeps going** in the background; the Sequencer button
   shows green while it plays. Press Sequencer again to return.
 
@@ -161,11 +161,27 @@ mode, tracks silenced by mute or solo show darker. Mutes and solos are saved wit
 
 ## 4. Patterns and chaining
 
-Each track has 8 patterns, A–H. Hold **Patterns** (top of the right-hand column): the grid becomes a pattern map,
-one **column per track** (track 1 left) and one **row per pattern** (A at the top).
+A project has 16 patterns. A pattern holds **all 8 tracks**, and every track is always on the same pattern: switching
+pattern switches the whole song. Hold **Patterns** (top of the right-hand column): the top two grid rows show the 16
+patterns, 1–8 on the top row and 9–16 on the row below. The rest of the grid stays dark.
 
 | Colour | Meaning |
 |---|---|
+| White | the current pattern |
+| Orange | part of the chain |
+| Dim orange | has notes |
+| Cyan | queued (starts at the end of the playing pattern) |
+
+| While holding Patterns | Result |
+|---|---|
+| Tap a pattern | Switch to it — at the end of the playing pattern, or at once when stopped |
+| Hold one pattern + tap another | **Chain** the range (e.g. 1–4 plays 1, 2, 3, 4, 1, …) |
+| Hold **Duplicate** + tap a pattern | Copy the current pattern (all tracks) there |
+| Hold **Clear** + tap a pattern | Clear that pattern on all tracks (its length stays) |
+
+Each track's part of a pattern keeps its own length, so tracks can still run polymetric lengths.
+
+---|---|
 | Track colour | the track's current pattern |
 | Medium | part of the track's chain |
 | Dim | has notes |
@@ -274,10 +290,24 @@ away.
 
 ---
 
-## 9. Projects (saving and loading)
+## 9. Projects (saving and switching)
 
 | Action | Result |
 |---|---|
+| Tap **Projects** | Save the current project (the button flashes white) |
+| Hold **Projects** | The top four grid rows show the 32 projects (1–8 on the top row): white = current, dim = saved, dark = empty |
+| Hold **Projects** + tap a project | Switch to it. The current project is saved first; an empty one opens as a new, blank project |
+
+The **Projects** button is **green** when everything is saved and **amber** when there are unsaved changes.
+
+A project holds everything: all tracks, 16 patterns, chains, channels, outputs, transpose, step rates, tempo, swing and
+the external-clock setting. The current project opens automatically at power-up.
+
+Only the steps in use are stored, so a project normally takes a few KB. Each project has room for about 2,500 used
+steps (of the 8 × 16 × 64 possible) — every track playing a full 16-step part in all 16 patterns is 2,048. A project
+fuller than that cannot be saved.
+
+---|---|
 | Tap **Projects** | Save to the current slot (the button flashes white) |
 | Hold **Projects** | The track row shows the 8 slots: white = current, dim = saved, off = empty |
 | Hold **Projects** + tap a slot | Load it (an empty slot just becomes the slot the next save goes to) |
@@ -304,9 +334,9 @@ external-clock setting. The last used slot loads automatically at power-up.
 | Fixed Length | — | — | + step = pattern length |
 | ◀ / ▶ | steps 1–32 / 33–64 | — | — |
 | Clear | — | — | + step = clear step; + track = clear pattern |
-| Patterns | — | — | pattern map: switch, chain, + Duplicate copy, + Clear clear |
+| Patterns | — | — | top rows = 16 patterns: switch, chain, + Duplicate copy, + Clear clear |
 | Duplicate | — | — | + step = copy it, then + steps = paste |
-| Projects | save | — | track row = load slot |
+| Projects | save | — | top rows = 32 projects: switch |
 | Note | back to note mode (playback continues) | — | — |
 
 ---
@@ -338,4 +368,5 @@ No Novation firmware is included in this project.
 **Going back to the stock firmware**: enter bootloader mode the same way and update it with Novation Components.
 
 Projects are stored in a separate flash area from the firmware, so updating the sequencer firmware should keep
-them; projects saved by earlier sequencer versions load in later ones.
+them. The first time this version opens, it converts the 8 projects of earlier versions into projects 1–8: each
+track's patterns A–H become patterns 1–8, and every track starts on track 1's pattern.
