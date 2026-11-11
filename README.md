@@ -214,8 +214,10 @@ Chrome) and a plain-text version, [`SEQUENCER_MANUAL.md`](SEQUENCER_MANUAL.md). 
 `HARDWARE_TEST.md`. Opened with the **Sequencer** button from note mode; **Note** returns; playback continues in the
 background (Sequencer button green in note mode).
 - **Tracks**: 8, each with MIDI channel, output (USB / DIN 1 / DIN 2 / DIN 1+2), mute and solo (Mute / Solo arm a mode for the track buttons; with Shift the change waits for the pattern start), transpose and step rate (slowest left: 1/1 ... 1/32 incl. triplets; hold a track button).
-- **Patterns**: 8 per track × up to 64 steps (◀ / ▶ page between steps 1–32 and 33–64), length per pattern. Hold Patterns (89): tracks × patterns grid; tap to switch
-  (queued to the end of the pattern while playing); hold + tap to chain; Duplicate/Clear + tap to copy/clear.
+- **Patterns**: 16 per project, each holding all 8 tracks (every track on the same pattern), up to 64 steps per track
+  (◀ / ▶ page between steps 1–32 and 33–64), length per track. Tap Patterns (89) to latch the pattern view open on the
+  top two rows (tap again to close; or hold it, use the pads and let go); tap a pattern to switch (queued to the end
+  of the pattern while playing); hold + tap to chain; Duplicate/Clear + tap to copy/clear.
   Steps: hold Duplicate, tap a step to copy (cyan), tap steps to paste (notes, length, velocity, probability).
 - **Steps**: up to 8 notes (a chord: hold a step, tap note pads; the first tap sets the note, later taps add or
   remove notes), velocity (right column while holding a step), gate in eighths (bottom row), probability
@@ -237,9 +239,10 @@ background (Sequencer button green in note mode).
   on DIN In) and are ignored, so the clock cannot chase itself.
   While Shift is held, Play shows the setting (green = internal, orange = external). Saved with the project
   (header byte 8, bit 1 = follow; older projects load on the internal clock).
-- **Projects**: 8 slots in flash (tap Projects = save, hold = slot row); v5 format (64 steps, 8 notes per step), 48 KB
-  slots at user offsets 0x10000 (slots 1-4) and 0xC0000 (slots 5-8), CRC-32, last slot auto-loaded; v4 saves (32 KB
-  slots at 0x80000), v3/v2 saves (16 KB slots at 0x40000) and v1 saves load too.
+- **Projects**: 32 in flash (tap Projects = save; hold = top four rows show the 32 projects, tap one to switch, saving
+  the current one first); v6 format: 16 song-wide patterns, only used steps stored (a few KB per project, up to
+  30 KB), CRC-32, current project auto-loaded. Older v5/v4/v3/v2/v1 saves (8 projects of per-track patterns) are
+  converted once.
 - **Drivers**: `din.rs` — DIN Out 1 = UART4 TX PA0, DIN Out 2 = UART7 TX PE8, DIN In = UART4 RX PC11 (all AF8,
   31250 8N1, interrupt-driven rings, running-status/SysEx parser), copied from stock 4.40's setup. Outputs send
   running status (note-off velocity 0 as note-on velocity 0), queue whole messages only (a full 2 KB ring drops a
@@ -247,7 +250,7 @@ background (Sequencer button green in note mode).
   carries ~1500 notes/s with running status: spread busy tracks across DIN 1 and DIN 2.
   `MidiPort::Din2`; `read/write_user_storage` on the external flash (1 MB at 0xF00000).
 - **Tests** (`renode/`): `run_tests.sh [elf|bin|syx]` runs seqtest, bgtest, exttest, dinintest, veltest, swingtest, rectest,
-  chordtest, thrutest, echotest, tempotest, clocktogtest, ratetest, mutetest, dupetest, steprectest, flashtest, pattest and steptest, each on a fresh boot, with save/restart checks. Output of the last run: `renode/regression.txt`.
+  chordtest, thrutest, echotest, tempotest, clocktogtest, ratetest, mutetest, dupetest, steprectest, patlatchtest, flashtest, pattest, projtest and steptest, each on a fresh boot, with save/restart checks. Output of the last run: `renode/regression.txt`.
 
 ## Update image format (verified on stock 4.40 and CoreFW)
 SysEx `F0 00 20 29 00 <cmd>`: 71 header, 7C version + nibble size + CRC, 72 data, 73 = block 0 sent last.

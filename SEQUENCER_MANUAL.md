@@ -162,8 +162,10 @@ mode, tracks silenced by mute or solo show darker. Mutes and solos are saved wit
 ## 4. Patterns and chaining
 
 A project has 16 patterns. A pattern holds **all 8 tracks**, and every track is always on the same pattern: switching
-pattern switches the whole song. Hold **Patterns** (top of the right-hand column): the top two grid rows show the 16
-patterns, 1–8 on the top row and 9–16 on the row below. The rest of the grid stays dark.
+pattern switches the whole song. Tap **Patterns** (top of the right-hand column) to open the pattern view: the
+button lights white, the top two grid rows show the 16 patterns (1–8 on the top row, 9–16 on the row below) and the
+rest of the grid stays dark. The view **stays open** until you tap Patterns again, so you can pick and chain patterns
+with both hands free. You can also hold Patterns, tap a pattern and let go: the view then closes by itself.
 
 | Colour | Meaning |
 |---|---|
@@ -172,7 +174,7 @@ patterns, 1–8 on the top row and 9–16 on the row below. The rest of the grid
 | Dim orange | has notes |
 | Cyan | queued (starts at the end of the playing pattern) |
 
-| While holding Patterns | Result |
+| In the pattern view | Result |
 |---|---|
 | Tap a pattern | Switch to it — at the end of the playing pattern, or at once when stopped |
 | Hold one pattern + tap another | **Chain** the range (e.g. 1–4 plays 1, 2, 3, 4, 1, …) |
@@ -180,21 +182,6 @@ patterns, 1–8 on the top row and 9–16 on the row below. The rest of the grid
 | Hold **Clear** + tap a pattern | Clear that pattern on all tracks (its length stays) |
 
 Each track's part of a pattern keeps its own length, so tracks can still run polymetric lengths.
-
----|---|
-| Track colour | the track's current pattern |
-| Medium | part of the track's chain |
-| Dim | has notes |
-| White | queued (starts at the end of the playing pattern) |
-
-| While holding Patterns | Result |
-|---|---|
-| Tap a pattern | Switch the track to it — at the end of the playing pattern, or at once when stopped |
-| Hold one pattern + tap another in the same column | **Chain** the range (e.g. A–D plays A, B, C, D, A, …) |
-| Hold **Duplicate** + tap a pattern | Copy the track's current pattern there |
-| Hold **Clear** + tap a pattern | Clear that pattern (its length stays) |
-
-Tracks can switch and chain independently, and patterns can have different lengths for polymeter.
 
 ---
 
@@ -307,16 +294,6 @@ Only the steps in use are stored, so a project normally takes a few KB. Each pro
 steps (of the 8 × 16 × 64 possible) — every track playing a full 16-step part in all 16 patterns is 2,048. A project
 fuller than that cannot be saved.
 
----|---|
-| Tap **Projects** | Save to the current slot (the button flashes white) |
-| Hold **Projects** | The track row shows the 8 slots: white = current, dim = saved, off = empty |
-| Hold **Projects** + tap a slot | Load it (an empty slot just becomes the slot the next save goes to) |
-
-The **Projects** button is **green** when everything is saved and **amber** when there are unsaved changes.
-
-A project holds everything: all tracks, patterns, chains, channels, outputs, transpose, step rates, tempo, swing and the
-external-clock setting. The last used slot loads automatically at power-up.
-
 ---
 
 ## 10. Quick reference
@@ -334,7 +311,7 @@ external-clock setting. The last used slot loads automatically at power-up.
 | Fixed Length | — | — | + step = pattern length |
 | ◀ / ▶ | steps 1–32 / 33–64 | — | — |
 | Clear | — | — | + step = clear step; + track = clear pattern |
-| Patterns | — | — | top rows = 16 patterns: switch, chain, + Duplicate copy, + Clear clear |
+| Patterns | open / close the pattern view (top rows = 16 patterns: switch, chain, + Duplicate copy, + Clear clear) | — | same, closes when released |
 | Duplicate | — | — | + step = copy it, then + steps = paste |
 | Projects | save | — | top rows = 32 projects: switch |
 | Note | back to note mode (playback continues) | — | — |

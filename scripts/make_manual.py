@@ -184,22 +184,15 @@ def fig_track_hold():
 
 
 def fig_patterns():
-    lit = {}
-    for t in range(8):
-        for p in range(8):
-            idx = (8 - p) * 10 + t + 1
-            col = TRACK[t]
-            if p == 0:
-                lit[idx] = col
-            elif t == 1 and p in (1, 2, 3):
-                lit[idx] = shade(col, 0.5)
-            elif p < (3 if t < 4 else 1):
-                lit[idx] = shade(col, 0.2)
-            else:
-                lit[idx] = '#202020'
-    lit[(8 - 2) * 10 + 4] = WHITE                                   # queued
+    # Pattern view latched open: top row = patterns 1-8, row below = 9-16. Current 1 (white), chain 1-4 (orange),
+    # 5-6 have notes (dim orange), 7 queued (cyan); the rest of the grid dark.
+    lit = {idx: '#101010' for idx, (c, r, kind) in POS.items() if kind == 'pad'}
+    for p in range(16):
+        idx = (8 - p // 8) * 10 + p % 8 + 1
+        lit[idx] = ('#ffffff' if p == 0 else '#ff8000' if p < 4 else '#4a2000' if p in (4, 5)
+                    else '#00e0ff' if p == 6 else '#202020')
     lit[89] = WHITE
-    return device(lit, [(89, 1), (81, 2), (72, 3), (64, 4)])
+    return device(lit, [(89, 1), (81, 2), (82, 3), (87, 4)])
 
 
 def fig_tempo():
@@ -213,10 +206,13 @@ def fig_tempo():
 
 
 def fig_projects():
-    lit = {98: WHITE}
-    for t in range(8):
-        lit[101 + t] = WHITE if t == 0 else ('#505050' if t in (1, 2) else '#1c1c1c')
-    return device(lit, [(98, 1), (101, 2), (102, 3), (104, 4)])
+    # Projects held: top four rows = projects 1-32. Project 1 current (white), 2-3 saved (dim), the rest empty.
+    lit = {idx: '#101010' for idx, (c, r, kind) in POS.items() if kind == 'pad'}
+    for n in range(32):
+        idx = (8 - n // 8) * 10 + n % 8 + 1
+        lit[idx] = WHITE if n == 0 else ('#505050' if n in (1, 2) else '#1c1c1c')
+    lit[98] = WHITE
+    return device(lit, [(98, 1), (81, 2), (82, 3), (84, 4)])
 
 
 def fig_record():
@@ -281,14 +277,14 @@ outputs (or to a computer over USB) and program up to eight parts at once.</p>
 <h3>Key features</h3>
 <ul class="features">
 <li><b>8 tracks</b>, each with its own MIDI channel, output (USB, DIN 1, DIN 2 or both DIN outs), note range, transpose and step rate (1/32 to a whole bar, including triplets)</li>
-<li><b>8 patterns per track</b> (A–H) of up to <b>64 steps</b>, switched and chained independently per track</li>
+<li><b>16 patterns</b> per project, each holding all 8 tracks, of up to <b>64 steps</b> per track; switched and chained as a song</li>
 <li><b>Chords</b> – up to 8 notes on every step</li>
 <li>Per-step <b>velocity</b>, <b>gate length</b> and <b>probability</b></li>
 <li>Tempo 30–300 BPM with <b>tap tempo</b> and an on-grid <b>BPM readout</b>; <b>swing</b> from 50 % to 75 %</li>
 <li><b>Live recording</b> from the pads or an external keyboard, quantised to the nearest step, and <b>step recording</b> one note at a time while stopped</li>
 <li><b>MIDI thru</b>: a keyboard plays whichever track is selected</li>
 <li>Sends <b>MIDI clock</b>, or can follow an external clock from USB or DIN In</li>
-<li><b>8 project slots</b> saved in the Launchpad’s memory</li>
+<li><b>32 projects</b> saved in the Launchpad’s memory</li>
 <li>Playback continues while you use the Launchpad’s Note mode</li>
 </ul>
 <h3>What you need</h3>
@@ -312,8 +308,8 @@ that holds Mute and Solo.</p>
  ('Mute and Solo.', 'Arm a mode in which the track buttons mute or solo tracks (see <i>Mute and Solo</i>). While a step is held, this whole row sets its gate length.'),
  ('Play.', 'Start / stop. Green = internal clock, orange = following an external clock.'),
  ('Record.', 'Arm recording: live while playing, step by step while stopped.'),
- ('Patterns.', 'Hold to show the pattern map for all eight tracks.'),
- ('Projects.', 'Tap to save, hold to load. Green = saved, amber = unsaved changes.'),
+ ('Patterns.', 'Tap to open or close the pattern view (16 patterns on the top two rows).'),
+ ('Projects.', 'Tap to save, hold to switch project. Green = saved, amber = unsaved changes.'),
  ('Shift.', 'Hold for tempo, swing, tap tempo and the clock setting.'),
  ('▲ / ▼.', 'Move the note area up or down an octave.'),
 ])}
@@ -418,22 +414,28 @@ Solo mode, tracks silenced by mute or solo show darker. Mutes and solos are save
 ''')
 
 section('Patterns and Chains', f'''
-<p>Each track has eight patterns, A–H. Hold {k('Patterns')} to see the pattern map: one <b>column per track</b>
-(track 1 on the left) and one <b>row per pattern</b> (A at the top).</p>
-{figure(fig_patterns(), 'Pattern map: track 2 chains A–D, track 4 has pattern C queued')}
+<p>A project has <b>16 patterns</b>. A pattern holds <b>all 8 tracks</b>, and every track is always on the same
+pattern: switching pattern switches the whole song.</p>
+<p>Tap {k('Patterns')} to open the pattern view: the button lights white and the top two grid rows show the 16
+patterns (1–8 on the top row, 9–16 below). The view <b>stays open</b> until you tap {k('Patterns')} again, so both
+hands are free to pick and chain patterns. You can also hold {k('Patterns')}, tap a pattern and let go: the view then
+closes by itself.</p>
+{figure(fig_patterns(), 'Pattern view: pattern 1 playing, chain 1–4, pattern 7 queued')}
 {legend([
- ('Patterns.', 'Hold to show the map.'),
- ('Current pattern.', 'Lit in the track’s colour.'),
- ('Chained.', 'Medium brightness: part of the track’s chain. Dim = has notes; off = empty.'),
- ('Queued.', 'White: starts when the playing pattern ends.'),
+ ('Patterns.', 'Tap to open / close the view (white while open).'),
+ ('Current pattern.', 'White.'),
+ ('Chained.', 'Orange: part of the chain. Dim orange = has notes; dark = empty.'),
+ ('Queued.', 'Cyan: starts when the playing pattern ends.'),
 ])}
-{table(['While holding Patterns', 'Result'], [
- ['Tap a pattern', 'Switch the track to it – at the end of the playing pattern, or at once when stopped'],
- ['Hold a pattern + tap another in the same column', '<b>Chain</b> the range: A–D plays A, B, C, D, A, …'],
- [f'Hold {k("Duplicate")} + tap a pattern', 'Copy the track’s current pattern there'],
- [f'Hold {k("Clear")} + tap a pattern', 'Clear that pattern (its length stays)'],
+<div class="keep">
+{table(['In the pattern view', 'Result'], [
+ ['Tap a pattern', 'Switch to it – at the end of the playing pattern, or at once when stopped'],
+ ['Hold a pattern + tap another', '<b>Chain</b> the range: 1–4 plays 1, 2, 3, 4, 1, …'],
+ [f'Hold {k("Duplicate")} + tap a pattern', 'Copy the current pattern (all tracks) there'],
+ [f'Hold {k("Clear")} + tap a pattern', 'Clear that pattern on all tracks (its length stays)'],
 ], 'compact')}
-{note("Each track switches and chains on its own, and patterns can have different lengths – use this for polyrhythms.")}
+{note("Each track’s part of a pattern keeps its own length, so tracks can still run polymetric lengths. A new, empty pattern takes the lengths of the current one.")}
+</div>
 ''')
 
 section('Tempo, Swing and Playback', f'''
@@ -523,17 +525,19 @@ and back. While {k('Shift')} is held, {k('▷')} shows the setting:</p>
 ''')
 
 section('Projects', f'''
-{figure(fig_projects(), 'Projects held: slot 1 current, slots 2 and 3 saved')}
+{figure(fig_projects(), 'Projects held: project 1 current, projects 2 and 3 saved')}
 {legend([
- ('Projects.', 'Tap to save to the current slot (flashes white). Hold to choose a slot.'),
- ('Current slot.', 'White.'),
- ('Saved slot.', 'Dim. Tap to load it.'),
- ('Empty slot.', 'Off. Tap to make it the slot the next save goes to.'),
+ ('Projects.', 'Tap to save the current project (flashes white). Hold to see all 32.'),
+ ('Current project.', 'White.'),
+ ('Saved project.', 'Dim. Tap it (while holding Projects) to switch to it.'),
+ ('Empty project.', 'Dark. Tap it to start a new, blank project there.'),
 ])}
-<p>The {k('Projects')} button is <b>green</b> when everything is saved and <b>amber</b> when there are unsaved
-changes.</p>
-<p>A project stores all tracks, patterns and chains, channels, outputs, transpose, step rates, tempo, swing and the external
-clock setting. The last used slot is loaded automatically after power-up.</p>
+<p>Switching saves the current project first. The {k('Projects')} button is <b>green</b> when everything is saved
+and <b>amber</b> when there are unsaved changes.</p>
+<p>A project holds everything: all tracks, the 16 patterns, chains, channels, outputs, transpose, step rates, tempo,
+swing and the external clock setting. The current project opens automatically after power-up.</p>
+<p>Only the steps in use are stored. Each project has room for about 2,500 used steps; a project fuller than that
+cannot be saved.</p>
 ''')
 
 section('Quick Reference', table(['Control', 'Tap', 'With Shift', 'Hold + …'], [
@@ -549,8 +553,8 @@ section('Quick Reference', table(['Control', 'Tap', 'With Shift', 'Hold + …'],
  ['◀ / ▶', 'Steps 1–32 / 33–64', '–', '–'],
  ['Clear', '–', '–', '+ step = clear step; + track = clear pattern'],
  ['Duplicate', '–', '–', '+ step = copy it, then + steps = paste; with Patterns: copy pattern'],
- ['Patterns', '–', '–', 'Pattern map: switch, chain, copy, clear'],
- ['Projects', 'Save', '–', 'Track row = choose / load slot'],
+ ['Patterns', 'Open / close the pattern view: switch, chain, copy, clear', '–', 'Same; closes when released'],
+ ['Projects', 'Save', '–', 'Top four rows = 32 projects: switch'],
  ['Note', 'Note mode (playback continues)', '–', '–'],
 ], 'ref'))
 

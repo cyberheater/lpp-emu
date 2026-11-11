@@ -63,6 +63,7 @@ def pattern_view():
     down(89); time.sleep(0.4)
     view = {chr(65 + p): leds.get(pat_xy(p)) for p in range(4)}
     up(89)
+    press(89)                                   # a plain hold latches the view open: tap to close it
     return view
 
 time.sleep(1.0)
