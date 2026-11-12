@@ -221,10 +221,17 @@ background (Sequencer button green in note mode).
   Steps: hold Duplicate, tap a step to copy (cyan), tap steps to paste (notes, length, velocity, probability).
 - **Steps**: up to 8 notes (a chord: hold a step, tap note pads; the first tap sets the note, later taps add or
   remove notes), velocity (right column while holding a step), gate in eighths (bottom row), probability
-  (Shift + right column). Swing 50-75 % (Shift + step pads), timed to the millisecond.
-- **Live recording**: tap Record (bottom-left) to arm; while playing, notes from the pads or from a keyboard (USB MIDI
+  (Shift + right column, or the Probability page: tap Probability (49) and the grid shows 8 steps as bars, top =
+  100 % ... bottom = 12 %; tap to set, ◀ / ▶ = next 8 steps). Swing 50-75 % (Shift + step pads), timed to the millisecond.
+- **Mutate**: tap Mutation (39) to shuffle the selected track's part of the current pattern (about a quarter of the
+  lit steps move or swap notes; button purple); long press (0.6 s) restores the part as it was before the first tap.
+  The original is kept in RAM per track (not saved).
+- **Live recording**: tap Record (bottom-left) or Record Arm (bottom row, first button; lights with it) to arm; while playing, notes from the pads or from a keyboard (USB MIDI
   port / DIN In) land on the nearest step of the selected track with their velocity and held length; notes played
-  together are recorded as a chord. Armed while stopped it step-records: each note (or chord) fills the white
+  together are recorded as a chord. Record armed + Play counts one bar in first (grid flashes red on 4 beats at the
+  tempo; Play again cancels; not when following an external clock); switch it off/on on the Setup page, pad 21 (second
+  row from the bottom, first pad; stored after the CRC-checked settings image, so older settings stay valid).
+  Armed while stopped it step-records: each note (or chord) fills the white
   cursor step and the cursor moves on; tap a step to skip to it; Record disarms after the last step. The app's DIN In defaults to "All MIDI inputs" (notes only, no clock — a keyboard
   with MIDI Thru would echo the sequencer's clock back); pick a single input to follow an external clock.
 - **MIDI thru**: a keyboard on the USB MIDI port / DIN In plays the selected track (notes, aftertouch, controllers,
@@ -250,7 +257,7 @@ background (Sequencer button green in note mode).
   carries ~1500 notes/s with running status: spread busy tracks across DIN 1 and DIN 2.
   `MidiPort::Din2`; `read/write_user_storage` on the external flash (1 MB at 0xF00000).
 - **Tests** (`renode/`): `run_tests.sh [elf|bin|syx]` runs seqtest, bgtest, exttest, dinintest, veltest, swingtest, rectest,
-  chordtest, thrutest, echotest, tempotest, clocktogtest, ratetest, mutetest, dupetest, steprectest, patlatchtest, flashtest, pattest, projtest and steptest, each on a fresh boot, with save/restart checks. Output of the last run: `renode/regression.txt`.
+  chordtest, thrutest, echotest, tempotest, clocktogtest, ratetest, mutetest, dupetest, steprectest, patlatchtest, probtest, mutatetest, counttest, flashtest, pattest, projtest and steptest, each on a fresh boot, with save/restart checks. Output of the last run: `renode/regression.txt`.
 
 ## Update image format (verified on stock 4.40 and CoreFW)
 SysEx `F0 00 20 29 00 <cmd>`: 71 header, 7C version + nibble size + CRC, 72 data, 73 = block 0 sent last.

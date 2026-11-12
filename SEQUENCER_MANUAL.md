@@ -78,6 +78,36 @@ While you hold a step pad:
 
 Editing a step while holding it never turns it off on release.
 
+### Probability page
+
+Tap **Probability** (right-hand column, 5th button down) to see the chance of 8 steps at once. The button lights
+cyan and the whole grid shows the selected track's steps as **bars**, one column per step:
+
+- Each bar is filled from the bottom up to the step's probability: top row = always (100 %), then 87, 75, 62, 50, 37,
+  25, bottom row = 12 %. A full column always plays.
+- **Tap a pad** in a column to set that step's probability (the row you tap becomes the top of its bar).
+- Steps that are off show faint and can't be set; steps past the end of the pattern are dark. The playing step's
+  bar lights white.
+- **◀ / ▶** move 8 steps at a time (steps 1–8, 9–16 … up to 57–64); an arrow is lit when there are more steps that
+  way. The page opens on the first 8 steps of the page you were looking at.
+
+Tap **Probability** again to go back to the steps. Track buttons still select tracks while the page is open.
+
+### Mutate
+
+**Mutation** (right-hand column, 6th button down) rearranges the **selected track's** part of the current pattern
+for instant variations:
+
+- **Tap** — shuffle: about a quarter of the lit steps (at least one) either **move** to another step (swapping places
+  with whatever is there) or **swap notes** with another lit step. The part keeps the same hits and notes in a new
+  arrangement. Tap again to shuffle further. The button turns **purple** while the part is mutated.
+- **Long press** (hold for about half a second) — **back to the original**: the part returns exactly to how it was
+  before the first tap, and the button flashes white.
+
+The original is remembered per track until you restore it, switch project, or turn the Launchpad off. If you mutate a
+different pattern on the same track, that pattern's original is remembered instead (the first one stays as it is
+now). Edits you make while a part is mutated are lost when you restore it. Saving stores the part as it currently is.
+
 ### Pages: steps 33–64
 
 A pattern can have up to 64 steps; the step area shows 32 at a time.
@@ -204,8 +234,9 @@ Each track's part of a pattern keeps its own length, so tracks can still run pol
 
 ## 6. Live recording
 
-1. Tap **Record** (○, bottom of the left column) to arm it (dark red).
-2. Press **Play**. While playing, Record is bright red.
+1. Tap **Record Arm** (first button of the bottom row) or **○** (bottom of the left column) to arm recording. Both
+   light dark red.
+2. Press **Play** (with the count-in on, the grid first flashes red 4 times). While playing, both are bright red.
 3. Play notes on the note pads, or on a keyboard connected to the USB MIDI port or DIN In.
 
 Notes land on the **nearest step** of the selected track's current pattern, with their velocity and their held
@@ -213,6 +244,16 @@ length as the gate: a note held over several steps plays for as long as you held
 velocity is kept). A note you play just ahead of a step is not replayed on that pass — you already heard it.
 
 Tap Record again to disarm.
+
+### Count-in
+
+With Record armed, pressing **Play** first counts **one bar in**: the whole grid flashes **red 4 times**, one flash per
+beat at the current tempo, and recording starts on the next downbeat. Notes played during the count-in are not
+recorded. Press Play again during the count-in to cancel it.
+
+The count-in is **on** by default. To switch it off (or on again), open the **Setup** page and tap the **first pad of
+the second row from the bottom**: bright red = on, dim = off. It is remembered when you leave Setup. There is no
+count-in while the sequencer follows an external clock (the external Start decides when it begins).
 
 ### Step recording (while stopped)
 
@@ -306,11 +347,13 @@ fuller than that cannot be saved.
 | Mute / Solo | arm: track buttons mute / solo at once | arm: changes wait for the pattern start | — |
 | Sends | — | tap tempo | — |
 | ▲ / ▼ | octave | tempo ±1 (±10 with Fixed Length) | (track held) channel ±1 |
-| Play | start / stop | internal clock (green) / follow external (orange) | — |
-| Record | arm recording (stopped = step recording) | — | — |
+| Play | start / stop (Record armed: 1 bar red count-in first) | internal clock (green) / follow external (orange) | — |
+| Record (○) / Record Arm (bottom row 1) | arm recording (stopped = step recording) | — | — |
 | Fixed Length | — | — | + step = pattern length |
 | ◀ / ▶ | steps 1–32 / 33–64 | — | — |
 | Clear | — | — | + step = clear step; + track = clear pattern |
+| Mutation | shuffle the selected track's part | — | long press: back to the original |
+| Probability | open / close the probability page (8 steps as bars; ◀ / ▶ = next 8) | — | — |
 | Patterns | open / close the pattern view (top rows = 16 patterns: switch, chain, + Duplicate copy, + Clear clear) | — | same, closes when released |
 | Duplicate | — | — | + step = copy it, then + steps = paste |
 | Projects | save | — | top rows = 32 projects: switch |

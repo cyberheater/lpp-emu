@@ -15,7 +15,7 @@ WHITE, DIM, OFF = '#ffffff', '#3a3a3a', '#262626'
 
 TOP = ['Shift', '◀', '▶', 'Session', 'Note', 'Chord', 'Custom', 'Sequencer', 'Projects']
 LEFT = {80: '▲', 70: '▼', 60: 'Clear', 50: 'Duplicate', 40: 'Quantise', 30: 'Fixed Length', 20: '▷', 10: '○'}
-RIGHT = {89: 'Patterns'}
+RIGHT = {89: 'Patterns', 49: 'Probability', 39: 'Mutation'}
 BOTTOM = ['Record Arm', 'Mute', 'Solo', 'Volume', 'Pan', 'Sends', 'Device', 'Stop Clip']
 
 
@@ -195,6 +195,20 @@ def fig_patterns():
     return device(lit, [(89, 1), (81, 2), (82, 3), (87, 4)])
 
 
+def fig_prob():
+    # Probability page: steps 1-8 as bars. Step 1 100 %, 2 50 %, 3 off, 4 100 % (playing), 5 75 %, 6 25 %, 7 off, 8 12 %.
+    probs = [100, 50, None, 100, 75, 25, None, 12]
+    levels = [100, 87, 75, 62, 50, 37, 25, 12]
+    lit = {idx: '#101010' for idx, (c, r, kind) in POS.items() if kind == 'pad'}
+    for col, pr in enumerate(probs):
+        for k, lv in enumerate(levels):
+            idx = (8 - k) * 10 + col + 1
+            lit[idx] = '#181818' if pr is None else (('#ffffff' if col == 3 else TRACK[0]) if lv <= pr else '#262626')
+    lit[49] = '#00e0ff'
+    lit[92] = WHITE
+    return device(lit, [(49, 1), (42, 2), (33, 3), (14, 4), (92, 5)])
+
+
 def fig_tempo():
     lit = bpm_lit(120)
     lit[90] = WHITE
@@ -279,9 +293,10 @@ outputs (or to a computer over USB) and program up to eight parts at once.</p>
 <li><b>8 tracks</b>, each with its own MIDI channel, output (USB, DIN 1, DIN 2 or both DIN outs), note range, transpose and step rate (1/32 to a whole bar, including triplets)</li>
 <li><b>16 patterns</b> per project, each holding all 8 tracks, of up to <b>64 steps</b> per track; switched and chained as a song</li>
 <li><b>Chords</b> – up to 8 notes on every step</li>
-<li>Per-step <b>velocity</b>, <b>gate length</b> and <b>probability</b></li>
+<li>Per-step <b>velocity</b>, <b>gate length</b> and <b>probability</b> (with a probability page)</li>
+<li><b>Mutate</b>: shuffle a track’s part, long press to get the original back</li>
 <li>Tempo 30–300 BPM with <b>tap tempo</b> and an on-grid <b>BPM readout</b>; <b>swing</b> from 50 % to 75 %</li>
-<li><b>Live recording</b> from the pads or an external keyboard, quantised to the nearest step, and <b>step recording</b> one note at a time while stopped</li>
+<li><b>Live recording</b> from the pads or an external keyboard, with a one-bar count-in, quantised to the nearest step, and <b>step recording</b> one note at a time while stopped</li>
 <li><b>MIDI thru</b>: a keyboard plays whichever track is selected</li>
 <li>Sends <b>MIDI clock</b>, or can follow an external clock from USB or DIN In</li>
 <li><b>32 projects</b> saved in the Launchpad’s memory</li>
@@ -358,6 +373,28 @@ velocity and the bottom row shows its gate length.</p>
 <p><b>Probability</b>: hold the step and {k('Shift')} – the right-hand column then sets how often the step plays:
 top = always (100 %), then 87, 75, 62, 50, 37, 25, bottom = 12 %.</p>
 {note("A step you have edited while holding it never turns off when you let go.")}
+<div class="keep"><h3>Probability page</h3>
+<p>Tap {k('Probability')} (right-hand column, 5th button down) to see and set the chance of 8 steps at once. The grid
+shows the selected track’s steps as bars, one column per step, filled from the bottom up to the step’s probability.</p>
+{figure(fig_prob(), 'Probability page: steps 1–8 (step 2 at 50 %, step 4 playing)')}
+{legend([
+ ('Probability.', 'Tap to open the page (cyan); tap again to go back to the steps.'),
+ ('A step’s bar.', 'Top row = always (100 %) … bottom row = 12 %. Tap a pad to set the step to that level.'),
+ ('Off step.', 'Faint; it can’t be set until you switch it on. Steps past the pattern’s end are dark.'),
+ ('Playing step.', 'Its bar lights white.'),
+ ('◀ / ▶.', 'Previous / next 8 steps (up to 57–64). Lit when there are more steps that way.'),
+])}
+</div>
+<div class="keep"><h3>Mutate</h3>
+<p>{k('Mutation')} (right-hand column, 6th button down) rearranges the <b>selected track’s</b> part of the current
+pattern for instant variations.</p>
+{table(['Action', 'Result'], [
+ [f'Tap {k("Mutation")}', 'Shuffle: about a quarter of the lit steps (at least one) move to another step or swap notes with another lit step. Same hits and notes, new arrangement. The button turns purple.'],
+ [f'Tap again', 'Shuffle further'],
+ [f'Hold {k("Mutation")} (about half a second)', '<b>Back to the original</b>: the part as it was before the first tap. The button flashes white.'],
+], 'compact')}
+{note("The original is remembered per track until you restore it, switch project or turn the Launchpad off. Mutating a different pattern on the same track remembers that one instead. Edits made while a part is mutated are lost when you restore; saving stores the part as it currently is.")}
+</div>
 <div class="keep"><h3>Pages: steps 33–64</h3>
 <p>A pattern can have up to 64 steps; the step area shows 32 at a time. {k('◀')} shows steps 1–32, {k('▶')} shows
 steps 33–64. The arrow of the page you are on is white; the other arrow is grey when the pattern reaches that page,
@@ -460,7 +497,7 @@ section('Tempo, Swing and Playback', f'''
 section('Live Recording', f'''
 {figure(fig_record(), 'Recording armed and playing')}
 {legend([
- ('Record.', 'Tap to arm (dark red); bright red while playing.'),
+ ('Record.', 'Tap ○ or Record Arm (first button of the bottom row) to arm (dark red); bright red while playing.'),
  ('Play.', 'Recording happens while the sequencer plays.'),
  ('Notes.', 'Play the note pads, or a keyboard on MIDI In or USB.'),
 ])}
@@ -469,6 +506,13 @@ their held length as the gate: a note held over several steps plays for as long 
 notes, keeping the loudest velocity.</p>
 <p>A note played just ahead of a step is not replayed on that pass – you have already heard it.</p>
 <p>Tap {k('○')} again to stop recording.</p>
+<div class="keep">
+<h3>Count-in</h3>
+<p>With recording armed ({k('○')} or {k('Record Arm')}), pressing {k('▷')} first counts <b>one bar in</b>: the whole grid flashes <b>red 4 times</b>, one
+flash per beat at the current tempo, and recording starts on the next downbeat. Notes played during the count-in are
+not recorded; press {k('▷')} again to cancel it.</p>
+{note("The count-in is on by default. To switch it off or on, open the <b>Setup</b> page and tap the first pad of the second row from the bottom (bright red = on, dim = off). There is no count-in while following an external clock.")}
+</div>
 <div class="keep">
 <h3>Step recording (while stopped)</h3>
 <p>Arm {k('○')} while the sequencer is <b>stopped</b> to enter notes one step at a time:</p>
@@ -547,12 +591,14 @@ section('Quick Reference', table(['Control', 'Tap', 'With Shift', 'Hold + …'],
  ['Mute / Solo', 'Arm: track buttons mute / solo at once', 'Arm: changes wait for the pattern start', '–'],
  ['Sends', '–', 'Tap tempo', '–'],
  ['▲ / ▼', 'Octave', 'Tempo ±1 (±10 with Fixed Length)', '–'],
- ['▷ Play', 'Start / stop', 'Internal (green) / external clock (orange)', '–'],
- ['○ Record', 'Arm / disarm recording (stopped = step recording)', '–', '–'],
+ ['▷ Play', 'Start / stop (Record armed: 1-bar count-in)', 'Internal (green) / external clock (orange)', '–'],
+ ['○ Record / Record Arm', 'Arm / disarm recording (stopped = step recording)', '–', '–'],
  ['Fixed Length', '–', '–', '+ step = pattern length'],
  ['◀ / ▶', 'Steps 1–32 / 33–64', '–', '–'],
  ['Clear', '–', '–', '+ step = clear step; + track = clear pattern'],
  ['Duplicate', '–', '–', '+ step = copy it, then + steps = paste; with Patterns: copy pattern'],
+ ['Mutation', 'Shuffle the selected track’s part', '–', 'Long press: back to the original'],
+ ['Probability', 'Open / close the probability page (8 steps as bars)', '–', '–'],
  ['Patterns', 'Open / close the pattern view: switch, chain, copy, clear', '–', 'Same; closes when released'],
  ['Projects', 'Save', '–', 'Top four rows = 32 projects: switch'],
  ['Note', 'Note mode (playback continues)', '–', '–'],
