@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Probability page test (Renode with run.resc, fresh flash). Track 1 -> DIN 1, 16 steps, steps 1, 2, 4 and 9 on.
-Tap Probability (49): the grid shows steps 1-8 as bars; tap row 4 of column 2 -> step 2 = 50 %. ▶ shows steps
-9-16; tap row 1 of column 1 -> step 9 = 12 %. Close the page; 10 passes: step 1 and 4 play every time, step 2 about
-half the time, step 9 rarely."""
+Tap Probability (49): the top two rows are 16 levels (100 % ... 6 %), rows 3-6 the steps. Select step 2, tap level 9
+-> 50 %; select step 9, tap level 16 -> 6 %; an off step can't be selected. Close the page; 10 passes: steps 1 and
+4 play every time, step 2 about half the time, step 9 rarely."""
 import os, socket, sys, threading, time
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'm0'))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -101,20 +101,29 @@ press(note_xy(12))
 for n in (1, 2, 4, 9):
     press(step_xy(n))
 down(30); press(step_xy(16)); up(30)                        # 16 steps
+def pstep(n): i = n - 1; return (6 - i // 8) * 10 + i % 8 + 1   # step n on the probability page (rows 6-3)
+def plevel(lv): i = lv - 1; return (8 - i // 8) * 10 + i % 8 + 1  # level 1-16 on the top two rows
+def white(xy): c = leds.get(xy); return c is not None and min(c) >= 240
+
 press(49); time.sleep(0.4)
 check('Probability button lit cyan', (lambda c: c is not None and c[2] > 150 and c[0] < 60)(leds.get(49)), True)
-check('step 1 bar (100 %)', column(1), [True] * 8)
-check('step 3 (off) dark', any(column(3)), False)
-press(42); time.sleep(0.3)                                  # column 2, row 4 from the bottom = 50 %
-check('step 2 bar after tapping 50 %', column(2), [False] * 4 + [True] * 4)
-press(92); time.sleep(0.3)                                  # steps 9-16
-check('▶: step 9 in column 1 (100 %)', column(1), [True] * 8)
-press(11); time.sleep(0.3)                                  # bottom row = 12 %
-check('step 9 bar after tapping 12 %', column(1), [False] * 7 + [True])
-press(92); time.sleep(0.3)
-check('▶ at the end stays on steps 9-16', column(1), [False] * 7 + [True])
-press(91); time.sleep(0.3)
-check('◀: back to steps 1-8 (step 2 at 50 %)', column(2), [False] * 4 + [True] * 4)
+check('no step selected: levels dim', any(lit(plevel(lv)) for lv in range(1, 17)), False)
+check('step 1 lit, step 3 (off) not, bottom rows dark', (lit(pstep(1)), lit(pstep(3)), leds.get(11)), (True, False, (0, 0, 0)))
+press(pstep(2)); time.sleep(0.3)
+check('step 2 selected (white), its level 1 (100 %) white', (white(pstep(2)), white(plevel(1))), (True, True))
+check('levels lit, 1 brighter than 16', sum(leds.get(plevel(2))) > sum(leds.get(plevel(16))) > 0, True)
+press(plevel(9)); time.sleep(0.3)                            # 50 %
+check('step 2 at level 9 (50 %)', (white(plevel(9)), white(plevel(1))), (True, False))
+press(pstep(9)); time.sleep(0.3)
+check('step 9 selected: level 1', (white(pstep(9)), white(pstep(2)), white(plevel(1))), (True, False, True))
+press(plevel(16)); time.sleep(0.3)                           # 6 %
+check('step 9 at level 16 (6 %)', white(plevel(16)), True)
+press(pstep(3)); time.sleep(0.3)                             # off step: not selectable
+check('off step 3 not selected (step 9 still)', (white(pstep(3)), white(pstep(9))), (False, True))
+press(pstep(2)); time.sleep(0.3)
+check('back on step 2: level 9', white(plevel(9)), True)
+press(pstep(1)); time.sleep(0.3)                             # select step 1 so step 2 is not white
+check('step 2 (50 %) dimmer than step 4 (100 %)', sum(leds.get(pstep(2))) < sum(leds.get(pstep(4))), True)
 press(49); time.sleep(0.4)
 check('closed: step 1 pad lit again, step 3 not', (lit(step_xy(1)), lit(step_xy(3))), (True, False))
 ons, offs = play(6 * 16 * 10 + 3)
@@ -127,5 +136,5 @@ for p, note, vel in ons:
 print('plays per step over 10 passes:', dict(sorted(hits.items())))
 check('steps 1 and 4 every pass', (hits.get(1), hits.get(4)), (10, 10))
 check('step 2 (50 %) sometimes', 1 <= hits.get(2, 0) <= 9, True)
-check('step 9 (12 %) rarely', hits.get(9, 0) <= 5, True)
+check('step 9 (6 %) rarely', hits.get(9, 0) <= 4, True)
 print('probtest', 'PASS' if ok else 'FAIL')

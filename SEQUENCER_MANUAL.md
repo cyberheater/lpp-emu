@@ -80,16 +80,19 @@ Editing a step while holding it never turns it off on release.
 
 ### Probability page
 
-Tap **Probability** (right-hand column, 5th button down) to see the chance of 8 steps at once. The button lights
-cyan and the whole grid shows the selected track's steps as **bars**, one column per step:
+Tap **Probability** (right-hand column, 5th button down) to set how often steps play. The button lights cyan:
 
-- Each bar is filled from the bottom up to the step's probability: top row = always (100 %), then 87, 75, 62, 50, 37,
-  25, bottom row = 12 %. A full column always plays.
-- **Tap a pad** in a column to set that step's probability (the row you tap becomes the top of its bar).
-- Steps that are off show faint and can't be set; steps past the end of the pattern are dark. The playing step's
-  bar lights white.
-- **◀ / ▶** move 8 steps at a time (steps 1–8, 9–16 … up to 57–64); an arrow is lit when there are more steps that
-  way. The page opens on the first 8 steps of the page you were looking at.
+- **Top two rows = 16 levels**, left to right: level 1 (top-left) plays every time (100 %), level 16 (second row,
+  far right) hardly ever (6 %). Brighter pads = more likely.
+
+  | Level | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
+  |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+  | Plays | 100 % | 94 | 88 | 81 | 75 | 69 | 62 | 56 | 50 | 44 | 38 | 31 | 25 | 19 | 12 | 6 % |
+
+- **Rows 3–6 = the selected track's steps** (32 at a time; ◀ / ▶ for 33–64). Steps that are on are lit, dimmer the
+  less likely they are to play; off steps are faint, the playing step is in full colour.
+- **Tap a step** to select it (it lights white, and its level lights white on the top rows), then **tap a level**
+  to set it. Off steps can't be selected.
 
 Tap **Probability** again to go back to the steps. Track buttons still select tracks while the page is open.
 
@@ -135,6 +138,20 @@ holding Duplicate to paste on the other page. Let go of Duplicate when you are d
 | Hold **Clear** + tap a step | Clear that step |
 | Hold **Clear** + tap a track button | Clear that track's current pattern (its length stays) |
 
+### Pattern Settings: length and step rate
+
+Tap **Pattern Settings** (right-hand column, 3rd button down) to set the length and step rate of the selected track's
+current pattern. The button lights orange; tap it again to go back to the steps. Every pattern has its own length and
+rate, so pattern 1 can be 8 steps at 1/8 and pattern 2 sixteen steps at 1/16.
+
+| On the page | Sets |
+|---|---|
+| Step pad | The pattern ends at that step (it lights white; steps past the end are dim). ◀ / ▶ = steps 1–32 / 33–64 |
+| Note area, bottom row | Step rate, slowest on the left: 1/1, 1/4, 1/4T, 1/8, 1/8T, 1/16, 1/16T, 1/32 (straight green, triplets purple, chosen = bright) |
+
+A new (empty) pattern starts with the length and rate of the pattern you were on. When a chain moves to a pattern at
+another rate, the new pattern starts exactly where the last step of the one before ends.
+
 ---
 
 ## 3. Tracks
@@ -158,7 +175,8 @@ New tracks start on **DIN 1**, with MIDI channel = track number (track 3 = chann
 
 Each track can step at its own speed against the shared tempo (e.g. a bass line at half speed under 16th hi-hats).
 Hold the track button and tap a pad in the third row of steps, slowest on the left (straight rates green, triplets
-purple, chosen = bright):
+purple, chosen = bright). This sets **all** the track's patterns; to give one pattern its own rate, use *Pattern
+Settings*:
 
 | Pad | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 |
 |---|---|---|---|---|---|---|---|---|
@@ -166,7 +184,8 @@ purple, chosen = bright):
 | Speed | 1/16× | ¼× | ⅜× | ½× | ¾× | 1× | 1.5× | 2× |
 
 All tracks start together on Play, so they stay in line. Swing only affects tracks at 1/16; other rates play
-straight. Gate lengths scale with the step; live recording uses the selected track's rate. Saved with the project.
+straight. Gate lengths scale with the step; live recording uses the selected track's rate. Rates are saved with the
+project.
 
 ### Mute and Solo
 
@@ -353,7 +372,8 @@ fuller than that cannot be saved.
 | ◀ / ▶ | steps 1–32 / 33–64 | — | — |
 | Clear | — | — | + step = clear step; + track = clear pattern |
 | Mutation | shuffle the selected track's part | — | long press: back to the original |
-| Probability | open / close the probability page (8 steps as bars; ◀ / ▶ = next 8) | — | — |
+| Pattern Settings | open / close the Pattern Settings page (step pads = length, note row 1 = step rate) | — | — |
+| Probability | open / close the probability page (top 2 rows = 16 levels; tap a step, then a level) | — | — |
 | Patterns | open / close the pattern view (top rows = 16 patterns: switch, chain, + Duplicate copy, + Clear clear) | — | same, closes when released |
 | Duplicate | — | — | + step = copy it, then + steps = paste |
 | Projects | save | — | top rows = 32 projects: switch |

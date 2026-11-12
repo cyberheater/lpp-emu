@@ -213,16 +213,19 @@ Chrome) and a plain-text version, [`SEQUENCER_MANUAL.md`](SEQUENCER_MANUAL.md). 
 `corefw/src/app/sequencer/mod.rs`. Hardware test sheet:
 `HARDWARE_TEST.md`. Opened with the **Sequencer** button from note mode; **Note** returns; playback continues in the
 background (Sequencer button green in note mode).
-- **Tracks**: 8, each with MIDI channel, output (USB / DIN 1 / DIN 2 / DIN 1+2), mute and solo (Mute / Solo arm a mode for the track buttons; with Shift the change waits for the pattern start), transpose and step rate (slowest left: 1/1 ... 1/32 incl. triplets; hold a track button).
+- **Tracks**: 8, each with MIDI channel, output (USB / DIN 1 / DIN 2 / DIN 1+2), mute and solo (Mute / Solo arm a mode for the track buttons; with Shift the change waits for the pattern start), transpose and step rate (slowest left: 1/1 ... 1/32 incl. triplets; hold a track button to set it for all the track's patterns).
 - **Patterns**: 16 per project, each holding all 8 tracks (every track on the same pattern), up to 64 steps per track
-  (◀ / ▶ page between steps 1–32 and 33–64), length per track. Tap Patterns (89) to latch the pattern view open on the
+  (◀ / ▶ page between steps 1–32 and 33–64), length and step rate per track per pattern. Pattern Settings (69)
+  latches a page for the selected track's pattern: step pads set the length, the bottom note row the rate (a new
+  pattern inherits both; a chain moving to another rate starts the new pattern where the last step ends; rates are
+  saved in a "PR" block after the patterns, which older firmware ignores). Tap Patterns (89) to latch the pattern view open on the
   top two rows (tap again to close; or hold it, use the pads and let go); tap a pattern to switch (queued to the end
   of the pattern while playing); hold + tap to chain; Duplicate/Clear + tap to copy/clear.
   Steps: hold Duplicate, tap a step to copy (cyan), tap steps to paste (notes, length, velocity, probability).
 - **Steps**: up to 8 notes (a chord: hold a step, tap note pads; the first tap sets the note, later taps add or
   remove notes), velocity (right column while holding a step), gate in eighths (bottom row), probability
-  (Shift + right column, or the Probability page: tap Probability (49) and the grid shows 8 steps as bars, top =
-  100 % ... bottom = 12 %; tap to set, ◀ / ▶ = next 8 steps). Swing 50-75 % (Shift + step pads), timed to the millisecond.
+  (Shift + right column, or the Probability page: tap Probability (49); the top two rows are 16 levels, 100 % ... 6 %,
+  rows 3-6 the steps: tap a step to select it, then a level; ◀ / ▶ = steps 1-32 / 33-64). Swing 50-75 % (Shift + step pads), timed to the millisecond.
 - **Mutate**: tap Mutation (39) to shuffle the selected track's part of the current pattern (about a quarter of the
   lit steps move or swap notes; button purple); long press (0.6 s) restores the part as it was before the first tap.
   The original is kept in RAM per track (not saved).

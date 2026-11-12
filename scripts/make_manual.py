@@ -15,7 +15,7 @@ WHITE, DIM, OFF = '#ffffff', '#3a3a3a', '#262626'
 
 TOP = ['Shift', '◀', '▶', 'Session', 'Note', 'Chord', 'Custom', 'Sequencer', 'Projects']
 LEFT = {80: '▲', 70: '▼', 60: 'Clear', 50: 'Duplicate', 40: 'Quantise', 30: 'Fixed Length', 20: '▷', 10: '○'}
-RIGHT = {89: 'Patterns', 49: 'Probability', 39: 'Mutation'}
+RIGHT = {89: 'Patterns', 69: 'Pattern Settings', 49: 'Probability', 39: 'Mutation'}
 BOTTOM = ['Record Arm', 'Mute', 'Solo', 'Volume', 'Pan', 'Sends', 'Device', 'Stop Clip']
 
 
@@ -196,17 +196,35 @@ def fig_patterns():
 
 
 def fig_prob():
-    # Probability page: steps 1-8 as bars. Step 1 100 %, 2 50 %, 3 off, 4 100 % (playing), 5 75 %, 6 25 %, 7 off, 8 12 %.
-    probs = [100, 50, None, 100, 75, 25, None, 12]
-    levels = [100, 87, 75, 62, 50, 37, 25, 12]
+    # Probability page: top two rows = 16 levels (cyan, brighter = more likely), rows 3-6 = steps 1-32. Steps 1, 2, 4,
+    # 9 on; step 2 selected (white) at level 9 (50 %, white); step 4 playing.
+    levels = [100, 94, 88, 81, 75, 69, 62, 56, 50, 44, 38, 31, 25, 19, 12, 6]
     lit = {idx: '#101010' for idx, (c, r, kind) in POS.items() if kind == 'pad'}
-    for col, pr in enumerate(probs):
-        for k, lv in enumerate(levels):
-            idx = (8 - k) * 10 + col + 1
-            lit[idx] = '#181818' if pr is None else (('#ffffff' if col == 3 else TRACK[0]) if lv <= pr else '#262626')
+    for lv in range(16):
+        idx = (8 - lv // 8) * 10 + lv % 8 + 1
+        lit[idx] = WHITE if lv == 8 else shade('#00e0ff', 0.15 + 0.85 * levels[lv] / 100)
+    probs = {1: 100, 2: 50, 4: 100, 9: 25}
+    for n in range(1, 33):
+        idx = (6 - (n - 1) // 8) * 10 + (n - 1) % 8 + 1
+        lit[idx] = WHITE if n == 2 else (TRACK[0] if n == 4 else (shade(TRACK[0], 0.1 + 0.5 * probs[n] / 100) if n in probs else '#181818'))
     lit[49] = '#00e0ff'
-    lit[92] = WHITE
-    return device(lit, [(49, 1), (42, 2), (33, 3), (14, 4), (92, 5)])
+    return device(lit, [(49, 1), (81, 2), (62, 3), (78, 4)])
+
+
+def fig_pset():
+    # Pattern Settings: pattern of 12 steps (step 12 white), rate 1/8 chosen on the bottom row.
+    lit = {}
+    for s in range(1, 33):
+        lit[step_idx(s)] = WHITE if s == 12 else (shade(TRACK[0], 0.3) if s < 12 else '#181818')
+    rates = [False, False, True, False, True, False, True, False]   # triplets purple
+    for p in range(8):
+        c = '#a040ff' if rates[p] else '#20ff40'
+        lit[note_idx(p)] = c if p == 3 else shade(c, 0.12 if p != 5 else 0.3)
+    for p in range(8, 32):
+        lit[note_idx(p)] = '#181818'   # note rows 2-4 are dark on this page
+    lit[69] = '#ff8000'
+    lit[91] = WHITE
+    return device(lit, [(69, 1), (step_idx(12), 2), (note_idx(3), 3), (91, 4)])
 
 
 def fig_tempo():
@@ -374,16 +392,21 @@ velocity and the bottom row shows its gate length.</p>
 top = always (100 %), then 87, 75, 62, 50, 37, 25, bottom = 12 %.</p>
 {note("A step you have edited while holding it never turns off when you let go.")}
 <div class="keep"><h3>Probability page</h3>
-<p>Tap {k('Probability')} (right-hand column, 5th button down) to see and set the chance of 8 steps at once. The grid
-shows the selected track’s steps as bars, one column per step, filled from the bottom up to the step’s probability.</p>
-{figure(fig_prob(), 'Probability page: steps 1–8 (step 2 at 50 %, step 4 playing)')}
+<p>Tap {k('Probability')} (right-hand column, 5th button down) to set how often the selected track’s steps
+play: 16 levels on the top two rows, the steps below them.</p>
+{figure(fig_prob(), 'Probability page: step 2 selected, set to level 9 (50 %)')}
 {legend([
  ('Probability.', 'Tap to open the page (cyan); tap again to go back to the steps.'),
- ('A step’s bar.', 'Top row = always (100 %) … bottom row = 12 %. Tap a pad to set the step to that level.'),
- ('Off step.', 'Faint; it can’t be set until you switch it on. Steps past the pattern’s end are dark.'),
- ('Playing step.', 'Its bar lights white.'),
- ('◀ / ▶.', 'Previous / next 8 steps (up to 57–64). Lit when there are more steps that way.'),
+ ('Levels.', 'The top two rows: level 1 (top-left) = every time (100 %) … level 16 = hardly ever (6 %). Brighter = more likely. The selected step’s level is white.'),
+ ('Steps.', 'Rows 3–6: steps 1–32 (◀ / ▶ for 33–64), dimmer the less likely they are. Tap a lit step to select it (white), then tap a level.'),
+ ('Level 16.', 'Hardly ever (6 %). Off steps are faint and can’t be selected; the playing step is in full colour.'),
 ])}
+{table(['Level', '1', '2', '3', '4', '5', '6', '7', '8'], [
+ ['Plays', '100 %', '94 %', '88 %', '81 %', '75 %', '69 %', '62 %', '56 %'],
+], 'compact')}
+{table(['Level', '9', '10', '11', '12', '13', '14', '15', '16'], [
+ ['Plays', '50 %', '44 %', '38 %', '31 %', '25 %', '19 %', '12 %', '6 %'],
+], 'compact')}
 </div>
 <div class="keep"><h3>Mutate</h3>
 <p>{k('Mutation')} (right-hand column, 6th button down) rearranges the <b>selected track’s</b> part of the current
@@ -410,6 +433,18 @@ you want a copy on. Each copy gets the same notes (including chords), length, ve
  [f'Hold {k("Clear")} + tap a step', 'Clear that step'],
  [f'Hold {k("Clear")} + tap a track button', 'Clear that track’s current pattern (its length stays)'],
 ], 'compact')}
+<div class="keep"><h3>Pattern Settings: length and step rate</h3>
+<p>Tap {k('Pattern Settings')} (right-hand column, 3rd button down) to set the length and step rate of the selected
+track’s current pattern. Every pattern has its own, so pattern 1 can be 8 steps at 1/8 and pattern 2 sixteen at 1/16.</p>
+{figure(fig_pset(), 'Pattern Settings: 12 steps at 1/8')}
+{legend([
+ ('Pattern Settings.', 'Tap to open the page (orange); tap again to go back to the steps.'),
+ ('Length.', 'Tap a step pad to make it the last step (white). Steps in the pattern are lit, steps past its end dim.'),
+ ('Step rate.', 'Bottom row, slowest on the left: 1/1, 1/4, 1/4T, 1/8, 1/8T, 1/16, 1/16T, 1/32. Straight green, triplets purple; the chosen one is bright.'),
+ ('◀ / ▶.', 'Steps 1–32 / 33–64, for lengths over 32.'),
+])}
+<p>A new (empty) pattern starts with the length and rate of the pattern you were on. When a chain moves to a pattern
+at another rate, the new pattern starts exactly where the last step of the one before ends.</p></div>
 ''')
 
 section('Tracks', f'''
@@ -421,19 +456,20 @@ section('Tracks', f'''
  ('MIDI channel.', 'Steps 1–16 (the top two rows) choose channel 1–16; the current channel is white. ▲ / ▼ also step the channel up and down.'),
  ('Output.', 'Bottom row of the note area, pads 1–4: USB (white), MIDI Out (green), MIDI Out 2 (blue), both DIN outs (cyan).'),
  ('Transpose.', 'Note rows 2–4: −12 … +11 semitones. The dim pad (row 3, pad 5) is 0.'),
- ('Step rate.', 'Steps 17–24 (the third row): how fast the track moves through its steps, slowest on the left. Straight rates are green, triplets purple; the chosen rate is bright.'),
+ ('Step rate.', 'Steps 17–24 (the third row): how fast the track moves through its steps, slowest on the left, for all its patterns. Straight rates are green, triplets purple; the chosen rate is bright.'),
 ])}
 <p>New tracks send on <b>MIDI Out</b> with MIDI channel = track number (track 3 = channel 3).</p>
 <div class="keep"><h3>Step rate</h3>
 <p>Each track can step at its own speed against the shared tempo, for example a bass line at half speed under a
-16th-note hi-hat. Hold the track button and tap a pad in the third row; the slowest rate is on the left:</p>
+16th-note hi-hat. Hold the track button and tap a pad in the third row; the slowest rate is on the left. This sets
+<b>all</b> the track’s patterns; to give one pattern its own rate, use <i>Pattern Settings</i>.</p>
 {table(['Pad', '17', '18', '19', '20', '21', '22', '23', '24'], [
  ['One step =', '1 bar (1/1)', '1/4', '1/4 triplet', '1/8', '1/8 triplet', '1/16 (default)', '1/16 triplet', '1/32'],
  ['Speed', '1/16×', '¼×', '⅜×', '½×', '¾×', '1×', '1.5×', '2×'],
 ], 'compact')}
 <p>All tracks start together when you press Play, so tracks at different rates stay in line. Swing only affects
 tracks at 1/16; other rates play straight. Gate lengths scale with the step, and live recording uses the selected
-track’s rate. The rate is saved with the project.</p></div>
+track’s rate. Rates are saved with the project.</p></div>
 <div class="keep"><h3>Mute and Solo</h3>
 <p>{k('Mute')} and {k('Solo')} in the bottom row arm a mode for the track buttons. The armed button flashes; press it
 again to disarm.</p>
@@ -598,7 +634,8 @@ section('Quick Reference', table(['Control', 'Tap', 'With Shift', 'Hold + …'],
  ['Clear', '–', '–', '+ step = clear step; + track = clear pattern'],
  ['Duplicate', '–', '–', '+ step = copy it, then + steps = paste; with Patterns: copy pattern'],
  ['Mutation', 'Shuffle the selected track’s part', '–', 'Long press: back to the original'],
- ['Probability', 'Open / close the probability page (8 steps as bars)', '–', '–'],
+ ['Pattern Settings', 'Open / close the Pattern Settings page (length, step rate)', '–', '–'],
+ ['Probability', 'Open / close the probability page (16 levels; tap a step, then a level)', '–', '–'],
  ['Patterns', 'Open / close the pattern view: switch, chain, copy, clear', '–', 'Same; closes when released'],
  ['Projects', 'Save', '–', 'Top four rows = 32 projects: switch'],
  ['Note', 'Note mode (playback continues)', '–', '–'],

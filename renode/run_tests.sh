@@ -46,6 +46,7 @@ run patlatchtest.py
 run probtest.py
 run mutatetest.py
 run counttest.py
+run psettest.py
 run flashtest.py program; boot; echo "=== flashtest.py verify (after restart)"; python3 -I flashtest.py verify
 run pattest.py program;   boot; echo "=== pattest.py verify (after restart)";   python3 -I pattest.py verify
 run projtest.py program; boot; echo "=== projtest.py verify (after restart)"; python3 -I projtest.py verify
