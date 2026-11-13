@@ -6,7 +6,7 @@ import html, os, subprocess, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_DIR = os.path.join(ROOT, 'build', 'manual')
 PDF = os.path.join(ROOT, 'SEQUENCER_MANUAL.pdf')
-CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+CHROME = os.environ.get('CHROME', '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome')
 
 TRACK = ['#ff2020', '#ff8000', '#ffe000', '#40ff40', '#00e0e0', '#2060ff', '#a040ff', '#ff40c0']
 WHITE, DIM, OFF = '#ffffff', '#3a3a3a', '#262626'
@@ -247,11 +247,16 @@ def fig_projects():
     return device(lit, [(98, 1), (81, 2), (82, 3), (84, 4)])
 
 
+def prog_idx(n):
+    # Programs page: program n (0-31) in reading order, program 1 top left of the bottom four rows.
+    return (4 - n // 8) * 10 + n % 8 + 1
+
+
 def fig_progs():
     # Programs page, track 1: programs 1-32 shown, program 8 chosen (white), output MIDI Out, bank 5, channel 1.
     lit = {}
     for n in range(32):
-        lit[note_idx(n)] = WHITE if n == 7 else shade(TRACK[0], 0.12)
+        lit[prog_idx(n)] = WHITE if n == 7 else shade(TRACK[0], 0.12)
     for c in range(8):
         if c < 4:
             lit[55 + c] = TRACK[0] if c == 0 else '#101010'
@@ -265,7 +270,7 @@ def fig_progs():
     lit[70] = '#181818'
     lit[19] = '#ffd000'
     lit[7] = shade('#ffd000', 0.12)
-    return device(lit, [(19, 1), (note_idx(7), 2), (80, 3), (52, 4), (66, 5), (81, 6), (7, 7)])
+    return device(lit, [(19, 1), (prog_idx(7), 2), (80, 3), (52, 4), (66, 5), (81, 6), (7, 7)])
 
 
 def fig_record():
@@ -605,6 +610,7 @@ section('MIDI Clock', f'''
 <h3>Sending clock</h3>
 <p>When the sequencer runs on its own tempo, it sends MIDI clock, start and stop to USB, MIDI Out and MIDI Out 2, so
 drum machines and arpeggiators can follow it.</p>
+{note("<b>Clock Out</b> can be switched off: open the <b>Setup</b> page and tap the second pad of the second row from the bottom, next to the count-in pad (bright green = on, the default; dim = off). With it off the sequencer sends no clock, start or stop, and an external clock it follows is not passed on either. It is remembered when you leave Setup.")}
 <h3>Internal or external clock</h3>
 <p>By default the sequencer runs on its own clock and ignores any clock, start or stop arriving on <b>MIDI In</b> or
 the USB MIDI port; {k('▷')} is <b>green</b>. Press {k('Shift')} + {k('▷')} to switch to following an external clock
@@ -648,7 +654,7 @@ column) to open the <b>Programs page</b>; it lights yellow. Tap it again to go b
 {figure(fig_progs(), 'Programs page, track 1: bank 5, program 8, on MIDI Out, channel 1')}
 {legend([
  ('Print to Clip.', 'Opens and closes the Programs page.'),
- ('Programs.', 'The bottom four rows are 32 programs, 1–8 on the bottom row; the chosen one is white. Tap it again for none (nothing is sent).'),
+ ('Programs.', 'The bottom four rows are 32 programs, read like text: program 1 top left, counting along each row and then down (25–32 on the bottom row). The chosen one is white. Tap it again for none (nothing is sent).'),
  ('▲ / ▼.', 'The next / previous 32 programs (1–32, 33–64, 65–96, 97–128); lit while there are more that way. Row 5, pads 5–8 show which 32 (and select them too).'),
  ('Output.', 'Row 5, pads 1–4: USB, MIDI Out, MIDI Out 2, both.'),
  ('Bank.', 'Row 6: bank 0–7, sent as bank select (CC 32) just before the program change. Tap the lit one again for no bank.'),
