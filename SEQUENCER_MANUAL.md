@@ -355,7 +355,7 @@ away.
 
 The **Projects** button is **green** when everything is saved and **amber** when there are unsaved changes.
 
-A project holds everything: all tracks, each with its 16 patterns and chain, channels, outputs, transpose, step rates, program changes, tempo,
+A project holds everything: all tracks, each with its 16 patterns and chain, channels, outputs, transpose, step rates, tempo,
 swing and the external-clock setting. The current project opens automatically at power-up.
 
 Only the steps in use are stored, so a project normally takes a few KB. Each project has room for about 2,500 used
@@ -364,36 +364,7 @@ fuller than that cannot be saved.
 
 ---
 
-## 10. Program changes (setting up your synths)
-
-A project can set up your synths when you select it: it sends a program change (and, if you want, a bank select) for
-each track, plus one more for the whole project. Tap **Print to Clip** (the bottom button of the right-hand column) to
-open the **Programs page**; it lights yellow. Tap it again to go back to the steps.
-
-| On the page | Sets |
-|---|---|
-| Bottom four rows | 32 programs, program 1 top left, counting along each row and then down (1–8 on the top row of the four, 25–32 on the bottom row); the chosen one is white. Tap it again for none (nothing is sent) |
-| ▲ / ▼ | The next / previous 32 programs (1–32, 33–64, 65–96, 97–128); lit while there are more that way |
-| Row 5, pads 1–4 | Output: USB, DIN 1, DIN 2, DIN 1+2 |
-| Row 5, pads 5–8 | Show which 32 programs are on the bottom rows (tap to jump there) |
-| Row 6 | Bank 0–7, sent as bank select (CC 32) just before the program change. Tap the lit one again for no bank |
-| Top two rows | MIDI channel 1–16 |
-| Track button | Edit that track's program (sent on the track's output and channel; changing them here changes the track's) |
-| **Device** (bottom row, 7th) | Edit the **project slot**: its own output and channel, sent before the tracks |
-
-Choosing a program or bank sends it straight away, so you can try sounds. When you select a project in the Projects
-grid, it sends the project slot first, then each track that has a program; an identical message is only sent once. Tap
-the current project again in the grid to send them again (for example after switching a synth on). The programs are
-saved with the project; projects saved before this version send nothing.
-
-**Example: Novation Nova performance.** Set the Nova's Global MIDI channel to one no Part uses (say 16) and its
-*Incoming program change* to Enabled. On the project slot choose that channel and bank 1 (Performance Bank A), then
-the performance number. Each Part can then get its own sound from a track on that Part's channel: bank 5 = Program
-Bank A, bank 6 = Program Bank B. Program 1 on the page is the Nova's number 000.
-
----
-
-## 11. Quick reference
+## 10. Quick reference
 
 | Control | Alone | With Shift | Held + … |
 |---|---|---|---|
@@ -411,10 +382,9 @@ Bank A, bank 6 = Program Bank B. Program 1 on the page is the Nova's number 000.
 | Mutation | shuffle the selected track's part | — | long press: back to the original |
 | Pattern Settings | open / close the Pattern Settings page (step pads = length, note row 1 = step rate) | — | — |
 | Probability | open / close the probability page (top 2 rows = 16 levels; tap a step, then a level) | — | — |
-| Print to Clip | open / close the Programs page (program changes sent when a project is selected) | — | — |
 | Patterns | open / close the pattern view (top rows = the selected track's 16 patterns: switch, chain, + Duplicate copy, + Clear clear) | pattern pads act on all tracks | same, closes when released |
 | Duplicate | — | — | + step = copy it, then + steps = paste |
-| Projects | save | — | top rows = 32 projects: switch (the current one: re-send its programs) |
+| Projects | save | — | top rows = 32 projects: switch |
 | Note | back to note mode (playback continues) | — | — |
 
 ---

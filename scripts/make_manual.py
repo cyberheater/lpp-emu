@@ -15,7 +15,7 @@ WHITE, DIM, OFF = '#ffffff', '#3a3a3a', '#262626'
 
 TOP = ['Shift', '◀', '▶', 'Session', 'Note', 'Chord', 'Custom', 'Sequencer', 'Projects']
 LEFT = {80: '▲', 70: '▼', 60: 'Clear', 50: 'Duplicate', 40: 'Quantise', 30: 'Fixed Length', 20: '▷', 10: '○'}
-RIGHT = {89: 'Patterns', 69: 'Pattern Settings', 49: 'Probability', 39: 'Mutation', 19: 'Print to Clip'}
+RIGHT = {89: 'Patterns', 69: 'Pattern Settings', 49: 'Probability', 39: 'Mutation'}
 BOTTOM = ['Record Arm', 'Mute', 'Solo', 'Volume', 'Pan', 'Sends', 'Device', 'Stop Clip']
 
 
@@ -245,32 +245,6 @@ def fig_projects():
         lit[idx] = WHITE if n == 0 else ('#505050' if n in (1, 2) else '#1c1c1c')
     lit[98] = WHITE
     return device(lit, [(98, 1), (81, 2), (82, 3), (84, 4)])
-
-
-def prog_idx(n):
-    # Programs page: program n (0-31) in reading order, program 1 top left of the bottom four rows.
-    return (4 - n // 8) * 10 + n % 8 + 1
-
-
-def fig_progs():
-    # Programs page, track 1: programs 1-32 shown, program 8 chosen (white), output MIDI Out, bank 5, channel 1.
-    lit = {}
-    for n in range(32):
-        lit[prog_idx(n)] = WHITE if n == 7 else shade(TRACK[0], 0.12)
-    for c in range(8):
-        if c < 4:
-            lit[55 + c] = TRACK[0] if c == 0 else '#101010'
-        lit[61 + c] = '#00e0ff' if c == 5 else '#002028'
-        lit[81 + c] = '#101010'
-        lit[71 + c] = '#101010'
-    for c, col in enumerate(['#ffffff', '#00ff60', '#00a0ff', '#00ffff']):
-        lit[51 + c] = col if c == 1 else shade(col, 0.15)
-    lit[81] = WHITE
-    lit[80] = '#ffd000'
-    lit[70] = '#181818'
-    lit[19] = '#ffd000'
-    lit[7] = shade('#ffd000', 0.12)
-    return device(lit, [(19, 1), (prog_idx(7), 2), (80, 3), (52, 4), (66, 5), (81, 6), (7, 7)])
 
 
 def fig_record():
@@ -643,38 +617,10 @@ section('Projects', f'''
 ])}
 <p>Switching saves the current project first. The {k('Projects')} button is <b>green</b> when everything is saved
 and <b>amber</b> when there are unsaved changes.</p>
-<p>A project holds everything: all tracks, each with its 16 patterns and chain, channels, outputs, transpose, step rates, program changes, tempo,
+<p>A project holds everything: all tracks, each with its 16 patterns and chain, channels, outputs, transpose, step rates, tempo,
 swing and the external clock setting. The current project opens automatically after power-up.</p>
 <p>Only the steps in use are stored. Each project has room for about 2,500 used steps; a project fuller than that
 cannot be saved.</p>
-''')
-
-section('Program Changes', f'''
-<p>A project can set up your synths when you select it: it sends a program change (and, if you want, a bank select)
-for each track, plus one more for the whole project. Tap {k('Print to Clip')} (the bottom button of the right-hand
-column) to open the <b>Programs page</b>; it lights yellow. Tap it again to go back to the steps.</p>
-{figure(fig_progs(), 'Programs page, track 1: bank 5, program 8, on MIDI Out, channel 1')}
-{legend([
- ('Print to Clip.', 'Opens and closes the Programs page.'),
- ('Programs.', 'The bottom four rows are 32 programs, read like text: program 1 top left, counting along each row and then down (25–32 on the bottom row). The chosen one is white. Tap it again for none (nothing is sent).'),
- ('▲ / ▼.', 'The next / previous 32 programs (1–32, 33–64, 65–96, 97–128); lit while there are more that way. Row 5, pads 5–8 show which 32 (and select them too).'),
- ('Output.', 'Row 5, pads 1–4: USB, MIDI Out, MIDI Out 2, both.'),
- ('Bank.', 'Row 6: bank 0–7, sent as bank select (CC 32) just before the program change. Tap the lit one again for no bank.'),
- ('MIDI channel.', 'The top two rows: channel 1–16.'),
- ('Device.', 'Bottom row, 7th button: edit the project slot instead of a track. Tap a track button to go back to the tracks.'),
-])}
-<p>The page edits the selected track. A track’s program is sent on that track’s output and channel (changing them
-here changes the track’s). The <b>project slot</b> has its own output and channel. Use it for a message that is not
-tied to one track, such as choosing a performance on a multitimbral synth, whose global channel no track uses.</p>
-<p>Choosing a program or bank sends it straight away, so you can try sounds. When you select a project in the
-Projects grid, it sends the project slot first, then each track that has a program; an identical message is only sent
-once. Tap the current project again in the grid to send them again (for example after switching a synth on). The
-programs are saved with the project; projects saved before this version send nothing.</p>
-<div class="keep"><h3>Example: Novation Nova performance</h3>
-<p>Set the Nova’s Global MIDI channel to one no Part uses (say 16) and its <i>Incoming program change</i> to Enabled.
-On the project slot choose that channel and bank 1 (Performance Bank A), then the performance number. Each Part can
-then get its own sound from a track on that Part’s channel: bank 5 = Program Bank A, bank 6 = Program Bank B.
-Program 1 on the page is the Nova’s number 000.</p></div>
 ''')
 
 section('Quick Reference', table(['Control', 'Tap', 'With Shift', 'Hold + …'], [
@@ -693,9 +639,8 @@ section('Quick Reference', table(['Control', 'Tap', 'With Shift', 'Hold + …'],
  ['Mutation', 'Shuffle the selected track’s part', '–', 'Long press: back to the original'],
  ['Pattern Settings', 'Open / close the Pattern Settings page (length, step rate)', '–', '–'],
  ['Probability', 'Open / close the probability page (16 levels; tap a step, then a level)', '–', '–'],
- ['Print to Clip', 'Open / close the Programs page (program changes sent when a project is selected)', '–', '–'],
  ['Patterns', 'Open / close the pattern view: the selected track’s patterns (switch, chain, copy, clear)', 'Pattern pads act on all tracks', 'Same; closes when released'],
- ['Projects', 'Save', '–', 'Top four rows = 32 projects: switch (the current one: re-send its programs)'],
+ ['Projects', 'Save', '–', 'Top four rows = 32 projects: switch'],
  ['Note', 'Note mode (playback continues)', '–', '–'],
 ], 'ref'))
 
