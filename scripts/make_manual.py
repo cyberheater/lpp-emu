@@ -15,7 +15,7 @@ WHITE, DIM, OFF = '#ffffff', '#3a3a3a', '#262626'
 
 TOP = ['Shift', '◀', '▶', 'Session', 'Note', 'Chord', 'Custom', 'Sequencer', 'Projects']
 LEFT = {80: '▲', 70: '▼', 60: 'Clear', 50: 'Duplicate', 40: 'Quantise', 30: 'Fixed Length', 20: '▷', 10: '○'}
-RIGHT = {89: 'Patterns', 69: 'Pattern Settings', 49: 'Probability', 39: 'Mutation', 19: 'Print to Clip'}
+RIGHT = {89: 'Patterns', 79: 'Steps', 69: 'Pattern Settings', 49: 'Probability', 39: 'Mutation', 19: 'Print to Clip'}
 BOTTOM = ['Record Arm', 'Mute', 'Solo', 'Volume', 'Pan', 'Sends', 'Device', 'Stop Clip']
 
 
@@ -271,6 +271,24 @@ def fig_progs():
     lit[19] = '#ffd000'
     lit[7] = shade('#ffd000', 0.12)
     return device(lit, [(19, 1), (prog_idx(7), 2), (80, 3), (52, 4), (66, 5), (81, 6), (7, 7)])
+
+
+def fig_arp():
+    # Arp page, track 1: latch on, arp on, up, 2 octaves, 1/16; C and E held (lit in the track colour).
+    lit = {}
+    lit[81] = '#ff8000'
+    for c in range(2, 8):
+        lit[80 + c] = OFF
+    lit[88] = '#40ff40'
+    for c in range(8):
+        lit[71 + c] = ('#00e0ff' if c == 0 else '#002830') if c < 5 else OFF
+        lit[61 + c] = ('#ffe000' if c == 1 else '#403800' if c < 1 else '#100e00') if c < 4 else OFF
+        on = '#a040ff' if c % 2 == 1 else '#20ff40'
+        lit[51 + c] = on if c == 4 else shade(on, 0.25 if c != 4 else 1)
+    for n in range(32):
+        lit[note_idx(n)] = TRACK[0] if n in (0, 4) else ('#303060' if n % 12 == 0 else '#141414' if n % 12 not in (1, 3, 6, 8, 10) else '#060606')
+    lit[79] = '#40ff40'
+    return device(lit, [(79, 1), (81, 2), (88, 3), (71, 4), (62, 5), (55, 6), (note_idx(4), 7)])
 
 
 def fig_record():
@@ -675,6 +693,28 @@ then get its own sound from a track on that Part’s channel: bank 5 = Program B
 Program 1 on the page is the Nova’s number 000.</p></div>
 ''')
 
+section('Arpeggiator', f'''
+<p>The arpeggiator plays the notes you hold on the <b>selected track</b> one after another, in time. It works on the
+note pads and on a keyboard connected to <b>MIDI In</b> or the USB MIDI port. Tap {k('Steps')} (right-hand column,
+2nd from the top) to open the <b>Arp page</b>; it lights green. Tap it again to go back to the steps. The note pads
+stay playable below the page.</p>
+{figure(fig_arp(), 'Arp page: latch on, arp on, up, 2 octaves, 1/16; two notes held')}
+{legend([
+ ('Steps.', 'Opens and closes the Arp page. Dim green while the arp is on.'),
+ ('Latch.', 'Top row, pad 1 (orange = on): notes keep playing after you let go. The next chord replaces them; keys added while others are held join in.'),
+ ('Arp on / off.', 'Top row, pad 8. While on, notes you play go to the arpeggiator instead of sounding directly.'),
+ ('Play order.', 'Row 2: up, down, up-down, random, as played.'),
+ ('Range.', 'Row 3: 1–4 octaves; the notes repeat an octave higher for each one.'),
+ ('Step time.', 'Row 4, slowest on the left: 1/4, 1/4T, 1/8, 1/8T, 1/16 (pad 5, the default), 1/16T, 1/32, 1/32T. Triplets are purple.'),
+ ('Notes.', 'The notes in the arp light in the track colour.'),
+])}
+<p>The arp follows the tempo (or the external clock). While the sequencer plays, its notes land on the sequencer’s
+beat; when it is stopped, the arp starts with the first key you press. Each note sounds for three quarters of a step at
+the velocity you played it. With recording armed, the arp’s notes are recorded into the selected track.</p>
+<p>Latch, play order, range and step time are remembered; the arp itself starts off after power-up.</p>
+{note("If a synth with MIDI Thru switched on sends the arp’s notes back into MIDI In, a held key of the same pitch can drop out. Use Latch, or switch the synth’s MIDI Thru off.")}
+''')
+
 section('Quick Reference', table(['Control', 'Tap', 'With Shift', 'Hold + …'], [
  ['Step pad', 'Toggle step', 'Set swing (steps 1–26)', 'Note pads = notes / chord; right column = velocity (+ Shift = probability); bottom row = gate'],
  ['Note pad', 'Choose and hear note', '–', '–'],
@@ -692,6 +732,7 @@ section('Quick Reference', table(['Control', 'Tap', 'With Shift', 'Hold + …'],
  ['Pattern Settings', 'Open / close the Pattern Settings page (length, step rate)', '–', '–'],
  ['Probability', 'Open / close the probability page (16 levels; tap a step, then a level)', '–', '–'],
  ['Print to Clip', 'Open / close the Programs page (program changes sent when a project is selected)', '–', '–'],
+ ['Steps', 'Open / close the Arp page (latch, on / off, play order, range, step time)', '–', '–'],
  ['Patterns', 'Open / close the pattern view: switch, chain, copy, clear', '–', 'Same; closes when released'],
  ['Projects', 'Save', '–', 'Top four rows = 32 projects: switch (the current one: re-send its programs)'],
  ['Note', 'Note mode (playback continues)', '–', '–'],

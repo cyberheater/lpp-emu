@@ -11,6 +11,7 @@ part on its own MIDI channel, sent to USB, DIN Out 1, DIN Out 2 or both DIN outs
 | Notes per step | up to 8 (chords) |
 | Per step | velocity, gate length, probability |
 | Global | tempo 30–300 BPM, swing 50–75 %, external MIDI clock sync |
+| Arpeggiator | for live notes: 5 play orders, 1–4 octaves, 1/4 to 1/32 including triplets, latch |
 | Projects | 32 in the Launchpad's flash (only the steps in use are stored) |
 
 The sequencer is part of a custom build of [CoreFW](https://github.com/anthonyhfm/launchpad-core-firmware) (GPL-3.0).
@@ -390,7 +391,35 @@ Bank A, bank 6 = Program Bank B. Program 1 on the page is the Nova's number 000.
 
 ---
 
-## 11. Quick reference
+## 11. Arpeggiator
+
+The arpeggiator plays the notes you hold on the **selected track** one after another, in time. It works on the note
+pads and on a keyboard connected to the USB MIDI port or DIN In. Tap **Steps** (right-hand column, 2nd from the top)
+to open the **Arp page**; it lights green. Tap it again to go back to the steps. The note pads stay playable below the
+page, so you can try settings while you play.
+
+| On the page | Sets |
+|---|---|
+| Top row, pad 1 | **Latch** (orange = on): the notes keep playing after you let go. The next chord you play replaces them; keys added while others are held join in |
+| Top row, pad 8 | **Arp on / off** (bright green = on). While it is on, notes you play go to the arpeggiator instead of sounding directly |
+| Row 2, pads 1–5 | Play order: up, down, up-down, random, as played |
+| Row 3, pads 1–4 | Range: 1, 2, 3 or 4 octaves (the notes repeat an octave higher for each one) |
+| Row 4 | Step time, slowest on the left: 1/4, 1/4T, 1/8, 1/8T, **1/16** (pad 5, the default), 1/16T, 1/32, 1/32T. Triplets are purple |
+
+The arp follows the tempo (or the external clock). While the sequencer plays, its notes land on the sequencer's beat;
+when it is stopped, the arp starts with the first key you press. Each note sounds for three quarters of a step at the
+velocity you played it. With recording armed, the arp's notes are recorded into the selected track (step recording
+too, one arp note per step). The **Steps** button stays dim green while the arp is on.
+
+Latch, play order, range and step time are remembered (with the Setup settings); the arp itself starts off after
+power-up.
+
+If a synth with MIDI Thru switched on sends the arp's notes back into DIN In, a held key of the same pitch can drop
+out. Use Latch, or switch the synth's MIDI Thru off.
+
+---
+
+## 12. Quick reference
 
 | Control | Alone | With Shift | Held + … |
 |---|---|---|---|
@@ -409,6 +438,7 @@ Bank A, bank 6 = Program Bank B. Program 1 on the page is the Nova's number 000.
 | Pattern Settings | open / close the Pattern Settings page (step pads = length, note row 1 = step rate) | — | — |
 | Probability | open / close the probability page (top 2 rows = 16 levels; tap a step, then a level) | — | — |
 | Print to Clip | open / close the Programs page (program changes sent when a project is selected) | — | — |
+| Steps | open / close the Arp page (latch, on / off, play order, range, step time) | — | — |
 | Patterns | open / close the pattern view (top rows = 16 patterns: switch, chain, + Duplicate copy, + Clear clear) | — | same, closes when released |
 | Duplicate | — | — | + step = copy it, then + steps = paste |
 | Projects | save | — | top rows = 32 projects: switch (the current one: re-send its programs) |
