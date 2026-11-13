@@ -335,7 +335,7 @@ outputs (or to a computer over USB) and program up to eight parts at once.</p>
 <h3>Key features</h3>
 <ul class="features">
 <li><b>8 tracks</b>, each with its own MIDI channel, output (USB, DIN 1, DIN 2 or both DIN outs), note range, transpose and step rate (1/32 to a whole bar, including triplets)</li>
-<li><b>16 patterns</b> per project, each holding all 8 tracks, of up to <b>64 steps</b> per track; switched and chained as a song</li>
+<li><b>16 patterns per track</b> (128 per project) of up to <b>64 steps</b>; each track switches and chains its own</li>
 <li><b>Chords</b> – up to 8 notes on every step</li>
 <li>Per-step <b>velocity</b>, <b>gate length</b> and <b>probability</b> (with a probability page)</li>
 <li><b>Mutate</b>: shuffle a track’s part, long press to get the original back</li>
@@ -513,10 +513,11 @@ Solo mode, tracks silenced by mute or solo show darker. Mutes and solos are save
 ''')
 
 section('Patterns and Chains', f'''
-<p>A project has <b>16 patterns</b>. A pattern holds <b>all 8 tracks</b>, and every track is always on the same
-pattern: switching pattern switches the whole song.</p>
-<p>Tap {k('Patterns')} to open the pattern view: the button lights white and the top two grid rows show the 16
-patterns (1–8 on the top row, 9–16 below). The view <b>stays open</b> until you tap {k('Patterns')} again, so both
+<p>Each of the 8 tracks has its own <b>16 patterns</b> (128 per project). A track plays and chains its own patterns,
+so the drums can loop pattern 1 while the bass runs a chain of 1–4.</p>
+<p>Tap {k('Patterns')} to open the pattern view: the button lights white and the top two grid rows show the
+<b>selected track’s</b> 16 patterns (1–8 on the top row, 9–16 below). Tap a track button to see and change another
+track’s patterns. The view <b>stays open</b> until you tap {k('Patterns')} again, so both
 hands are free to pick and chain patterns. You can also hold {k('Patterns')}, tap a pattern and let go: the view then
 closes by itself.</p>
 {figure(fig_patterns(), 'Pattern view: pattern 1 playing, chain 1–4, pattern 7 queued')}
@@ -528,12 +529,13 @@ closes by itself.</p>
 ])}
 <div class="keep">
 {table(['In the pattern view', 'Result'], [
- ['Tap a pattern', 'Switch to it – at the end of the playing pattern, or at once when stopped'],
- ['Hold a pattern + tap another', '<b>Chain</b> the range: 1–4 plays 1, 2, 3, 4, 1, …'],
- [f'Hold {k("Duplicate")} + tap a pattern', 'Copy the current pattern (all tracks) there'],
- [f'Hold {k("Clear")} + tap a pattern', 'Clear that pattern on all tracks (its length stays)'],
+ ['Tap a pattern', 'Switch the selected track to it – at the end of its playing pattern, or at once when stopped'],
+ ['Hold a pattern + tap another', '<b>Chain</b> the range on the selected track: 1–4 plays 1, 2, 3, 4, 1, …'],
+ [f'Hold {k("Duplicate")} + tap a pattern', 'Copy the track’s current pattern there'],
+ [f'Hold {k("Clear")} + tap a pattern', 'Clear that pattern of the track (its length stays)'],
+ [f'Hold {k("Shift")} + any of the above', 'Do it on <b>all 8 tracks</b> at once: Shift + tap 2 switches the whole song to pattern 2'],
 ], 'compact')}
-{note("Each track’s part of a pattern keeps its own length, so tracks can still run polymetric lengths. A new, empty pattern takes the lengths of the current one.")}
+{note("Every pattern keeps its own length and rate, so tracks can run polymetric lengths. A new, empty pattern takes the length and rate of the track’s current one.")}
 </div>
 ''')
 
@@ -641,7 +643,7 @@ section('Projects', f'''
 ])}
 <p>Switching saves the current project first. The {k('Projects')} button is <b>green</b> when everything is saved
 and <b>amber</b> when there are unsaved changes.</p>
-<p>A project holds everything: all tracks, the 16 patterns, chains, channels, outputs, transpose, step rates, program changes, tempo,
+<p>A project holds everything: all tracks, each with its 16 patterns and chain, channels, outputs, transpose, step rates, program changes, tempo,
 swing and the external clock setting. The current project opens automatically after power-up.</p>
 <p>Only the steps in use are stored. Each project has room for about 2,500 used steps; a project fuller than that
 cannot be saved.</p>
@@ -692,7 +694,7 @@ section('Quick Reference', table(['Control', 'Tap', 'With Shift', 'Hold + …'],
  ['Pattern Settings', 'Open / close the Pattern Settings page (length, step rate)', '–', '–'],
  ['Probability', 'Open / close the probability page (16 levels; tap a step, then a level)', '–', '–'],
  ['Print to Clip', 'Open / close the Programs page (program changes sent when a project is selected)', '–', '–'],
- ['Patterns', 'Open / close the pattern view: switch, chain, copy, clear', '–', 'Same; closes when released'],
+ ['Patterns', 'Open / close the pattern view: the selected track’s patterns (switch, chain, copy, clear)', 'Pattern pads act on all tracks', 'Same; closes when released'],
  ['Projects', 'Save', '–', 'Top four rows = 32 projects: switch (the current one: re-send its programs)'],
  ['Note', 'Note mode (playback continues)', '–', '–'],
 ], 'ref'))
