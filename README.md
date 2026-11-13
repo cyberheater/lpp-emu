@@ -226,10 +226,6 @@ background (Sequencer button green in note mode).
   remove notes), velocity (right column while holding a step), gate in eighths (bottom row), probability
   (Shift + right column, or the Probability page: tap Probability (49); the top two rows are 16 levels, 100 % ... 6 %,
   rows 3-6 the steps: tap a step to select it, then a level; ◀ / ▶ = steps 1-32 / 33-64). Swing 50-75 % (Shift + step pads), timed to the millisecond.
-- **Program changes**: Print to Clip (19) latches the Programs page: per track a program (1-128: the bottom four
-  rows show 32, ▲ / ▼ the next / previous 32) and optional bank (CC 32, 0-7), plus a project slot with its own output and channel (Device (7) selects it; e.g. a synth's global
-  channel for a performance). Sent when the project is selected (project slot first, duplicates once; tapping the
-  current project again re-sends) and when chosen on the page. Saved in a "PG" block after the rates.
 - **Mutate**: tap Mutation (39) to shuffle the selected track's part of the current pattern (about a quarter of the
   lit steps move or swap notes; button purple); long press (0.6 s) restores the part as it was before the first tap.
   The original is kept in RAM per track (not saved).

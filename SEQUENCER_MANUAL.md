@@ -6,7 +6,7 @@ part on its own MIDI channel, sent to USB, DIN Out 1, DIN Out 2 or both DIN outs
 | | |
 |---|---|
 | Tracks | 8, each with its own MIDI channel, output, octave range, transpose and step rate |
-| Patterns | 16 per project, shared by all 8 tracks, can be chained |
+| Patterns | 16 per track, each track plays and chains its own |
 | Steps | up to 64 per pattern, shown 32 at a time |
 | Notes per step | up to 8 (chords) |
 | Per step | velocity, gate length, probability |
@@ -210,10 +210,11 @@ mode, tracks silenced by mute or solo show darker. Mutes and solos are saved wit
 
 ## 4. Patterns and chaining
 
-A project has 16 patterns. A pattern holds **all 8 tracks**, and every track is always on the same pattern: switching
-pattern switches the whole song. Tap **Patterns** (top of the right-hand column) to open the pattern view: the
-button lights white, the top two grid rows show the 16 patterns (1–8 on the top row, 9–16 on the row below) and the
-rest of the grid stays dark. The view **stays open** until you tap Patterns again, so you can pick and chain patterns
+Each of the 8 tracks has its own **16 patterns** (8 × 16 = 128 per project). A track plays and chains its own
+patterns, so the drums can loop pattern 1 while the bass runs a chain of 1–4. Tap **Patterns** (top of the right-hand
+column) to open the pattern view: the button lights white, the top two grid rows show the **selected track's** 16
+patterns (1–8 on the top row, 9–16 on the row below) and the rest of the grid stays dark. Tap a track button to see
+and change another track's patterns. The view **stays open** until you tap Patterns again, so you can pick and chain patterns
 with both hands free. You can also hold Patterns, tap a pattern and let go: the view then closes by itself.
 
 | Colour | Meaning |
@@ -225,12 +226,14 @@ with both hands free. You can also hold Patterns, tap a pattern and let go: the 
 
 | In the pattern view | Result |
 |---|---|
-| Tap a pattern | Switch to it — at the end of the playing pattern, or at once when stopped |
-| Hold one pattern + tap another | **Chain** the range (e.g. 1–4 plays 1, 2, 3, 4, 1, …) |
-| Hold **Duplicate** + tap a pattern | Copy the current pattern (all tracks) there |
-| Hold **Clear** + tap a pattern | Clear that pattern on all tracks (its length stays) |
+| Tap a pattern | Switch the selected track to it — at the end of its playing pattern, or at once when stopped |
+| Hold one pattern + tap another | **Chain** the range on the selected track (e.g. 1–4 plays 1, 2, 3, 4, 1, …) |
+| Hold **Duplicate** + tap a pattern | Copy the track's current pattern there |
+| Hold **Clear** + tap a pattern | Clear that pattern of the track (its length stays) |
+| Hold **Shift** + any of the above | Do it on **all 8 tracks** at once (e.g. Shift + tap 2 switches the whole song to pattern 2) |
 
-Each track's part of a pattern keeps its own length, so tracks can still run polymetric lengths.
+Every pattern keeps its own length and rate, so tracks can run polymetric lengths. A new, empty pattern takes the
+length and rate of the track's current one.
 
 ---
 
@@ -352,7 +355,7 @@ away.
 
 The **Projects** button is **green** when everything is saved and **amber** when there are unsaved changes.
 
-A project holds everything: all tracks, 16 patterns, chains, channels, outputs, transpose, step rates, program changes, tempo,
+A project holds everything: all tracks, each with its 16 patterns and chain, channels, outputs, transpose, step rates, tempo,
 swing and the external-clock setting. The current project opens automatically at power-up.
 
 Only the steps in use are stored, so a project normally takes a few KB. Each project has room for about 2,500 used
@@ -361,36 +364,7 @@ fuller than that cannot be saved.
 
 ---
 
-## 10. Program changes (setting up your synths)
-
-A project can set up your synths when you select it: it sends a program change (and, if you want, a bank select) for
-each track, plus one more for the whole project. Tap **Print to Clip** (the bottom button of the right-hand column) to
-open the **Programs page**; it lights yellow. Tap it again to go back to the steps.
-
-| On the page | Sets |
-|---|---|
-| Bottom four rows | 32 programs, program 1 top left, counting along each row and then down (1–8 on the top row of the four, 25–32 on the bottom row); the chosen one is white. Tap it again for none (nothing is sent) |
-| ▲ / ▼ | The next / previous 32 programs (1–32, 33–64, 65–96, 97–128); lit while there are more that way |
-| Row 5, pads 1–4 | Output: USB, DIN 1, DIN 2, DIN 1+2 |
-| Row 5, pads 5–8 | Show which 32 programs are on the bottom rows (tap to jump there) |
-| Row 6 | Bank 0–7, sent as bank select (CC 32) just before the program change. Tap the lit one again for no bank |
-| Top two rows | MIDI channel 1–16 |
-| Track button | Edit that track's program (sent on the track's output and channel; changing them here changes the track's) |
-| **Device** (bottom row, 7th) | Edit the **project slot**: its own output and channel, sent before the tracks |
-
-Choosing a program or bank sends it straight away, so you can try sounds. When you select a project in the Projects
-grid, it sends the project slot first, then each track that has a program; an identical message is only sent once. Tap
-the current project again in the grid to send them again (for example after switching a synth on). The programs are
-saved with the project; projects saved before this version send nothing.
-
-**Example: Novation Nova performance.** Set the Nova's Global MIDI channel to one no Part uses (say 16) and its
-*Incoming program change* to Enabled. On the project slot choose that channel and bank 1 (Performance Bank A), then
-the performance number. Each Part can then get its own sound from a track on that Part's channel: bank 5 = Program
-Bank A, bank 6 = Program Bank B. Program 1 on the page is the Nova's number 000.
-
----
-
-## 11. Quick reference
+## 10. Quick reference
 
 | Control | Alone | With Shift | Held + … |
 |---|---|---|---|
@@ -408,10 +382,9 @@ Bank A, bank 6 = Program Bank B. Program 1 on the page is the Nova's number 000.
 | Mutation | shuffle the selected track's part | — | long press: back to the original |
 | Pattern Settings | open / close the Pattern Settings page (step pads = length, note row 1 = step rate) | — | — |
 | Probability | open / close the probability page (top 2 rows = 16 levels; tap a step, then a level) | — | — |
-| Print to Clip | open / close the Programs page (program changes sent when a project is selected) | — | — |
-| Patterns | open / close the pattern view (top rows = 16 patterns: switch, chain, + Duplicate copy, + Clear clear) | — | same, closes when released |
+| Patterns | open / close the pattern view (top rows = the selected track's 16 patterns: switch, chain, + Duplicate copy, + Clear clear) | pattern pads act on all tracks | same, closes when released |
 | Duplicate | — | — | + step = copy it, then + steps = paste |
-| Projects | save | — | top rows = 32 projects: switch (the current one: re-send its programs) |
+| Projects | save | — | top rows = 32 projects: switch |
 | Note | back to note mode (playback continues) | — | — |
 
 ---
