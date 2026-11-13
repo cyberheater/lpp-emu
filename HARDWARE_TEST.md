@@ -57,4 +57,4 @@ Components' firmware updater.
 ## Known gaps
 - The stock flash layout is unknown (see "Before flashing").
 - DIN Out 1 (UART4) and Out 2 (UART7, PA7 low) both confirmed working on hardware.
-- MIDI clock output runs whenever the sequencer plays. There's no setting to turn it off yet.
+- MIDI clock output can now be switched off: Setup page, second pad of the second row from the bottom (Clock Out, green = on).

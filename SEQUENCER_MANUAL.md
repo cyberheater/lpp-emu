@@ -313,6 +313,11 @@ double-record.
 
 **Sending**: when playing on its own clock, the sequencer sends MIDI clock, start and stop to USB and both DIN outs.
 
+**Clock Out**: to stop the sequencer sending clock, start and stop (for example when a synth or DAW should keep its own
+tempo), open the **Setup** page and tap the **second pad of the second row from the bottom**, next to the count-in pad:
+bright green = on (default), dim = off. With it off the sequencer sends no clock at all, and an external clock it
+follows is not passed on to the DIN outs either. It is remembered when you leave Setup.
+
 **Internal clock (default)**: the sequencer runs on its own tempo and ignores any clock, start or stop arriving on
 the USB MIDI port or DIN In. Play is **green**.
 
@@ -364,7 +369,7 @@ open the **Programs page**; it lights yellow. Tap it again to go back to the ste
 
 | On the page | Sets |
 |---|---|
-| Bottom four rows | 32 programs, 1–8 on the bottom row; the chosen one is white. Tap it again for none (nothing is sent) |
+| Bottom four rows | 32 programs, program 1 top left, counting along each row and then down (1–8 on the top row of the four, 25–32 on the bottom row); the chosen one is white. Tap it again for none (nothing is sent) |
 | ▲ / ▼ | The next / previous 32 programs (1–32, 33–64, 65–96, 97–128); lit while there are more that way |
 | Row 5, pads 1–4 | Output: USB, DIN 1, DIN 2, DIN 1+2 |
 | Row 5, pads 5–8 | Show which 32 programs are on the bottom rows (tap to jump there) |
